@@ -1,25 +1,30 @@
+// src/index.js
+
 import express from 'express';
 import cors from 'cors';
-import fs from 'fs';
+import { PORT } from './config/env.config.js'; 
+import { connectDB } from './config/db.config.js';
 
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-app.use(cors());
-app.use(express.json());
-
-//Ruta de prueba
-app.get('/api/evaluaciones', (req, res) => {
+async function main() {
     try {
-        const dbRaw = fs.readFileSync('db.json');
-        const db = JSON.parse(dbRaw);
-        res.status(200).json(db.evaluaciones);
+        await connectDB();
+
+        const app = express();
+
+        app.use(cors());
+        app.use(express.json());
+
+        app.get('/', (req, res) => {
+            res.send('API de Prácticas ISW funcionando!');
+        });
+        
+        app.listen(PORT, () => {
+            console.log(`Servidor corriendo en http://localhost:${PORT}`);
+        });
+
+    } catch (error) {
+        console.error("Error al iniciar el servidor:", error);
+        process.exit(1); // Salir si la conexión a la DB falla
     }
-    catch (error) {
-        console.error(error)
-        res.status(500).json({ message: "Error al leer la base de datos" });
-    }
-})
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+}
+main();
