@@ -11,41 +11,25 @@ const isInt = (value) => {
            !isNaN(parseInt(value, 10));
 };
 
-// src/controllers/ofertas.controller.js (Función crearOferta corregida y validada)
-
-// ... Tus imports están correctos: OfertasService, handleSuccess, handleErrorClient, crearOfertaValidation
-
 export const crearOferta = async (req, res) => {
     try {
         const data = req.body;
-        
-        // -------------------------------------------------------------
-        // 1. VALIDACIÓN DEL CUERPO (REQ.BODY) - Requisito funcional clave
         const { error } = crearOfertaValidation.validate(req.body, { abortEarly: false }); 
 
         if (error) {
-            // Si falla la validación, usa el handler de errores para HTTP 400 Bad Request
             const errorMessage = error.details.map(detail => detail.message).join('; ');
             return handleErrorClient(res, 400, "Error de validación en la solicitud.", errorMessage);
         }
-        // -------------------------------------------------------------
         
-        // Si la validación pasa, llama al servicio
         const nuevaOferta = await service.crearOferta(data);
 
-        // 2. Respuesta de ÉXITO (201 Created) usando el Handler de tu compañero
         handleSuccess(res, 201, "Oferta de práctica publicada con éxito", nuevaOferta);
 
     } catch (error) {
-        // 3. Respuesta de ERROR (500 Internal Server Error) usando el Handler de tu compañero
         console.error("Error en el controlador al crear la oferta:", error);
-        // Usamos handleErrorClient (asumo que tu compañero usa este handler para el 500 también)
         handleErrorClient(res, 500, "Error interno del servidor al publicar la oferta.", error.message);
     }
 };
-
-// ... El resto de tu código (obtenerOferta, actualizarOferta, eliminarOferta) sigue siendo válido
-
 export const obtenerOferta = async (req, res) => {
     try {
         const { id } = req.params; // Captura el ID 
