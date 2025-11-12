@@ -1,4 +1,4 @@
-// src/services/user.service.js
+
 import { AppDataSource } from "../config/db.config.js";
 import { User } from "../entities/user.entity.js";
 import bcrypt from "bcrypt";

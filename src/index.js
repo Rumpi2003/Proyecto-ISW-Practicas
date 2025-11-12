@@ -1,63 +1,33 @@
-// src/index.js
-import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import { PORT } from "./config/env.config.js";     // importa config
-import { connectDB } from "./config/db.config.js";     // importa config
-import { routerApi } from "./routes/index.routes.js"; // importa el enrutador
+import { connectDB } from "./config/ConfigDb.js";
+import { PORT } from "./config/ConfigEnv.js";
 
-import { AppDataSource } from "./config/db.config.js"; // para acceder al repositorio
-import { User } from "./entities/user.entity.js"; // es un User
-import bcrypt from "bcrypt"; // para encriptar la contraseña
+// Importar rutas
+import authRoutes from "./routes/auth.routes.js";
+import bitacorasRoutes from "./routes/bitacoras.routes.js";
+import informesRoutes from "./routes/informes.routes.js";
+import profileRoutes from "./routes/profile.routes.js";
 
-async function seedAdmin() {
-  try {
-    const userRepo = AppDataSource.getRepository(User);
-    const adminEmail = "admin@ubb";
+const app = express();
 
-    //revisa si hay admin
-    const admin = await userRepo.findOneBy({ email: adminEmail });
+// Middlewares
+app.use(cors());
+app.use(express.json());
 
-    if (!admin) {
-      //crear si no
-      console.log("Admin no encontrado, creando uno nuevo...");
-      const hashedPassword = await bcrypt.hash("admin123", 10); // contraseña 'admin123'
-      
-      const newAdmin = userRepo.create({
-        email: adminEmail,
-        password: hashedPassword,
-        rol: "admin",
-      });
+// Conectar a la base de datos
+await connectDB();
 
-      await userRepo.save(newAdmin);
-      console.log("Admin 'admin@ubb' creado exitosamente.");
-    }
-  } catch (error) {
-    console.error("Error al sembrar el admin:", error);
-  }
-}
+// Rutas
+app.use("/api/auth", authRoutes);
+app.use("/api/bitacoras", bitacorasRoutes);
+app.use("/api/informes", informesRoutes);
+app.use("/api/profile", profileRoutes);
 
-async function main() {
-    try {
-        await connectDB();
+// Ruta de prueba
+app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
-        await seedAdmin(); // asegura que hay un admin
-
-        const app = express();
-
-        app.use(cors());
-        app.use(express.json());
-
-        routerApi(app); //registra rutas
-        
-        //inicia server
-        app.listen(PORT, () => {
-            console.log(`Servidor corriendo en http://localhost:${PORT}`);
-        });
-
-    } catch (error) {
-        console.error("Error al iniciar el servidor:", error);
-        process.exit(1); // Salir si la conexión a la DB falla
-    }
-}
-main();
+// Iniciar el servidor
+app.listen(parseInt(PORT), () => {
+  console.log(`API http://localhost:${PORT}`);
+});

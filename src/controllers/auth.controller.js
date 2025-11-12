@@ -1,38 +1,53 @@
-import { loginUser } from "../services/auth.service.js";
-import { createUser } from "../services/user.service.js";
-import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
+import * as authService from "../services/auth.service.js";
 
 export async function login(req, res) {
   try {
     const { email, password } = req.body;
-    
+
     if (!email || !password) {
-      return handleErrorClient(res, 400, "Email y contraseña son requeridos");
+      return res.status(400).json({
+        success: false,
+        message: "Email y contraseña son requeridos"
+      });
     }
-    
-    const data = await loginUser(email, password);
-    handleSuccess(res, 200, "Login exitoso", data);
+
+    const data = await authService.loginUser(email, password);
+
+    res.status(200).json({
+      success: true,
+      message: "Login exitoso",
+      data: data
+    });
   } catch (error) {
-    handleErrorClient(res, 401, error.message);
+    res.status(401).json({
+      success: false,
+      message: error.message
+    });
   }
 }
 
 export async function register(req, res) {
   try {
-    const data = req.body;
-    
-    if (!data.email || !data.password) {
-      return handleErrorClient(res, 400, "Email y contraseña son requeridos");
+    const { email, password, nombre } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email y contraseña son requeridos"
+      });
     }
-    
-    const newUser = await createUser(data);
-    delete newUser.password; // Nunca devolver la contraseña
-    handleSuccess(res, 201, "Usuario registrado exitosamente", newUser);
+
+    const user = await authService.registerUser(email, password, nombre);
+
+    res.status(201).json({
+      success: true,
+      message: "Usuario registrado exitosamente",
+      data: user
+    });
   } catch (error) {
-    if (error.code === '23505') { // Código de error de PostgreSQL para violación de unique constraint
-      handleErrorClient(res, 409, "El email ya está registrado");
-    } else {
-      handleErrorServer(res, 500, "Error interno del servidor", error.message);
-    }
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
   }
 }
