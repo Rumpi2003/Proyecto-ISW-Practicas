@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "type": "module",
-"scripts": {
+  "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/index.js",
     "dev": "nodemon src/index.js"
@@ -21,9 +21,11 @@
   },
   "homepage": "https://github.com/Cristina948/practicas-isw#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "pg": "^8.16.3",
     "typeorm": "^0.3.27"
   },
