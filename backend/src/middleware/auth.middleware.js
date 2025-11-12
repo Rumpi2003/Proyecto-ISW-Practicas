@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import path from "path";
-// Resuelve la ruta para que apunte a la carpeta 'backend/'
+//apunte a la carpeta 'backend/'
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 import "dotenv/config";
 import jwt from "jsonwebtoken";
