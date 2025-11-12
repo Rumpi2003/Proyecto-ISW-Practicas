@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 
 const Error404 = () => {  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-700 via-blue-500 to-sky-400 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl p-12 md:p-16 text-center max-w-2xl transform transition-all hover:scale-105">
         <h1 className="text-9xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 mb-4">
           404
