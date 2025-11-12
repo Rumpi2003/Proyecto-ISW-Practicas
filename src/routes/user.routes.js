@@ -1,6 +1,6 @@
 // src/routes/user.routes.js
 import { Router } from "express";
-import { adminCreateUser } from "../controllers/user.controller.js";
+import { adminCreateUser, adminDeleteUser } from "../controllers/user.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { checkRole } from "../middleware/checkRole.middleware.js";
 
@@ -13,7 +13,13 @@ router.post(
   adminCreateUser
 );
 
+router.delete(
+  "/:id",
+  authMiddleware,
+  checkRole(['admin']), // <-- 2. Solo el rol 'admin' puede hacer esto
+  adminDeleteUser
+);
 // ms rutas de gestión de usuarios
-// router.get("/", authMiddleware, checkRole(['admin']), adminGetAllUsers);
+
 
 export default router;

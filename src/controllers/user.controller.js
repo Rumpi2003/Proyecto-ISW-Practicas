@@ -1,5 +1,5 @@
 // src/controllers/user.controller.js
-import { createUser, findUserByEmail } from "../services/user.service.js";
+import { createUser, findUserByEmail, deleteUserAccount } from "../services/user.service.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
 
 export async function adminCreateUser(req, res) {
@@ -26,6 +26,26 @@ export async function adminCreateUser(req, res) {
       handleErrorClient(res, 409, "El email ya está registrado");
     } else {
       handleErrorServer(res, 500, "Error al crear usuario", error.message);
+    }
+  }
+}
+
+export async function adminDeleteUser(req, res) {
+  try {
+    const { id } = req.params; // id del usuario a borrar
+
+    if (!id || isNaN(id)) {
+      return handleErrorClient(res, 400, "ID de usuario inválido");
+    }
+
+    await deleteUserAccount(id);
+    handleSuccess(res, 200, "Usuario eliminado exitosamente");
+
+  } catch (error) {
+    if (error.message === "Usuario no encontrado") {
+      handleErrorClient(res, 404, error.message);
+    } else {
+      handleErrorServer(res, 500, "Error al eliminar usuario", error.message);
     }
   }
 }

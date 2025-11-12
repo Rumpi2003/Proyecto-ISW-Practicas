@@ -1,3 +1,4 @@
+import "dotenv/config";
 import jwt from "jsonwebtoken";
 import { handleErrorClient } from "../handlers/responseHandlers.js";
 
