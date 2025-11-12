@@ -52,5 +52,18 @@ export class OfertasService {
         // Eliminar la oferta
         await repository.delete(id);
     }
+
+     //Obtiene una lista de todas las ofertas 
+    async listarOfertas() {
+        try {
+            const ofertas = await repository.find(); 
+            return ofertas;
+        } catch (error) {
+            console.error("Error en el servicio al listar ofertas:", error);
+            throw new Error('Fallo al listar las ofertas de práctica.');
+        }
+    }
 }
+
+
 

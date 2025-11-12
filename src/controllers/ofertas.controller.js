@@ -100,3 +100,17 @@ export const eliminarOferta = async (req, res) => {
         res.status(500).json({ message: "Error al eliminar la oferta." });
     }
 };
+
+export const listarOfertas = async (req, res) => {
+    try {
+        const ofertas = await service.listarOfertas(); 
+
+        // Respuesta exitosa
+        handleSuccess(res, 200, "Listado de ofertas obtenido con éxito", ofertas);
+
+    } catch (error) {
+        // Manejo de errores 500 
+        console.error("Error en el controlador al listar ofertas:", error);
+        handleErrorClient(res, 500, "Error interno del servidor al obtener listado.", error.message);
+    }
+};
