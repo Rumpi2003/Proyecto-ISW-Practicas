@@ -34,7 +34,7 @@ export class SolicitudController {
   //actualoizar estado de la solicitud
   async updateEstado(req, res) {
     try {
-      const { id } = req.params;
+      const { idSolicitud } = req.params;
       const { estado, comentarios } = req.body;
 
       if (!id || isNaN(id)) {
@@ -44,7 +44,7 @@ export class SolicitudController {
         return handleErrorClient(res, 400, "El nuevo 'estado' es requerido");
       }
 
-      const solicitudActualizada = await updateSolicitudEstado(id, estado, comentarios);
+      const solicitudActualizada = await updateSolicitudEstado(idSolicitud, estado, comentarios);
       handleSuccess(res, 200, "Solicitud actualizada", solicitudActualizada);
     } catch (error) {
       if (error.message === "Solicitud no encontrada" || error.message === "Estado no válido") {

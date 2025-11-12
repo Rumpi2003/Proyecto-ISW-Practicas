@@ -12,6 +12,6 @@ router.post("/", controller.create);
 router.get("/", controller.getAll);
 
 // PUT /api/solicitudes/:id -> Actualizar estado (aprobada/rechazada)
-router.put("/:id", controller.updateEstado);
+router.put("/:idSolicitud", controller.updateEstado);
 
 export default router;
