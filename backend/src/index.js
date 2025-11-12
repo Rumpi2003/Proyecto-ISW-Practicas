@@ -1,5 +1,8 @@
 // src/index.js
-import "dotenv/config";
+import dotenv from "dotenv";
+import path from "path";
+//apunte a la carpeta 'backend/'
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 import express from "express";
 import cors from "cors";
 import { PORT } from "./config/env.config.js";     // importa config
