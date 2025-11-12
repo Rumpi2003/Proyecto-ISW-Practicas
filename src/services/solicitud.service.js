@@ -25,7 +25,7 @@ export const findSolicitudes = async () => {
 //actualizar estado de la solicitud (para el encargado)
 //id suponemos que sera la del encargado
 export const updateSolicitudEstado = async (idSolicitud, nuevoEstado, comentarios) => {
-  const solicitud = await solicitudRepo.findOneBy({ id: parseInt(id) });
+  const solicitud = await solicitudRepo.findOneBy({ id: parseInt(idSolicitud) });
   if (!solicitud) {
     throw new Error("Solicitud no encontrada");
   }
