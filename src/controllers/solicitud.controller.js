@@ -1,5 +1,5 @@
 // src/controllers/solicitud.controller.js
-import { createSolicitud, findSolicitudes, updateSolicitudEstado } from "../services/solicitud.service.js";
+import { createSolicitud, findSolicitudes, updateSolicitudEstado, deleteSolicitud } from "../services/solicitud.service.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
 
 //cuando se crea solicitud
@@ -57,6 +57,26 @@ export class SolicitudController {
         handleErrorClient(res, 404, error.message);
       } else {
         handleErrorServer(res, 500, "Error al actualizar la solicitud", error.message);
+      }
+    }
+  }
+
+  async delete(req, res) {
+    try {
+      const { idSolicitud } = req.params;
+
+      if (!idSolicitud || isNaN(idSolicitud)) {
+        return handleErrorClient(res, 400, "ID de solicitud inválido");
+      }
+
+      await deleteSolicitud(idSolicitud);
+      handleSuccess(res, 200, "Solicitud eliminada exitosamente");
+
+    } catch (error) {
+      if (error.message === "Solicitud no encontrada") {
+        handleErrorClient(res, 404, error.message);
+      } else {
+        handleErrorServer(res, 500, "Error al eliminar la solicitud", error.message);
       }
     }
   }

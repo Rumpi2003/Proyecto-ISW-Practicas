@@ -30,4 +30,24 @@ export async function adminCreateUser(req, res) {
   }
 }
 
+export async function adminDeleteUser(req, res) {
+  try {
+    const { id } = req.params; // id del usuario a borrar
+
+    if (!id || isNaN(id)) {
+      return handleErrorClient(res, 400, "ID de usuario inválido");
+    }
+
+    await deleteUserAccount(id);
+    handleSuccess(res, 200, "Usuario eliminado exitosamente");
+
+  } catch (error) {
+    if (error.message === "Usuario no encontrado") {
+      handleErrorClient(res, 404, error.message);
+    } else {
+      handleErrorServer(res, 500, "Error al eliminar usuario", error.message);
+    }
+  }
+}
+
 // futuras funciones para admin

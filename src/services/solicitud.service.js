@@ -43,3 +43,12 @@ export const updateSolicitudEstado = async (idSolicitud, nuevoEstado, comentario
   await solicitudRepo.save(solicitud);
   return solicitud;
 };
+//borrar solicitud
+export const deleteSolicitud = async (idSolicitud) => {
+  const solicitud = await solicitudRepo.findOneBy({ id: parseInt(idSolicitud) });
+  if (!solicitud) {
+    throw new Error("Solicitud no encontrada");
+  }
+
+  await solicitudRepo.remove(solicitud);
+};
