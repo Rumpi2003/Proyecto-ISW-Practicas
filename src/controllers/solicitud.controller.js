@@ -7,12 +7,18 @@ export class SolicitudController {
 
   async create(req, res) {
     try {
-      const data = req.body;
-
+      const { mensaje, documentos } = req.body;
+      const idEstudianteVerificado = req.user.sub;
       // Verificamos que vengan todo lo necesario (minimo para valido)
-      if (!data.idEstudiante || !data.mensaje) { 
-        return handleErrorClient(res, 400, "El idEstudiante y el mensaje son requeridos");
+      if (!mensaje) { 
+        return handleErrorClient(res, 400, "El mensaje es requerido");
       }
+
+      const data = {
+        idEstudiante: idEstudianteVerificado,
+        mensaje,
+        documentos
+      };
 
       const nuevaSolicitud = await createSolicitud(data);
       handleSuccess(res, 201, "Solicitud creada exitosamente", nuevaSolicitud);
