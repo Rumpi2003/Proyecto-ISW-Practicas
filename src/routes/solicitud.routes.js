@@ -9,7 +9,12 @@ const controller = new SolicitudController(); // Instancia del controlador
 
 router.post("/", authMiddleware, controller.create);
 
-router.get("/", authMiddleware, controller.getAll);
+router.get(
+  "/", 
+  authMiddleware,
+  checkRole(['admin', 'encargado']),
+  controller.getAll
+);
 
 router.put(
   "/:idSolicitud", 

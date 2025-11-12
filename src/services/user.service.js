@@ -21,6 +21,13 @@ export async function findUserByEmail(email) {
   return await userRepository.findOneBy({ email });
 }
 
+export async function findAllUsers() {
+  const users = await userRepository.find({
+    select: ["id", "email", "rol", "created_at", "updated_at"] //no la contraseña
+  });
+  return users;
+}
+
 export async function updateUserProfile(userId, { email, password }) {
   const user = await userRepository.findOneBy({ id: userId });
   if (!user) throw new Error("Usuario no encontrado");

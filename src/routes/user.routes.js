@@ -1,11 +1,18 @@
 // src/routes/user.routes.js
 import { Router } from "express";
-import { adminCreateUser, adminDeleteUser } from "../controllers/user.controller.js";
+import { adminCreateUser, adminDeleteUser, adminGetAllUsers } from "../controllers/user.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { checkRole } from "../middleware/checkRole.middleware.js";
 
 const router = Router();
 // esta url es solo para admin y encargado, para que creen usuarios
+router.get(
+  "/",
+  authMiddleware,
+  checkRole(['admin', 'encargado']),
+  adminGetAllUsers
+);
+
 router.post(
   "/",
   authMiddleware, 
@@ -16,7 +23,7 @@ router.post(
 router.delete(
   "/:id",
   authMiddleware,
-  checkRole(['admin']), // <-- 2. Solo el rol 'admin' puede hacer esto
+  checkRole(['admin', 'encargado']),
   adminDeleteUser
 );
 // ms rutas de gestión de usuarios

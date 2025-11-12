@@ -1,5 +1,5 @@
 // src/controllers/user.controller.js
-import { createUser, findUserByEmail, deleteUserAccount } from "../services/user.service.js";
+import { createUser, findUserByEmail, deleteUserAccount, findAllUsers } from "../services/user.service.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
 
 export async function adminCreateUser(req, res) {
@@ -27,6 +27,15 @@ export async function adminCreateUser(req, res) {
     } else {
       handleErrorServer(res, 500, "Error al crear usuario", error.message);
     }
+  }
+}
+
+export async function adminGetAllUsers(req, res) {
+  try {
+    const users = await findAllUsers();
+    handleSuccess(res, 200, "Usuarios obtenidos exitosamente", users);
+  } catch (error) {
+    handleErrorServer(res, 500, "Error al obtener usuarios", error.message);
   }
 }
 
