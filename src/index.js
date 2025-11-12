@@ -1,5 +1,5 @@
 // src/index.js
-
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { PORT } from "./config/env.config.js";     // importa config
