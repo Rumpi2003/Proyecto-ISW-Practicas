@@ -1,5 +1,5 @@
 // src/controllers/user.controller.js
-import { createUser, findUserByEmail } from "../services/user.service.js";
+import { createUser, findUserByEmail, deleteUserAccount } from "../services/user.service.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
 
 export async function adminCreateUser(req, res) {
