@@ -83,21 +83,25 @@ export const eliminarOferta = async (req, res) => {
     try {
         const { id } = req.params;
 
+        // Validar ID 
         if (!isInt(id)) {
-            return res.status(400).json({ 
-                message: "ID de oferta no válido. Debe ser un número entero." 
-            });
+            return handleErrorClient(res, 400, "ID de oferta no válido. Debe ser un número entero.");
         }
 
         await service.eliminarOferta(Number(id));
         
-        res.status(204).send(); 
+        // Eliminacion exitosa
+        handleSuccess(res, 200, "Oferta eliminada correctamente", { id: Number(id) });
         
     } catch (error) {
+        // Manejo de no encontrado 
         if (error.message.includes("no encontrada")) {
-            return res.status(404).json({ message: error.message });
+            return handleErrorClient(res, 404, error.message);
         }
-        res.status(500).json({ message: "Error al eliminar la oferta." });
+        
+        // Manejo de error interno
+        console.error("Error en el controlador al eliminar la oferta:", error);
+        handleErrorClient(res, 500, "Error interno del servidor al eliminar la oferta.", error.message);
     }
 };
 
