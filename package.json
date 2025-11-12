@@ -1,30 +1,25 @@
 {
-  "name": "proyecto",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "type": "module",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon index.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Cristina948/practicas-isw.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Cristina948/practicas-isw/issues"
-  },
-  "homepage": "https://github.com/Cristina948/practicas-isw#readme",
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^5.1.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.10"
-  }
+    "name": "clase1-ingsw",
+    "version": "1.0.0",
+    "description": "Proyecto de ejemplo para las clases de Ingeniería de Software",
+    "type": "module",
+    "main": "index.js",
+    "scripts": {
+        "start": "node src/index.js",
+        "dev": "nodemon src/index.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "bcrypt": "^6.0.0",
+        "dotenv": "^17.2.1",
+        "express": "^5.1.0",
+        "jsonwebtoken": "^9.0.2",
+        "morgan": "^1.10.1",
+        "pg": "^8.16.3",
+        "reflect-metadata": "^0.2.2",
+        "typeorm": "^0.3.26"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.10"
+    }
 }
