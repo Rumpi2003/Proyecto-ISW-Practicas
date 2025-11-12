@@ -23,4 +23,34 @@ export class OfertasService {
             throw new Error('Fallo al publicar la oferta de práctica.');
         }
     }
+
+    async obtenerOfertaPorId(id) {
+        const oferta = await repository.findOneBy({ id }); 
+        
+        if (!oferta) {
+            throw new Error(`Oferta con ID ${id} no encontrada.`);
+        }
+        return oferta;
+    }
+
+    async actualizarOferta(id, data) {
+        //Verificar si la oferta existe
+        const ofertaExistente = await this.obtenerOfertaPorId(id);
+
+        //Aplicar los cambios
+        repository.merge(ofertaExistente, data);
+
+        // Guardar la entidad 
+        const ofertaActualizada = await repository.save(ofertaExistente);
+        return ofertaActualizada;
+    }
+
+    async eliminarOferta(id) {
+        // Verificar si la oferta existe 
+        await this.obtenerOfertaPorId(id); 
+
+        // Eliminar la oferta
+        await repository.delete(id);
+    }
 }
+
