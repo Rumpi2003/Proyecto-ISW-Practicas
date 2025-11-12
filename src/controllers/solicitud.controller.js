@@ -43,7 +43,7 @@ export class SolicitudController {
       const { idSolicitud } = req.params;
       const { estado, comentarios } = req.body;
 
-      if (!id || isNaN(idSolicitud)) {
+      if (!idSolicitud || isNaN(idSolicitud)) {
         return handleErrorClient(res, 400, "ID de solicitud inválido");
       }
       if (!estado) {
