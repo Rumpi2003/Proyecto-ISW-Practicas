@@ -8,9 +8,9 @@ import { crearOferta,
 const router = Router();
 
 router.post("/", crearOferta);
-router.get("/:id", obtenerOferta);        
-router.put("/:id", actualizarOferta);     
+router.get("/", listarOfertas); 
+router.get("/:id", obtenerOferta); 
+router.patch("/:id", actualizarOferta);
 router.delete("/:id", eliminarOferta);
-router.get("/", listarOfertas);
 
 export default router;
