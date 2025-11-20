@@ -11,37 +11,37 @@ const carreraRepository = AppDataSource.getRepository(Carrera);
 export class OfertasService {
     
     async crearOferta(data) {
-        try {
-            const { empresaId, carrerasIds, ...ofertaData } = data;
+    try {
+           const { empresa, carreras, ...ofertaData } = data; 
+            const empresaId = empresa.id;
+            const carrerasIds = carreras.map(c => c.id); 
 
-            // busca y valida la empresa
-            const empresa = await empresaRepository.findOneBy({ id: empresaId });
-            if (!empresa) {
+           const empresaObjeto = await empresaRepository.findOneBy({ id: empresaId });
+           if (!empresaObjeto) {
                 throw new Error(`Empresa con ID ${empresaId} no existe.`);
-            }
+           }
 
-            //busca y valida la carrera
-            const carreras = await carreraRepository.findBy({ 
+           const carrerasObjetos = await carreraRepository.findBy({ 
                 id: In(carrerasIds) 
-            });
-            if (carreras.length !== carrerasIds.length) {
+           });
+           if (carrerasObjetos.length !== carrerasIds.length) {
                 throw new Error("Una o más carreras no fueron encontradas.");
-            }
+           }
 
-            // 3. Crea la oferta
-            const nuevaOferta = repository.create({
+           const nuevaOferta = repository.create({
                 ...ofertaData,
-                empresa: empresa, // Asigna la empresa
-                carreras: carreras, // Asigna la carrera
-            });
+                empresa: empresaObjeto, 
+                carreras: carrerasObjetos, 
+           });
 
-            const ofertaGuardada = await repository.save(nuevaOferta);
-            return ofertaGuardada;
+           const ofertaGuardada = await repository.save(nuevaOferta);
+           return ofertaGuardada;
 
-        } catch (error) {
-            throw new Error(`Fallo al publicar la oferta de práctica: ${error.message}`);
-        }
+    } catch (error) {
+           throw new Error(`Fallo al publicar la oferta de práctica: ${error.message}`);
     }
+  }
+
 
     async obtenerOfertaPorId(id) {
         const oferta = await repository.findOneBy({ id });
@@ -79,5 +79,15 @@ export class OfertasService {
         
         //Eliminar la oferta
         await repository.delete(id); 
+    }
+
+    async listarOfertas() {
+        try {
+            const ofertas = await repository.find(); 
+            return ofertas;
+        } catch (error) {
+            console.error("Error en el servicio al listar ofertas:", error);
+            throw new Error('Fallo al listar las ofertas de práctica.');
+        }
     }
 }

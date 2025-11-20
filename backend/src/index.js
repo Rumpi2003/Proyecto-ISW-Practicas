@@ -6,7 +6,7 @@ import { connectDB } from "./config/db.config.js";
 
 import ofertasRoutes from "./routes/ofertas.routes.js"; 
 import carrerasRoutes from "./routes/carreras.routes.js"; 
-
+import empresasRoutes from "./routes/empresas.routes.js";
 
 async function main() {
   try {
@@ -21,7 +21,9 @@ async function main() {
     app.use("/api/v1/ofertas", ofertasRoutes);
 
         // Rutas de Carreras
-        app.use("/api/v1/carreras", carrerasRoutes); 
+    app.use("/api/v1/carreras", carrerasRoutes); 
+
+    app.use("/api/v1/empresas", empresasRoutes);
 
     app.listen(PORT, () => {
       console.log(`Servidor corriendo en http://localhost:${PORT}`);

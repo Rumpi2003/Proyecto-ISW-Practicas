@@ -30,25 +30,24 @@ export const crearOferta = async (req, res) => {
         handleErrorClient(res, 500, "Error interno del servidor al publicar la oferta.", error.message);
     }
 };
+
 export const obtenerOferta = async (req, res) => {
     try {
-        const { id } = req.params; // Captura el ID 
+        const { id } = req.params; 
 
         if (!isInt(id)) {
-            return res.status(400).json({ 
-                message: "ID de oferta no válido. Debe ser un número entero." 
-            });
+            return handleErrorClient(res, 400, "ID de oferta no válido. Debe ser un número entero.");
         }
 
-        const oferta = await service.obtenerOfertaPorId(Number(id)); // Llama al servicio
+        const oferta = await service.obtenerOfertaPorId(Number(id)); 
         
-        res.status(200).json(oferta);
+        handleSuccess(res, 200, "Oferta obtenida con éxito", oferta);
         
     } catch (error) {
         if (error.message.includes("no encontrada")) {
-            return res.status(404).json({ message: error.message });
+            return handleErrorClient(res, 404, error.message); 
         }
-        res.status(500).json({ message: "Error al obtener la oferta." });
+        handleErrorClient(res, 500, "Error al obtener la oferta.", error.message); 
     }
 };
 
