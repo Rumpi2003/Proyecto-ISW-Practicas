@@ -8,7 +8,13 @@ export class SolicitudController {
   async create(req, res) {
     try {
       const { mensaje, documentos } = req.body;
-      const idEstudianteVerificado = req.user.sub;
+      const idEstudianteVerificado = req.user.id;
+
+      // --- AGREGA ESTO PARA DEPURAR ---
+      console.log("Token decodificado (req.user):", req.user);
+      console.log("ID extraído:", idEstudianteVerificado);
+      // -------------------------------
+
       // Verificamos que vengan todo lo necesario (minimo para valido)
       if (!mensaje) { 
         return handleErrorClient(res, 400, "El mensaje es requerido");

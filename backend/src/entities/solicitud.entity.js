@@ -10,9 +10,8 @@ export const Solicitud = new EntitySchema({
       type: "int",
       generated: "increment",
     },
-    idEstudiante: {
-      type: "varchar",
-      length: 100,
+      idEstudiante: {
+      type: "int", 
       nullable: false,
     },
     // texto dentro de la soli
@@ -46,6 +45,14 @@ export const Solicitud = new EntitySchema({
     fechaRevision: {
       type: "timestamp",
       nullable: true,
+    },
+  },
+  relations: {
+    estudiante: {
+      target: "Estudiante", //apunta a la entidad estudiante
+      type: "many-to-one",  //muchas solicitudes pertenecen a un estudiante
+      joinColumn: { name: "idEstudiante" }, //une usando id del estudiante
+      onDelete: "CASCADE",  //si se borra al estudiante, se borran sus solicitudes
     },
   },
 });

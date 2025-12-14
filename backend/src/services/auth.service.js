@@ -10,7 +10,7 @@ import { Supervisor } from "../entities/supervisor.entity.js";
 const estudianteRepo = AppDataSource.getRepository(Estudiante);
 const encargadoRepo = AppDataSource.getRepository(Encargado);
 const supervisorRepo = AppDataSource.getRepository(Supervisor);
-
+// aca damos el rol segun en que tabla encuentra el email
 export async function loginUser(email, password) {
   let user = null;
   let rol = "";
