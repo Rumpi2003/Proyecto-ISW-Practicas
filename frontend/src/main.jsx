@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from '@pages/Login';
 import Home from '@pages/Home';
+import Users from '@pages/Users'; // <--- 1. IMPORTANTE: Importamos la nueva página
 import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute'; 
@@ -20,13 +21,29 @@ const router = createBrowserRouter([
       },
       {
         path: '/auth', 
-        element: <Login /> //otra opcion de login
+        element: <Login />
       },
       {
         path: '/home',
         element: (
-          <ProtectedRoute> {/* protect Home */}
+          <ProtectedRoute>
             <Home />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: '/dashboard', 
+        element: (
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: '/dashboard/users', 
+        element: (
+          <ProtectedRoute>
+            <Users />
           </ProtectedRoute>
         )
       }
@@ -34,7 +51,7 @@ const router = createBrowserRouter([
   }
 ]);
 
-// enrutador
+//enrutador
 ReactDOM.createRoot(document.getElementById('root')).render(
   <RouterProvider router={router} />
 );

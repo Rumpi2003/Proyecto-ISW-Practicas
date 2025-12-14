@@ -25,7 +25,7 @@ export async function login(dataUser) {
 export async function logout() {
     try {
         sessionStorage.removeItem('usuario');
-        cookies.remove('jwt-auth');
+        cookies.remove('jwt-auth', { path: '/' });
         window.location.href = '/auth'
     } catch (error) {
         console.error('Error al cerrar sesión:', error);

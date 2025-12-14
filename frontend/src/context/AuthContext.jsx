@@ -15,15 +15,24 @@ export const AuthProvider = ({ children }) => {
       try {
         const decoded = jwtDecode(token);
         if (decoded.exp * 1000 > Date.now()) {
-          setUser(JSON.parse(storedUser));
+          const userData = JSON.parse(storedUser);
+
+          const userRole = decoded.rol || decoded.role || decoded.tipo_usuario;
+
+          setUser({ 
+            ...userData, 
+            rol: userRole
+          });
         } else {
           cookies.remove('jwt-auth');
           sessionStorage.removeItem('usuario');
+          setUser(null);
         }
       } catch (error) {
         console.error('Error al decodificar token:', error);
         cookies.remove('jwt-auth');
         sessionStorage.removeItem('usuario');
+        setUser(null);
       }
     }
   }, []);
