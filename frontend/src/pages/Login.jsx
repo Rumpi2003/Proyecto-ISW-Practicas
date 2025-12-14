@@ -14,28 +14,34 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const data = await login({ email, password }); // llama login
+            const response = await login({ email, password }); 
 
-            if (data.status === 'Client error' || data.status === 'Server error') {
+            if (response.status !== 'Success' && response.status !== 200) { 
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error al iniciar sesión',
-                    text: data.message,
+                    title: 'Error',
+                    text: response.message || 'Credenciales incorrectas',
                 });
                 return;
             }
 
-            setUser(data.data.user);
+            //usuario y su ROL
+            const user = response.data.user;
+            setUser(user);
 
             Swal.fire({
                 icon: 'success',
-                title: '¡Bienvenido!',
-                text: 'Has iniciado sesión exitosamente.',
+                title: `¡Bienvenido ${user.nombre}!`, //usamos el nombre
                 timer: 1500,
                 showConfirmButton: false
             });
 
-            navigate('/home');
+            // --- REDIRECCIÓN POR ROL ---
+            if (user.rol === 'encargado') {
+                navigate('/dashboard'); // a crear todavia
+            } else {
+                navigate('/home');
+            }
 
         } catch (error) {
             console.error(error);

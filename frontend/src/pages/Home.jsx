@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAuth } from '@context/AuthContext';
 import { logout } from '@services/auth.service';
 import { useNavigate } from 'react-router-dom';
+import { getMyProfile } from '@services/user.service.js';
 
 const Home = () => {
   const { user, setUser } = useAuth(); 
@@ -10,7 +11,12 @@ const Home = () => {
   const [profileData, setProfileData] = useState(null);
 
   const handleGetProfile = async () => {
-    console.log('Obtener perfil (aún no implementado)');
+    try {
+      const response = await getMyProfile();
+      setProfileData(response.data); // respuesta para mostrarla
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleLogout = () => {
