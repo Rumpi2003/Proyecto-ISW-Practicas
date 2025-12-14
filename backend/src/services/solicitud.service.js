@@ -5,10 +5,10 @@ import { Solicitud } from "../entities/solicitud.entity.js";
 const solicitudRepo = AppDataSource.getRepository(Solicitud);
 
 export const createSolicitud = async (data) => {
-  const { idEstudiante, documentos, mensaje } = data; // todavia no esta estudiante pero asumimos idEstudiante
+  const { idEstudiante, documentos, mensaje } = data; 
 
   const nuevaSolicitud = solicitudRepo.create({
-    idEstudiante,
+    estudiante: { id: idEstudiante }, // Asignamos la relación usando el ID
     documentos,
     mensaje,
   });
@@ -16,22 +16,23 @@ export const createSolicitud = async (data) => {
   await solicitudRepo.save(nuevaSolicitud);
   return nuevaSolicitud;
 };
-//buscar todas las solicitudes
+
 export const findSolicitudes = async () => {
-  const solicitudes = await solicitudRepo.find();
+  //datos del alumno (nombre, rut, carrera)
+  const solicitudes = await solicitudRepo.find({
+    relations: ['estudiante'], 
+    order: { fechaRevision: "ASC" } //ordenar por fecha
+  });
   return solicitudes;
 };
 
-//actualizar estado de la solicitud (para el encargado)
-//id suponemos que sera la del encargado
 export const updateSolicitudEstado = async (idSolicitud, nuevoEstado, comentarios) => {
   const solicitud = await solicitudRepo.findOneBy({ id: parseInt(idSolicitud) });
   if (!solicitud) {
     throw new Error("Solicitud no encontrada");
   }
 
-  // Validamos que el encargado use un estado correcto 
-  const estadosValidos = ["rechazada", "aprobada"]; //en caso rechazada se especifica pq en comentarios
+  const estadosValidos = ["rechazada", "aprobada"]; 
   if (!estadosValidos.includes(nuevoEstado)) {
     throw new Error("Estado no válido");
   }
@@ -43,7 +44,7 @@ export const updateSolicitudEstado = async (idSolicitud, nuevoEstado, comentario
   await solicitudRepo.save(solicitud);
   return solicitud;
 };
-//borrar solicitud
+
 export const deleteSolicitud = async (idSolicitud) => {
   const solicitud = await solicitudRepo.findOneBy({ id: parseInt(idSolicitud) });
   if (!solicitud) {

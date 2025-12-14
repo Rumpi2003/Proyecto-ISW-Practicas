@@ -1,67 +1,47 @@
 // src/index.js
-import dotenv from "dotenv";
-import path from "path";
-//apunte a la carpeta 'backend/'
-dotenv.config({ path: path.resolve(process.cwd(), '.env') });
-import "dotenv/config";
-import express from "express";
-import cors from "cors";
-import { PORT } from "./config/env.config.js";     // importa config
-import { connectDB } from "./config/db.config.js";     // importa config
-import { routerApi } from "./routes/index.routes.js"; // importa el enrutador
+import app from "./app.js"; //configuracion de Express
+import { AppDataSource } from "./config/db.config.js";
+import { Encargado } from "./entities/encargado.entity.js"; //entidad correcta
+import bcrypt from "bcrypt";
 
-import { AppDataSource } from "./config/db.config.js"; // para acceder al repositorio
-import { User } from "./entities/user.entity.js"; // es un User
-import bcrypt from "bcrypt"; // para encriptar la contraseña
-
-async function seedAdmin() {
+async function main() {
   try {
-    const userRepo = AppDataSource.getRepository(User);
-    const adminEmail = "admin@ubb";
+    //iniciar conexion a BD
+    await AppDataSource.initialize();
+    console.log("✅ Base de datos conectada correctamente");
 
-    //revisa si hay admin
-    const admin = await userRepo.findOneBy({ email: adminEmail });
+    //crear Encargado inicial
+    const encargadoRepo = AppDataSource.getRepository(Encargado);
+    
+    //si existe al menos un encargado
+    const totalEncargados = await encargadoRepo.count();
 
-    if (!admin) {
-      //crear si no
-      console.log("Admin no encontrado, creando uno nuevo...");
-      const hashedPassword = await bcrypt.hash("admin123", 10); // contraseña 'admin123'
-      
-      const newAdmin = userRepo.create({
-        email: adminEmail,
+    if (totalEncargados === 0) {
+      console.log("⚠️ No hay encargados en la base de datos. Creando uno inicial...");
+
+      const hashedPassword = await bcrypt.hash("admin123", 10); //contraseña inicial
+
+      const nuevoEncargado = encargadoRepo.create({
+        nombre: "Administrador Inicial",
+        rut: "11.111.111-1",
+        email: "admin@ubb.cl", //usuario maestro
         password: hashedPassword,
-        rol: "admin",
+        facultad: "Administración",
       });
 
-      await userRepo.save(newAdmin);
-      console.log("Admin 'admin@ubb' creado exitosamente.");
+      await encargadoRepo.save(nuevoEncargado);
+      console.log("🚀 Encargado inicial creado: admin@ubb.cl / admin123");
     }
+
+    // iniciar servidor
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(` servidor escuchando en el puerto ${PORT}`);
+    });
+
   } catch (error) {
-    console.error("Error al sembrar el admin:", error);
+    console.error("❌ Error al iniciar la aplicación:", error);
   }
 }
 
-async function main() {
-    try {
-        await connectDB();
-
-        await seedAdmin(); // asegura que hay un admin
-
-        const app = express();
-
-        app.use(cors());
-        app.use(express.json());
-
-        routerApi(app); //registra rutas
-        
-        //inicia server
-        app.listen(PORT, () => {
-            console.log(`Servidor corriendo en http://localhost:${PORT}`);
-        });
-
-    } catch (error) {
-        console.error("Error al iniciar el servidor:", error);
-        process.exit(1); // Salir si la conexión a la DB falla
-    }
-}
 main();

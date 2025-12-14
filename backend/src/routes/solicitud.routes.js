@@ -2,31 +2,31 @@
 import { Router } from "express";
 import { SolicitudController } from "../controllers/solicitud.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
-import { checkRole } from "../middleware/checkRole.middleware.js";
+import { checkEncargado } from "../middleware/checkEncargado.middleware.js"; 
 
 const router = Router();
-const controller = new SolicitudController(); // Instancia del controlador
+const controller = new SolicitudController();
 
 router.post("/", authMiddleware, controller.create);
 
 router.get(
   "/", 
   authMiddleware,
-  checkRole(['admin', 'encargado']),
+  checkEncargado,
   controller.getAll
 );
 
 router.put(
   "/:idSolicitud", 
   authMiddleware,
-  checkRole(['admin', 'encargado']),
+  checkEncargado,
   controller.updateEstado
 );
 
 router.delete(
   "/:idSolicitud",
   authMiddleware,
-  checkRole(['admin', 'encargado']),
+  checkEncargado,
   controller.delete
 );
 

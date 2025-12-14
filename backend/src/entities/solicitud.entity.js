@@ -18,7 +18,7 @@ export const Solicitud = new EntitySchema({
     // texto dentro de la soli
     mensaje: {
       type: "text",
-      nullable: false, // El estudiante debe escribir un mensaje
+      nullable: false, //el estudiante debe escribir un mensaje
     },
     // archivo adjunto osea el documento
     documentos: {
@@ -38,7 +38,6 @@ export const Solicitud = new EntitySchema({
       type: "text",
       nullable: true, 
     },
-    //extras de la solicitud (copiados de la ayudantia)
     fechaEnvio: {
       type: "timestamp",
       createDate: true, 

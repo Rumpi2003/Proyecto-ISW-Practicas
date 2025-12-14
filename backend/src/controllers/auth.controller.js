@@ -1,36 +1,32 @@
+// src/controllers/auth.controller.js
 import { loginUser } from "../services/auth.service.js";
-import { createUser } from "../services/user.service.js";
+// CORRECCIÓN 1: Importamos la función específica de estudiantes
+import { createEstudiante } from "../services/user.service.js"; 
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
-
-export async function login(req, res) {
-  try {
-    const { email, password } = req.body;
-    
-    if (!email || !password) {
-      return handleErrorClient(res, 400, "Email y contraseña son requeridos");
-    }
-    
-    const data = await loginUser(email, password);
-    handleSuccess(res, 200, "Login exitoso", data);
-  } catch (error) {
-    handleErrorClient(res, 401, error.message);
-  }
-}
 
 export async function register(req, res) {
   try {
     const data = req.body;
     
-    if (!data.email || !data.password) {
-      return handleErrorClient(res, 400, "Email y contraseña son requeridos");
+    // validaciones basicas
+    if (!data.email || !data.password || !data.nombre || !data.rut) {
+      return handleErrorClient(res, 400, "Faltan datos obligatorios");
     }
     
-    const newUser = await createUser(data);
-    delete newUser.password; // Nunca devolver la contraseña
-    handleSuccess(res, 201, "Usuario registrado exitosamente", newUser);
+    //valores por defecto si faltan (ej: nivelPractica)
+    const dataEstudiante = {
+      ...data,
+      carrera: data.carrera || "Ingeniería Civil Informática", // O pedirlo obligatorio
+      nivelPractica: data.nivelPractica || "I"
+    };
+
+    const newUser = await createEstudiante(dataEstudiante);
+    delete newUser.password; 
+
+    handleSuccess(res, 201, "Estudiante registrado exitosamente", newUser);
   } catch (error) {
-    if (error.code === '23505') { // Código de error de PostgreSQL para violación de unique constraint
-      handleErrorClient(res, 409, "El email ya está registrado");
+    if (error.code === '23505' || error.message.includes("ya existe")) {
+      handleErrorClient(res, 409, "El email o RUT ya está registrado");
     } else {
       handleErrorServer(res, 500, "Error interno del servidor", error.message);
     }

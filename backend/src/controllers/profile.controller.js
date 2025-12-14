@@ -1,30 +1,15 @@
-//import { handleSuccess } from "../Handlers/responseHandlers.js";
-import { handleSuccess, handleErrorClient } from "../handlers/responseHandlers.js";
+// src/controllers/profile.controller.js
+import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
 import { updateUserProfile, deleteUserAccount } from "../services/user.service.js"; 
-
-
-export function getPublicProfile(req, res) {
-  handleSuccess(res, 200, "Perfil público obtenido exitosamente", {
-    message: "¡Hola! Este es un perfil público. Cualquiera puede verlo.",
-  });
-}
-
-export function getPrivateProfile(req, res) {
-  const user = req.user;
-
-  handleSuccess(res, 200, "Perfil privado obtenido exitosamente", {
-    message: `¡Hola, ${user.email}! Este es tu perfil privado. Solo tú puedes verlo.`,
-    userData: user,
-  });
-}
 
 //funcion patch
 export async function updateProfile(req, res) {
   try {
-    const userId = req.user.id;             // id desde el token JWT
-    const { email, password } = req.body;   // actualizar
+    const { id, rol } = req.user; //obtenemos ID y ROL del token
+    const { email, password } = req.body;
 
-    const updatedUser = await updateUserProfile(userId, { email, password });
+    //rol al servicio para que sepa tabla actualizar
+    const updatedUser = await updateUserProfile(id, rol, { email, password });
 
     handleSuccess(res, 200, "Usuario actualizado correctamente", {
       id: updatedUser.id,
@@ -38,9 +23,9 @@ export async function updateProfile(req, res) {
 
 export async function deleteProfile(req, res) {
   try {
-    const userId = req.user.id;             // Id del token
+    const { id, rol } = req.user; //obtenemos ID y ROL
 
-    await deleteUserAccount(userId);        // funcion eliminar
+    await deleteUserAccount(id, rol); //rol para saber en qué tabla borrar
 
     handleSuccess(res, 200, "Cuenta eliminada correctamente", {});
 
