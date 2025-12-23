@@ -4,6 +4,10 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from '@pages/Login';
 import Home from '@pages/Home';
 import Users from '@pages/Users'; // <--- 1. IMPORTANTE: Importamos la nueva página
+import PautasEvaluacion from '@pages/PautasEvaluacion';
+import CrearPauta from '@pages/CrearPauta';
+import GestionarPautas from '@pages/GestionarPautas';
+import EditarPauta from '@pages/EditarPauta';
 import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute'; 
@@ -44,6 +48,42 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <Users />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/pautas', 
+        element: (
+          <ProtectedRoute>
+            <PautasEvaluacion />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/pautas/crear',
+        element: (
+          <ProtectedRoute>
+            <CrearPauta />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/pautas/gestionar',
+        element: (
+          <ProtectedRoute>
+            <GestionarPautas />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/pautas/editar/:id',
+        element: (
+          <ProtectedRoute>
+            <EditarPauta />
           </ProtectedRoute>
         )
       }
