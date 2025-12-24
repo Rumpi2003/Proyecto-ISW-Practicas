@@ -8,6 +8,8 @@ import PautasEvaluacion from '@pages/PautasEvaluacion';
 import CrearPauta from '@pages/CrearPauta';
 import GestionarPautas from '@pages/GestionarPautas';
 import EditarPauta from '@pages/EditarPauta';
+import GestionarEvaluacionesSupervisor from '@pages/GestionarEvaluacionesSupervisor';
+import CrearEvaluacionSupervisor from '@pages/CrearEvaluacionSupervisor';
 import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute'; 
@@ -84,6 +86,24 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <EditarPauta />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/evaluaciones/gestionar',
+        element: (
+          <ProtectedRoute>
+            <GestionarEvaluacionesSupervisor />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/evaluaciones/crear',
+        element: (
+          <ProtectedRoute>
+            <CrearEvaluacionSupervisor />
           </ProtectedRoute>
         )
       }
