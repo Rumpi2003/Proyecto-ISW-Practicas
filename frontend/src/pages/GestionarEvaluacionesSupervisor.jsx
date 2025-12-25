@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { getEvaluacionesSupervisor, deleteEvaluacionSupervisor } from '@services/evaluacionSupervisor.service';
+import { useAuth } from '@context/AuthContext';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 
 const GestionarEvaluacionesSupervisor = () => {
+  const { user } = useAuth();
   const [evaluaciones, setEvaluaciones] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -75,6 +77,9 @@ const GestionarEvaluacionesSupervisor = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
+                  {user?.rol === 'encargado' && e.estado === 'completada' && (
+                    <button onClick={() => navigate(`/dashboard/evaluaciones/ver/${e.id}`)} className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700">Ver</button>
+                  )}
                   <button onClick={() => handleEliminar(e)} className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600">Eliminar</button>
                 </div>
               </div>

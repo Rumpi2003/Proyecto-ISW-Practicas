@@ -14,6 +14,44 @@ export async function getEvaluacionesSupervisor() {
   return json;
 }
 
+export async function getEvaluacionesBySupervisor(idSupervisor) {
+  const token = Cookies.get('jwt-auth');
+  if (!token) throw new Error('No se encontró token de autenticación. Inicia sesión.');
+
+  const resp = await fetch(`${API_BASE}/api/evaluaciones-supervisor/supervisor/${idSupervisor}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const json = await resp.json().catch(() => null);
+  if (!resp.ok) throw new Error((json && json.message) || resp.statusText || 'Error al obtener evaluaciones del supervisor');
+  return json;
+}
+
+export async function getEvaluacionById(id) {
+  const token = Cookies.get('jwt-auth');
+  if (!token) throw new Error('No se encontró token de autenticación. Inicia sesión.');
+
+  const resp = await fetch(`${API_BASE}/api/evaluaciones-supervisor/${id}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const json = await resp.json().catch(() => null);
+  if (!resp.ok) throw new Error((json && json.message) || resp.statusText || 'Error al obtener la evaluación');
+  return json;
+}
+
+export async function updateEvaluacionSupervisor(id, data) {
+  const token = Cookies.get('jwt-auth');
+  if (!token) throw new Error('No se encontró token de autenticación. Inicia sesión.');
+
+  const resp = await fetch(`${API_BASE}/api/evaluaciones-supervisor/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data)
+  });
+  const json = await resp.json().catch(() => null);
+  if (!resp.ok) throw new Error((json && json.message) || resp.statusText || 'Error al actualizar la evaluación');
+  return json;
+}
+
 export async function deleteEvaluacionSupervisor(id) {
   const token = Cookies.get('jwt-auth');
   if (!token) throw new Error('No se encontró token de autenticación. Inicia sesión.');

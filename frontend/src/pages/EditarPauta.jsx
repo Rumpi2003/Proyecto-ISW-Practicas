@@ -40,6 +40,24 @@ const EditarPauta = () => {
   }, [id]);
 
   const agregarAspecto = () => { if (aspectos.length >= MAX_ASPECTOS) return; setAspectos(prev => [...prev, NuevaSeccion()]); };
+  const eliminarAspecto = (index) => {
+    if (aspectos.length === 1) {
+      return Swal.fire({ icon: 'info', title: 'Acción no permitida', text: 'Debe existir al menos una sección.' });
+    }
+    Swal.fire({
+      title: '¿Eliminar sección?',
+      text: 'Se eliminará la competencia y todas sus actitudes. Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(result => {
+      if (result.isConfirmed) {
+        setAspectos(prev => prev.filter((_, i) => i !== index));
+      }
+    });
+  };
   const actualizarAspecto = (index, field, value) => setAspectos(prev => prev.map((a,i)=>i===index?{...a,[field]:value}:a));
   const agregarActitud = (index) => setAspectos(prev=>prev.map((a,i)=>i===index?{...a,actitudes:[...a.actitudes,'']}:a));
   const actualizarActitud = (aspectIndex, actIndex, value) => setAspectos(prev=>prev.map((a,i)=>{ if(i!==aspectIndex) return a; const newActs=a.actitudes.map((act,j)=>j===actIndex?value:act); return {...a,actitudes:newActs}; }));
@@ -95,6 +113,11 @@ const EditarPauta = () => {
             <div className="space-y-6 mt-4">
               {aspectos.map((a,i)=> (
                 <div key={i} className="p-4 border rounded-lg">
+                  {aspectos.length > 1 && (
+                    <div className="flex justify-end mb-2">
+                      <button type="button" onClick={() => eliminarAspecto(i)} className="text-sm text-red-500">Eliminar sección</button>
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="md:col-span-1">
                       <label className="block text-sm font-medium text-gray-700">Competencia</label>

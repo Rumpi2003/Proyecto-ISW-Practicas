@@ -10,6 +10,8 @@ import GestionarPautas from '@pages/GestionarPautas';
 import EditarPauta from '@pages/EditarPauta';
 import GestionarEvaluacionesSupervisor from '@pages/GestionarEvaluacionesSupervisor';
 import CrearEvaluacionSupervisor from '@pages/CrearEvaluacionSupervisor';
+import EvaluarEvaluacion from '@pages/EvaluarEvaluacion';
+import VerEvaluacion from '@pages/VerEvaluacion';
 import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute'; 
@@ -104,6 +106,24 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <CrearEvaluacionSupervisor />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/evaluaciones/evaluar/:id',
+        element: (
+          <ProtectedRoute>
+            <EvaluarEvaluacion />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/evaluaciones/ver/:id',
+        element: (
+          <ProtectedRoute>
+            <VerEvaluacion />
           </ProtectedRoute>
         )
       }
