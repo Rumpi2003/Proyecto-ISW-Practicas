@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Form from '../components/Form';
 import { useAuth } from '../context/AuthContext';
-// VOLVEMOS A IMPORTAR EL NOMBRE ORIGINAL
-import { getCarreras } from '../services/carrera.service.js'; 
+// Importamos axios directamente para evitar el problema de caché del servicio
+import axios from '../services/root.service.js'; 
 
 const PublicarOferta = () => {
   const [carrerasOptions, setCarrerasOptions] = useState([]);
@@ -14,12 +14,14 @@ const PublicarOferta = () => {
     const fetchCarreras = async () => {
       const id = user?.facultad?.id; 
 
-      // MANTENEMOS EL BLOQUEO DE SEGURIDAD
+      // Si no hay ID, no hacemos nada (evitamos errores)
       if (!id) return;
 
       try {
-        // LLAMAMOS A LA FUNCIÓN ORIGINAL (PERO QUE AHORA TIENE LA LÓGICA NUEVA)
-        const data = await getCarreras(id);
+        // Construimos la URL directamente aquí para asegurar que el filtro se aplique
+        const url = `/carreras?facultadId=${id}`;
+        const response = await axios.get(url);
+        const data = response.data.data;
         
         if (data) {
           const formatted = data.map(c => ({
@@ -29,7 +31,7 @@ const PublicarOferta = () => {
           setCarrerasOptions(formatted);
         }
       } catch (error) {
-        console.error("Error cargando carreras:", error);
+        console.error("Error al cargar las carreras filtradas:", error);
       }
     };
 
@@ -66,8 +68,8 @@ const PublicarOferta = () => {
 
   const handlePublish = (formData) => {
     console.log("Datos para enviar:", formData);
-    alert("¡Oferta enviada (simulación)!");
-    navigate('/home'); 
+    // Aquí implementaremos la lógica de guardado
+    alert("Preparado para guardar.");
   };
 
   return (
