@@ -1,22 +1,17 @@
-// src/routes/encargado.routes.js
 import { Router } from "express";
 import { EncargadoController } from "../controllers/encargado.controller.js";
 import { checkEncargado } from "../middleware/checkEncargado.middleware.js";
+import { authMiddleware } from "../middleware/auth.middleware.js"; 
 
 const router = Router();
 const controller = new EncargadoController();
 
-
-// router.use(authMiddleware); // Descomenta esto si usas login
-router.use(checkEncargado);
-
-// GET: Ver pendientes
+// Activación seguridad
+router.use(authMiddleware); // Revisa que el token es real
+router.use(checkEncargado); // Revisa si es el encargado
+// Rutas
 router.get("/pendientes", controller.getPendientes);
-
-// GET: Ver detalle de una práctica
 router.get("/:id", controller.getDetalle);
-
-// POST: Evaluar práctica
 router.post("/:id/evaluar", controller.evaluar);
 
 export default router;

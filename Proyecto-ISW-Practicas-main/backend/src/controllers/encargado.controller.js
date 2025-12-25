@@ -28,7 +28,7 @@ export class EncargadoController {
         }
     }
 
-    // 3. Evaluar (Poner nota)
+    // 3. Evaluar
     async evaluar(req, res) {
         try {
             const { id } = req.params;

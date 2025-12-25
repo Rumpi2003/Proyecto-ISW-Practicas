@@ -4,25 +4,15 @@ import { IsNull, Not } from "typeorm";
 
 const solicitudRepository = AppDataSource.getRepository(Solicitud);
 
-// 1. Obtener pendientes (CORREGIDA: usa 'nombre')
+// 1. Obtener pendientes
 export async function obtenerPendientes() {
+    console.log(" Buscando pendientes en la BD..."); 
     return await solicitudRepository.find({
         where: {
             notaSupervisor: Not(IsNull()),
             notaFinal: IsNull(),
         },
-        relations: ["estudiante"],
-        select: {
-            id: true,
-            fechaLimiteEvaluacion: true,
-            notaSupervisor: true,
-            estudiante: {
-                id: true,
-                nombre: true, // <--- Aquí estaba el error, ahora está arreglado
-                carrera: true,
-                rut: true
-            }
-        }
+        relations: ["estudiante"], 
     });
 }
 

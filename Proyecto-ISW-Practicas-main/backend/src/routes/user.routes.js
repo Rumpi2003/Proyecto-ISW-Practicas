@@ -1,7 +1,7 @@
 // src/routes/user.routes.js
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.middleware.js";
-import { checkEncargado } from "../middleware/checkEncargado.middleware.js"; // Importar el nuevo middleware
+import { checkEncargado } from "../middleware/checkEncargado.middleware.js"; 
 import {
   createEstudianteCtrl,
   getEstudiantesCtrl,
