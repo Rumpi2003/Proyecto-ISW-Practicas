@@ -11,14 +11,29 @@ export const createOferta = async (ofertaData, idEncargado) => {
   const encargadoRepository = AppDataSource.getRepository(Encargado);
   const empresaRepository = AppDataSource.getRepository(Empresa);
 
-  // 1. Buscamos al Encargado que publica la oferta
+  // 1. 🔒 VALIDACIÓN DE NEGOCIO: La fecha no puede ser pasado
+  if (ofertaData.fechaCierre) {
+    const fechaCierre = new Date(ofertaData.fechaCierre);
+    const hoy = new Date();
+
+    // Normalizamos ambas fechas a medianoche (00:00:00) para comparar solo el día
+    hoy.setHours(0, 0, 0, 0);
+    // Ajustamos la fecha de cierre sumando el offset de zona horaria para asegurar la fecha correcta
+    fechaCierre.setMinutes(fechaCierre.getMinutes() + fechaCierre.getTimezoneOffset());
+    fechaCierre.setHours(0, 0, 0, 0);
+
+    if (fechaCierre < hoy) {
+      throw new Error("La fecha de cierre no puede ser anterior al día de hoy.");
+    }
+  }
+
+  // 2. Buscamos al Encargado
   const encargado = await encargadoRepository.findOneBy({ id: idEncargado });
-  
   if (!encargado) {
     throw new Error("El encargado no existe.");
   }
 
-  // 2. Buscamos las Carreras seleccionadas
+  // 3. Buscamos las Carreras seleccionadas
   const carrerasSeleccionadas = await carreraRepository.findBy({
     id: In(ofertaData.carreras) 
   });
@@ -27,14 +42,13 @@ export const createOferta = async (ofertaData, idEncargado) => {
     throw new Error("Debes seleccionar al menos una carrera válida.");
   }
 
-  // 3. Buscamos la Empresa seleccionada
+  // 4. Buscamos la Empresa seleccionada
   const empresa = await empresaRepository.findOneBy({ id: ofertaData.empresaId });
-
   if (!empresa) {
     throw new Error("La empresa seleccionada no existe.");
   }
 
-  // 4. Creamos la oferta con todas sus relaciones y fecha
+  // 5. Creamos la oferta con todas sus relaciones
   const nuevaOferta = ofertaRepository.create({
     titulo: ofertaData.titulo,
     descripcion: ofertaData.descripcion,
@@ -44,7 +58,7 @@ export const createOferta = async (ofertaData, idEncargado) => {
     empresa: empresa
   });
 
-  // 5. Guardamos
+  // 6. Guardamos
   const ofertaGuardada = await ofertaRepository.save(nuevaOferta);
   
   return ofertaGuardada;

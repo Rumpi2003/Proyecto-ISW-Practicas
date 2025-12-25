@@ -39,10 +39,10 @@ const HomeEncargado = () => {
             </button>
         </div>
 
-        {/* MENU PRINCIPAL - Ajustado a grid-cols-3 para incluir tu botón */}
+        {/* MENU PRINCIPAL */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
             
-            {/* BOTÓN 1: ADMINISTRAR USUARIOS (Trabajo compañero) */}
+            {/* BOTÓN 1: ADMINISTRAR USUARIOS */}
             <div 
                 onClick={() => navigate('/dashboard/users')}
                 className="group bg-indigo-50 border-2 border-indigo-100 rounded-2xl p-10 cursor-pointer hover:bg-indigo-600 hover:border-indigo-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
@@ -60,7 +60,7 @@ const HomeEncargado = () => {
                 </div>
             </div>
 
-            {/* BOTÓN NUEVO: PUBLICAR OFERTA (Tu trabajo) */}
+            {/* BOTÓN 2: PUBLICAR OFERTA (CORREGIDO PARA MISMA PESTAÑA) */}
             <div 
                 onClick={() => navigate('/publicar-oferta')}
                 className="group bg-green-50 border-2 border-green-100 rounded-2xl p-10 cursor-pointer hover:bg-green-600 hover:border-green-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
@@ -78,7 +78,7 @@ const HomeEncargado = () => {
                 </div>
             </div>
 
-            {/* BOTÓN 3: GESTIONAR SOLICITUDES (Trabajo compañero) */}
+            {/* BOTÓN 3: GESTIONAR SOLICITUDES (Próximamente) */}
             <div className="group bg-gray-50 border-2 border-gray-100 rounded-2xl p-10 cursor-not-allowed opacity-70 flex items-center gap-6">
                 <div className="bg-white p-4 rounded-full text-4xl shadow-sm grayscale">
                     📄

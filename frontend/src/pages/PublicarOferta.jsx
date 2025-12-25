@@ -11,6 +11,9 @@ const PublicarOferta = () => {
   const navigate = useNavigate();
   const { user } = useAuth(); 
 
+  // 1. Calculamos la fecha actual para validaciones (Formato YYYY-MM-DD)
+  const today = new Date().toISOString().split("T")[0];
+
   useEffect(() => {
     const fetchData = async () => {
       const facultadId = user?.facultad?.id; 
@@ -18,7 +21,7 @@ const PublicarOferta = () => {
       if (!facultadId) return;
 
       try {
-        // Ejecutamos ambas peticiones en paralelo para optimizar tiempo
+        // Carga paralela de datos
         const [resCarreras, resEmpresas] = await Promise.all([
           axios.get(`/carreras?facultadId=${facultadId}`),
           axios.get('/empresas')
@@ -63,7 +66,15 @@ const PublicarOferta = () => {
       label: "Fecha Límite de Postulación",
       fieldType: "input",
       type: "date",
-      required: true
+      required: true,
+      min: today, // Bloquea días pasados en el calendario visual
+      validate: (value) => {
+        // Validador lógico: Muestra error si la fecha escrita es menor a hoy
+        if (value < today) {
+          return "No puedes elegir una fecha del pasado";
+        }
+        return true;
+      }
     },
     {
       name: "empresaId",

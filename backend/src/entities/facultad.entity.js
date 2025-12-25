@@ -5,18 +5,15 @@ export const Facultad = new EntitySchema({
   tableName: "facultades",
   columns: {
     id: {
-         primary: true,
-          type: "int",
-           generated: "increment" 
-        },
+      primary: true,
+      type: "int",
+      generated: "increment",
+    },
     nombre: {
-         type: "varchar",
-          length: 100,
-           unique: true,
-            nullable: false 
-        },
-      color: { 
-    type: "varchar", length: 7, nullable: true 
+      type: "varchar",
+      length: 100,
+      unique: true,
+      nullable: false,
     },
   },
   relations: {
@@ -29,6 +26,6 @@ export const Facultad = new EntitySchema({
       type: "one-to-many",
       target: "Encargado",
       inverseSide: "facultad",
-    }
-  }
+    },
+  },
 });
