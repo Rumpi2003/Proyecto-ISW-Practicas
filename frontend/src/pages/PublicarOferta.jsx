@@ -1,8 +1,8 @@
+// frontend/src/pages/PublicarOferta.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Form from '../components/Form';
 import { useAuth } from '../context/AuthContext';
-// Importamos axios directamente para evitar el problema de caché del servicio
 import axios from '../services/root.service.js'; 
 
 const PublicarOferta = () => {
@@ -14,11 +14,10 @@ const PublicarOferta = () => {
     const fetchCarreras = async () => {
       const id = user?.facultad?.id; 
 
-      // Si no hay ID, no hacemos nada (evitamos errores)
       if (!id) return;
 
       try {
-        // Construimos la URL directamente aquí para asegurar que el filtro se aplique
+        // Petición directa para asegurar el filtrado por facultad
         const url = `/carreras?facultadId=${id}`;
         const response = await axios.get(url);
         const data = response.data.data;
@@ -31,7 +30,7 @@ const PublicarOferta = () => {
           setCarrerasOptions(formatted);
         }
       } catch (error) {
-        console.error("Error al cargar las carreras filtradas:", error);
+        console.error("Error al cargar las carreras:", error);
       }
     };
 
@@ -58,18 +57,19 @@ const PublicarOferta = () => {
       minLength: 30
     },
     {
-      name: "carreraId",
-      label: `Carrera Destinada (${user?.facultad?.nombre || 'Cargando...'})`, 
-      fieldType: "select", 
+      // CAMBIO IMPORTANTE: Ahora es plural y usa checkboxes
+      name: "carreras",
+      label: `Carreras Destinadas (${user?.facultad?.nombre || 'Cargando...'})`, 
+      fieldType: "checkbox-group", 
       options: carrerasOptions,
       required: true
     }
   ];
 
   const handlePublish = (formData) => {
-    console.log("Datos para enviar:", formData);
-    // Aquí implementaremos la lógica de guardado
-    alert("Preparado para guardar.");
+    // formData.carreras ahora será un array de IDs, ej: ["1", "5"]
+    console.log("Datos listos para enviar:", formData);
+    alert("Datos listos. Revisa la consola para ver el array de carreras.");
   };
 
   return (

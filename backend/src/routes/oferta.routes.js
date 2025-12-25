@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { OfertaController } from "../controllers/oferta.controller.js"; // Importa la clase
+import { OfertaController } from "../controllers/oferta.controller.js"; 
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { checkEncargado } from "../middleware/checkEncargado.middleware.js";
 
 const router = Router();
-const ofertaController = new OfertaController(); // Crea la instancia
+const ofertaController = new OfertaController(); 
 
-// Ahora usas el método de la clase
-router.post("/", authMiddleware, checkEncargado, (req, res) => ofertaController.create(req, res));
+// ✅ CORREGIDO: Usamos 'publish' para que coincida con tu controlador
+router.post("/", authMiddleware, checkEncargado, (req, res) => ofertaController.publish(req, res));
 
 export default router;

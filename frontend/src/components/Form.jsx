@@ -26,7 +26,7 @@ const Form = ({ title, fields, buttonText, onSubmit, onChange }) => {
 
   return (
     <form 
-      lang="es" // <--- 1. Obliga al navegador a usar el diccionario en español
+      lang="es"
       className="space-y-6 bg-white rounded-2xl shadow-2xl p-8 md:p-12 max-w-2xl w-full" 
       onSubmit={handleSubmit(handleFormSubmit)}
     >
@@ -40,7 +40,7 @@ const Form = ({ title, fields, buttonText, onSubmit, onChange }) => {
             {field.label}
           </label>
 
-          {/* INPUT */}
+          {/* 1. INPUT DE TEXTO */}
           {field.fieldType === 'input' && (
             <input
               {...register(field.name, {
@@ -50,13 +50,13 @@ const Form = ({ title, fields, buttonText, onSubmit, onChange }) => {
               type={field.type}
               placeholder={field.placeholder}
               onChange={handleChange}
-              spellCheck="true" // <--- 2. Asegúrate de que esté en minúsculas y como string
-              autoComplete="on" // Ayuda al navegador a entender que es un campo de texto común
+              spellCheck="true"
+              autoComplete="on"
               className={getFieldClass(field.name)}
             />
           )}
 
-          {/* TEXTAREA */}
+          {/* 2. TEXTAREA */}
           {field.fieldType === 'textarea' && (
             <textarea
               {...register(field.name, {
@@ -66,12 +66,12 @@ const Form = ({ title, fields, buttonText, onSubmit, onChange }) => {
               placeholder={field.placeholder}
               rows={field.rows || 4}
               onChange={handleChange}
-              spellCheck="true" // <--- 3. Activa el subrayado ondulado
+              spellCheck="true"
               className={`${getFieldClass(field.name)} resize-none`}
             />
           )}
 
-          {/* ... resto del código del select y errores ... */}
+          {/* 3. SELECT (Único) */}
           {field.fieldType === 'select' && (
             <select
               {...register(field.name, {
@@ -89,6 +89,31 @@ const Form = ({ title, fields, buttonText, onSubmit, onChange }) => {
             </select>
           )}
 
+          {/* 4. CHECKBOX GROUP (Múltiple) - NUEVO CÓDIGO */}
+          {field.fieldType === 'checkbox-group' && (
+            <div className={`p-4 border-2 rounded-lg transition-colors ${errors[field.name] ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-50"}`}>
+              <p className="text-gray-600 font-bold mb-3 text-sm border-b pb-2 border-gray-200">
+                Selecciona una o más opciones:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                {field.options && field.options.map((opt, i) => (
+                  <label key={i} className="flex items-center space-x-3 p-3 bg-white rounded shadow-sm hover:bg-purple-50 cursor-pointer transition-all border border-gray-100 hover:border-purple-200">
+                    <input
+                      type="checkbox"
+                      value={opt.value}
+                      {...register(field.name, {
+                        required: field.required ? `Debes seleccionar al menos una opción` : false
+                      })}
+                      className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500 border-gray-300"
+                    />
+                    <span className="text-gray-700 text-sm font-medium">{opt.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* MENSAJES DE ERROR */}
           {errors[field.name] && (
             <p className="text-red-500 text-xs font-bold mt-1 animate-pulse">
               ⚠️ {errors[field.name].message}
