@@ -5,6 +5,7 @@ import authRoutes from "./auth.routes.js";
 import profileRoutes from "./profile.routes.js";
 import userRoutes from "./user.routes.js";
 import ofertaRoutes from "./oferta.routes.js";
+import carreraRoutes from "./carrera.routes.js";
 // enrutador principal
 
 export function routerApi(app) {
@@ -16,6 +17,7 @@ export function routerApi(app) {
   router.use("/profile", profileRoutes);
   router.use("/users", userRoutes);
   router.use("/ofertas", ofertaRoutes);
+  router.use("/carreras", carreraRoutes);
 
   // router.use("/auth", authRoutes); luego de crear ls estudiantes
 }
