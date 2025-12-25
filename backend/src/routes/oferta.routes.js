@@ -6,7 +6,10 @@ import { checkEncargado } from "../middleware/checkEncargado.middleware.js";
 const router = Router();
 const ofertaController = new OfertaController(); 
 
-// ✅ CORREGIDO: Usamos 'publish' para que coincida con tu controlador
+// Ruta para Crear Oferta
 router.post("/", authMiddleware, checkEncargado, (req, res) => ofertaController.publish(req, res));
+
+// Ruta para Obtener Ofertas (Esta es la que faltaba)
+router.get("/", authMiddleware, checkEncargado, (req, res) => ofertaController.getOffers(req, res));
 
 export default router;

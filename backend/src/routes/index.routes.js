@@ -1,4 +1,3 @@
-// src/routes/index.routes.js
 import { Router } from "express";
 import solicitudRoutes from "./solicitud.routes.js";
 import authRoutes from "./auth.routes.js";
@@ -7,19 +6,19 @@ import userRoutes from "./user.routes.js";
 import ofertaRoutes from "./oferta.routes.js";
 import carreraRoutes from "./carrera.routes.js";
 import empresaRoutes from "./empresa.routes.js";
-// enrutador principal
 
 export function routerApi(app) {
   const router = Router();
+  
+  // Prefijo global "/api"
   app.use("/api", router); 
 
+  // Definición de rutas
   router.use("/solicitudes", solicitudRoutes);
   router.use("/auth", authRoutes);
   router.use("/profile", profileRoutes);
   router.use("/users", userRoutes);
-  router.use("/ofertas", ofertaRoutes);
+  router.use("/ofertas", ofertaRoutes); // Ruta: /api/ofertas
   router.use("/carreras", carreraRoutes);
   router.use("/empresas", empresaRoutes);
-
-  // router.use("/auth", authRoutes); luego de crear ls estudiantes
 }

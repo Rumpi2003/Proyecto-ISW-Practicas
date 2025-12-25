@@ -42,7 +42,7 @@ const HomeEncargado = () => {
         {/* MENU PRINCIPAL */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
             
-            {/* BOTÓN 1: ADMINISTRAR USUARIOS */}
+            {/* 1. ADMINISTRAR USUARIOS (Índigo) */}
             <div 
                 onClick={() => navigate('/dashboard/users')}
                 className="group bg-indigo-50 border-2 border-indigo-100 rounded-2xl p-10 cursor-pointer hover:bg-indigo-600 hover:border-indigo-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
@@ -60,7 +60,7 @@ const HomeEncargado = () => {
                 </div>
             </div>
 
-            {/* BOTÓN 2: PUBLICAR OFERTA (CORREGIDO PARA MISMA PESTAÑA) */}
+            {/* 2. PUBLICAR OFERTA (Verde) */}
             <div 
                 onClick={() => navigate('/publicar-oferta')}
                 className="group bg-green-50 border-2 border-green-100 rounded-2xl p-10 cursor-pointer hover:bg-green-600 hover:border-green-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
@@ -78,16 +78,21 @@ const HomeEncargado = () => {
                 </div>
             </div>
 
-            {/* BOTÓN 3: GESTIONAR SOLICITUDES (Próximamente) */}
-            <div className="group bg-gray-50 border-2 border-gray-100 rounded-2xl p-10 cursor-not-allowed opacity-70 flex items-center gap-6">
-                <div className="bg-white p-4 rounded-full text-4xl shadow-sm grayscale">
-                    📄
+            {/* 3. VER PUBLICACIONES (Azul - NUEVO) */}
+            <div 
+                onClick={() => navigate('/ofertas')}
+                className="group bg-blue-50 border-2 border-blue-100 rounded-2xl p-10 cursor-pointer hover:bg-blue-600 hover:border-blue-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
+            >
+                <div className="bg-white p-4 rounded-full text-4xl shadow-sm group-hover:scale-110 transition-transform">
+                    📋
                 </div>
                 <div>
-                    <h3 className="text-2xl font-bold text-gray-400">
-                        Gestionar Solicitudes
+                    <h3 className="text-2xl font-bold text-gray-800 group-hover:text-white transition-colors">
+                        Ver Publicaciones
                     </h3>
-                    <p className="text-gray-400 mt-1 text-sm">Próximamente...</p>
+                    <p className="text-gray-500 mt-1 group-hover:text-blue-100 transition-colors">
+                        Revisar el historial de ofertas.
+                    </p>
                 </div>
             </div>
 

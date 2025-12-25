@@ -12,8 +12,14 @@ export const Carrera = new EntitySchema({
     nombre: {
       type: "varchar",
       length: 100,
-      unique: true, 
+      unique: true,
       nullable: false,
+    },
+    // 👇 Nueva columna para las siglas (Ej: ICI, ARQ, ICO)
+    abreviacion: {
+      type: "varchar",
+      length: 50,
+      nullable: true, // Lo dejamos opcional para evitar conflictos con datos existentes
     },
   },
   relations: {
@@ -22,7 +28,7 @@ export const Carrera = new EntitySchema({
       target: "Facultad",
       joinColumn: { name: "facultadId" },
       nullable: false,
-      inverseSide: "carreras" 
-    }
-  }
+      inverseSide: "carreras",
+    },
+  },
 });
