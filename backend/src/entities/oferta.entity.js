@@ -41,8 +41,13 @@ export const Oferta = new EntitySchema({
     carreras: {
       target: "Carrera",
       type: "many-to-many",
-      joinTable: true, 
+      joinTable: true,
       cascade: true,
+    },
+    empresa: {
+      target: "Empresa",
+      type: "many-to-one",
+      joinColumn: { name: "idEmpresa" },
     },
   },
 });

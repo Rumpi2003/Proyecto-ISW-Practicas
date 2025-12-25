@@ -7,34 +7,45 @@ import axios from '../services/root.service.js';
 
 const PublicarOferta = () => {
   const [carrerasOptions, setCarrerasOptions] = useState([]);
+  const [empresasOptions, setEmpresasOptions] = useState([]);
   const navigate = useNavigate();
   const { user } = useAuth(); 
 
   useEffect(() => {
-    const fetchCarreras = async () => {
-      const id = user?.facultad?.id; 
+    const fetchData = async () => {
+      const facultadId = user?.facultad?.id; 
 
-      if (!id) return;
+      if (!facultadId) return;
 
       try {
-        // Petición directa para asegurar el filtrado por facultad
-        const url = `/carreras?facultadId=${id}`;
-        const response = await axios.get(url);
-        const data = response.data.data;
-        
-        if (data) {
-          const formatted = data.map(c => ({
+        // Ejecutamos ambas peticiones en paralelo para optimizar tiempo
+        const [resCarreras, resEmpresas] = await Promise.all([
+          axios.get(`/carreras?facultadId=${facultadId}`),
+          axios.get('/empresas')
+        ]);
+
+        // Formatear Carreras
+        if (resCarreras.data.data) {
+          setCarrerasOptions(resCarreras.data.data.map(c => ({
             label: c.nombre, 
             value: c.id
-          }));
-          setCarrerasOptions(formatted);
+          })));
         }
+
+        // Formatear Empresas
+        if (resEmpresas.data.data) {
+          setEmpresasOptions(resEmpresas.data.data.map(e => ({
+            label: e.nombre, 
+            value: e.id
+          })));
+        }
+
       } catch (error) {
-        console.error("Error al cargar las carreras:", error);
+        console.error("Error al cargar datos del formulario:", error);
       }
     };
 
-    fetchCarreras();
+    fetchData();
   }, [user]); 
 
   const fields = [
@@ -48,6 +59,20 @@ const PublicarOferta = () => {
       minLength: 10
     },
     {
+      name: "fechaCierre",
+      label: "Fecha Límite de Postulación",
+      fieldType: "input",
+      type: "date",
+      required: true
+    },
+    {
+      name: "empresaId",
+      label: "Empresa Oferente",
+      fieldType: "select",
+      options: empresasOptions,
+      required: true
+    },
+    {
       name: "descripcion",
       label: "Descripción de la Práctica",
       fieldType: "textarea",
@@ -57,7 +82,6 @@ const PublicarOferta = () => {
       minLength: 30
     },
     {
-      // CAMBIO IMPORTANTE: Ahora es plural y usa checkboxes
       name: "carreras",
       label: `Carreras Destinadas (${user?.facultad?.nombre || 'Cargando...'})`, 
       fieldType: "checkbox-group", 
@@ -66,10 +90,17 @@ const PublicarOferta = () => {
     }
   ];
 
-  const handlePublish = (formData) => {
-    // formData.carreras ahora será un array de IDs, ej: ["1", "5"]
-    console.log("Datos listos para enviar:", formData);
-    alert("Datos listos. Revisa la consola para ver el array de carreras.");
+  const handlePublish = async (formData) => {
+    try {
+      await axios.post('/ofertas', formData);
+      alert("¡Oferta publicada exitosamente!");
+      navigate('/home'); 
+
+    } catch (error) {
+      console.error("Error al publicar:", error);
+      const mensajeError = error.response?.data?.message || "Ocurrió un error al guardar la oferta.";
+      alert(`Error: ${mensajeError}`);
+    }
   };
 
   return (
