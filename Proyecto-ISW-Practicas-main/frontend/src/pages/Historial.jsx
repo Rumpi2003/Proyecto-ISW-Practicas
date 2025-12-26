@@ -11,11 +11,9 @@ const Historial = () => {
     useEffect(() => {
         const fetchHistorial = async () => {
             try {
-                // Se realiza la petición al endpoint de historial
                 const response = await axios.get('/encargado/historial');
                 const dataRaw = response.data.data || response.data;
-                
-                // Se filtra solo los registros que ya tienen nota final (prácticas terminadas)
+                // Filtramos solo los que ya terminaron (tienen nota final)
                 setEvaluaciones(dataRaw.filter(item => item.notaFinal !== null));
             } catch (error) {
                 console.error("Error cargando historial", error);
@@ -35,7 +33,7 @@ const Historial = () => {
                 </div>
                 <button 
                     onClick={() => navigate('/home')} 
-                    className="bg-white border px-5 py-2 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+                    className="bg-white border px-5 py-2 rounded-xl font-bold text-gray-600 hover:bg-gray-100"
                 >
                     ⬅ Volver
                 </button>
@@ -80,7 +78,9 @@ const Historial = () => {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="4" className="p-10 text-center text-gray-400">No hay registros de evaluaciones finalizadas.</td>
+                                <td colSpan="4" className="p-10 text-center text-gray-400 italic">
+                                    No hay registros de evaluaciones finalizadas.
+                                </td>
                             </tr>
                         )}
                     </tbody>
