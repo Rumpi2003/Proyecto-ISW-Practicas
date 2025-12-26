@@ -1,5 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { AuthProvider } from './context/AuthContext'; 
+
 import Login from '@pages/Login';
 import Home from '@pages/Home';
 import Users from '@pages/Users'; 
@@ -69,5 +71,7 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <RouterProvider router={router} />
+  <AuthProvider>
+    <RouterProvider router={router} />
+  </AuthProvider>
 );
