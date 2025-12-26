@@ -44,6 +44,7 @@ router.get(
 router.put(
   "/mis-solicitudes/:idSolicitud", 
   authMiddleware, 
+  uploadMiddleware,
   controller.updatePropia
 );
 export default router;

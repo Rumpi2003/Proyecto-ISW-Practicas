@@ -25,7 +25,7 @@ export class SolicitudController {
       const data = {
         idEstudiante: idEstudianteVerificado,
         mensaje,
-        documentos
+        documentos: documentosUrls 
       };
 
       const nuevaSolicitud = await createSolicitud(data);
@@ -109,16 +109,30 @@ export class SolicitudController {
   async updatePropia(req, res) {
     try {
       const { idSolicitud } = req.params;
-      const { mensaje, documentos } = req.body;
+      const { mensaje } = req.body;
       const idEstudiante = req.user.id;
+      const file = req.file;
 
       if (!idSolicitud) return handleErrorClient(res, 400, "Falta el ID");
 
-      if (!mensaje && !documentos) {
+      let documentosUrls = undefined;
+      if (file) {
+        const url = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+        documentosUrls = [url]; 
+      }
+
+      if (!mensaje && !file) {
          return handleErrorClient(res, 400, "Sin datos para actualizar");
       }
 
-      const solicitudActualizada = await updateSolicitudEstudiante(idSolicitud, idEstudiante, { mensaje, documentos });
+      const solicitudActualizada = await updateSolicitudEstudiante(
+          idSolicitud, 
+          idEstudiante, 
+          { 
+              mensaje, 
+              documentos: documentosUrls 
+          }
+      );
       
       handleSuccess(res, 200, "Solicitud corregida y enviada a revisión nuevamente", solicitudActualizada);
 

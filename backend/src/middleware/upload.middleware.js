@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const uploadsDir = path.resolve(__dirname, '../../uploads');
+const uploadsDir = path.resolve(__dirname, '../../../uploads');
 
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
@@ -23,11 +23,11 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    const allowed = ['image/jpeg', 'image/png', 'application/pdf']; //imagenes y pdf
+    const allowed = ['application/pdf']; //solo pdf
     if (allowed.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Tipo de archivo no permitido (Solo PDF o Imágenes)'), false);
+        cb(new Error('Tipo de archivo no permitido (Solo PDF)'), false);
     }
 };
 

@@ -8,6 +8,10 @@ import { routerApi } from "./routes/index.routes.js"; //enrutador principal
 import path from "path"; 
 import { fileURLToPath } from "url";
 
+// para upload de archivos frontend
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
 //ver las peticiones en la consola
@@ -26,9 +30,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 routerApi(app); //todas las rutas (/api/auth, /api/users, etc.)
-// para upload de archivos frontend
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
+
 export default app;
