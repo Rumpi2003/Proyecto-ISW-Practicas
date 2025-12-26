@@ -5,6 +5,25 @@ import { useNavigate } from 'react-router-dom';
 const Historial = () => {
     const navigate = useNavigate();
 
+    const [evaluaciones, setEvaluaciones] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchHistorial = async () => {
+            try {
+                const response = await axios.get('/encargado/historial');
+                const dataRaw = response.data.data || response.data;
+                // Filtramos solo los que ya terminaron (tienen nota final)
+                setEvaluaciones(dataRaw.filter(item => item.notaFinal !== null));
+            } catch (error) {
+                console.error("Error cargando historial", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchHistorial();
+    }, []);
+
     return (
         <div className="min-h-screen bg-gray-50 p-8">
             <header className="flex justify-between items-center mb-8">
