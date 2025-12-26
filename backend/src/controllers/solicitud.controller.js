@@ -7,15 +7,17 @@ export class SolicitudController {
 
   async create(req, res) {
     try {
-      const { mensaje, documentos } = req.body;
+      const file = req.file; 
+      const { mensaje } = req.body;
       const idEstudianteVerificado = req.user.id;
 
-      // --- AGREGA ESTO PARA DEPURAR ---
-      console.log("Token decodificado (req.user):", req.user);
-      console.log("ID extraído:", idEstudianteVerificado);
-      // -------------------------------
+      let documentosUrls = [];
 
-      // Verificamos que vengan todo lo necesario (minimo para valido)
+      if (file) {
+        const url = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+        documentosUrls.push(url);
+      }
+
       if (!mensaje) { 
         return handleErrorClient(res, 400, "El mensaje es requerido");
       }
