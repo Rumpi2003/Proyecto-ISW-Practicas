@@ -1,19 +1,49 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Se agrega deleteUser a las importaciones
+// Importaciones del Commit 11
 import { getUsers, deleteUser } from '../services/user.service';
-// Se importa Swal para las alertas de confirmación que vendrán en el siguiente paso
 import Swal from 'sweetalert2'; 
 
 const Users = () => {
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
 
+    // --- FUNCIÓN DE ELIMINACIÓN ---
+    const handleEliminar = async (id) => {
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Esta acción eliminará al usuario permanentemente del sistema.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await deleteUser(id); 
+                Swal.fire(
+                    '¡Eliminado!',
+                    'El usuario ha sido removido con éxito.',
+                    'success'
+                );
+            } catch (error) {
+                console.error("Error al eliminar:", error);
+                Swal.fire(
+                    'Error',
+                    'No se pudo completar la eliminación.',
+                    'error'
+                );
+            }
+        }
+    };
+
     useEffect(() => {
         const fetchUsers = async () => {
             try {
                 const response = await getUsers();
-                // Ajustamos por si el backend devuelve un array directo o un objeto { data: [...] }
                 setUsers(Array.isArray(response) ? response : response.data || []);
             } catch (error) {
                 console.error("Error al cargar usuarios:", error);
@@ -54,7 +84,7 @@ const Users = () => {
                             {users.length > 0 ? (
                                 users.map((user) => (
                                     <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="p-4 text-gray-700 font-medium capitalize">
+                                        <td className="p-4 font-medium capitalize">
                                             {user.nombre || user.nombreCompleto}
                                         </td>
                                         <td className="p-4 text-gray-500">{user.rut}</td>
