@@ -1,95 +1,88 @@
-// frontend/src/pages/Users.jsx
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
+// Se agrega deleteUser a las importaciones
+import { getUsers, deleteUser } from '../services/user.service';
+// Se importa Swal para las alertas de confirmación que vendrán en el siguiente paso
+import Swal from 'sweetalert2'; 
 
 const Users = () => {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+    const [users, setUsers] = useState([]);
 
-  const handleAction = (action) => {
-    Swal.fire({
-      title: action,
-      text: 'Funcionalidad en desarrollo.',
-      icon: 'info',
-      confirmButtonColor: '#3b82f6'
-    });
-  };
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await getUsers();
+                // Ajustamos por si el backend devuelve un array directo o un objeto { data: [...] }
+                setUsers(Array.isArray(response) ? response : response.data || []);
+            } catch (error) {
+                console.error("Error al cargar usuarios:", error);
+            }
+        };
+        fetchUsers();
+    }, []);
 
-  return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-7xl min-h-[80vh] p-8 md:p-12 flex flex-col">
-        
-        {/* ENCABEZADO CON BOTÓN "VOLVER" */}
-        <div className="flex items-center gap-4 mb-10 border-b border-gray-100 pb-6">
-            <button 
-                onClick={() => navigate('/dashboard')}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-xl transition-all font-bold text-xl"
-            >
-                ←
-            </button>
-            <div>
-                <h1 className="text-3xl font-extrabold text-gray-800">
-                    Administración de Usuarios
-                </h1>
-                <p className="text-gray-500">
-                    Selecciona una acción para gestionar el sistema
-                </p>
+    return (
+        <div className="min-h-screen bg-gray-50 p-8">
+            {/* TÍTULOS */}
+            <div className="max-w-6xl mx-auto flex justify-between items-center mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-800">Usuarios Registrados</h1>
+                    <p className="text-gray-500">Gestión de Alumnos, Encargados y Supervisores</p>
+                </div>
+                <button
+                    onClick={() => navigate('/dashboard/users/create')}
+                    className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg transition-transform transform hover:scale-105 flex items-center gap-2"
+                >
+                    <span>+</span> Crear Nuevo Usuario
+                </button>
+            </div>
+
+            {/* TABLA DE USUARIOS */}
+            <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-blue-50 text-blue-800 text-sm uppercase tracking-wider">
+                                <th className="p-4 font-bold border-b">Nombre</th>
+                                <th className="p-4 font-bold border-b">RUT</th>
+                                <th className="p-4 font-bold border-b">Correo</th>
+                                <th className="p-4 font-bold border-b">Rol</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 text-gray-700">
+                            {users.length > 0 ? (
+                                users.map((user) => (
+                                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="p-4 text-gray-700 font-medium capitalize">
+                                            {user.nombre || user.nombreCompleto}
+                                        </td>
+                                        <td className="p-4 text-gray-500">{user.rut}</td>
+                                        <td className="p-4 text-gray-500">{user.email}</td>
+                                        <td className="p-4">
+                                            <span className={`px-3 py-1 rounded-full text-xs font-bold border
+                                                ${user.rol === 'estudiante' ? 'bg-green-100 text-green-700 border-green-200' : ''}
+                                                ${user.rol === 'encargado' ? 'bg-purple-100 text-purple-700 border-purple-200' : ''}
+                                                ${user.rol === 'supervisor' ? 'bg-orange-100 text-orange-700 border-orange-200' : ''}
+                                            `}>
+                                                {user.rol ? user.rol.toUpperCase() : 'USER'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="4" className="p-8 text-center text-gray-400">
+                                        Cargando usuarios...
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-
-        {/* GRID DE BOTONES ESPECÍFICOS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-4">
-            
-            {/* 1. CREAR */}
-            <div 
-                onClick={() => handleAction('Crear Usuario')}
-                className="group bg-blue-50 border-2 border-blue-100 rounded-2xl p-8 cursor-pointer hover:bg-blue-600 hover:border-blue-600 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-            >
-                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                    ➕
-                </div>
-                <h3 className="text-2xl font-bold text-gray-800 group-hover:text-white mb-2">
-                    Crear Usuario
-                </h3>
-                <p className="text-gray-500 group-hover:text-blue-100">
-                    Registrar nuevos alumnos, encargados o supervisores.
-                </p>
-            </div>
-
-            {/* 2. ACTUALIZAR */}
-            <div 
-                onClick={() => handleAction('Actualizar Usuario')}
-                className="group bg-orange-50 border-2 border-orange-100 rounded-2xl p-8 cursor-pointer hover:bg-orange-500 hover:border-orange-500 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-            >
-                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                    🔄
-                </div>
-                <h3 className="text-2xl font-bold text-gray-800 group-hover:text-white mb-2">
-                    Editar Datos
-                </h3>
-                <p className="text-gray-500 group-hover:text-orange-100">
-                    Modificar información de usuarios existentes.
-                </p>
-            </div>
-
-            {/* 3. ELIMINAR */}
-            <div 
-                onClick={() => handleAction('Eliminar Usuario')}
-                className="group bg-red-50 border-2 border-red-100 rounded-2xl p-8 cursor-pointer hover:bg-red-500 hover:border-red-500 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-            >
-                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                    🗑️
-                </div>
-                <h3 className="text-2xl font-bold text-gray-800 group-hover:text-white mb-2">
-                    Eliminar Usuario
-                </h3>
-                <p className="text-gray-500 group-hover:text-red-100">
-                    Dar de baja cuentas del sistema.
-                </p>
-            </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Users;
