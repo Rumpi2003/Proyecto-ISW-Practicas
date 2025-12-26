@@ -71,6 +71,19 @@ const HomeEncargado = () => {
                         Aceptar o rechazar postulaciones y revisar documentos PDF subidos por alumnos.
                     </p>
                 </div>
+                {/* Evaluación y Promedio Final */}
+                <div
+                    onClick={() => navigate('/encargado/practicas')}
+                    className="group bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-purple-200 transition-all cursor-pointer transform hover:-translate-y-1"
+                >
+                    <div className="bg-purple-100 w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-2xl group-hover:bg-purple-600 transition-colors">
+                        🎓
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Evaluación y Notas</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed">
+                        Ingresar nota de encargado, visualizar nota de supervisor y calcular promedio final.
+                    </p>
+                </div>
             </div>
         </div>
     );
