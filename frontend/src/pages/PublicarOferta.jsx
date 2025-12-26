@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom'; // 👈 Agregamos useLocation
+import { useNavigate, useLocation } from 'react-router-dom';
 import Form from '../components/Form';
 import { useAuth } from '../context/AuthContext';
 import axios from '../services/root.service.js'; 
@@ -10,7 +10,7 @@ const PublicarOferta = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   
   const navigate = useNavigate();
-  const location = useLocation(); // 👈 Hook para recibir los datos de la tarjeta
+  const location = useLocation(); 
   const { user } = useAuth(); 
 
   const today = new Date().toISOString().split("T")[0];
@@ -50,7 +50,7 @@ const PublicarOferta = () => {
     fetchData();
   }, [user]); 
 
-  // 2. Definir campos con 'defaultValue' para rellenar si es edición
+  // 2. Definir campos
   const fields = [
     {
       name: "titulo",
@@ -60,7 +60,7 @@ const PublicarOferta = () => {
       placeholder: "Ej: Práctica Desarrollo Web",
       required: true,
       minLength: 10,
-      defaultValue: esEdicion ? ofertaAEditar.titulo : "" // 👈 Rellenar Título
+      defaultValue: esEdicion ? ofertaAEditar.titulo : ""
     },
     {
       name: "fechaCierre",
@@ -71,7 +71,7 @@ const PublicarOferta = () => {
       min: today,
       defaultValue: esEdicion && ofertaAEditar.fechaCierre 
         ? new Date(ofertaAEditar.fechaCierre).toISOString().split('T')[0] 
-        : "", // 👈 Rellenar Fecha formateada
+        : "",
       validate: (value) => {
         if (value < today) return "No puedes elegir una fecha del pasado";
         return true;
@@ -83,7 +83,7 @@ const PublicarOferta = () => {
       fieldType: "select",
       options: empresasOptions,
       required: true,
-      defaultValue: esEdicion ? ofertaAEditar.empresa?.id : "" // 👈 Rellenar Empresa
+      defaultValue: esEdicion ? ofertaAEditar.empresa?.id : ""
     },
     {
       name: "descripcion",
@@ -93,7 +93,7 @@ const PublicarOferta = () => {
       placeholder: "Detalla las responsabilidades, requisitos y beneficios...",
       required: true,
       minLength: 30,
-      defaultValue: esEdicion ? ofertaAEditar.descripcion : "" // 👈 Rellenar Descripción
+      defaultValue: esEdicion ? ofertaAEditar.descripcion : ""
     },
     {
       name: "carreras",
@@ -101,26 +101,24 @@ const PublicarOferta = () => {
       fieldType: "checkbox-group", 
       options: carrerasOptions,
       required: true,
-      defaultValue: esEdicion ? ofertaAEditar.carreras?.map(c => c.id) : [] // 👈 Rellenar Checkboxes
+      defaultValue: esEdicion ? ofertaAEditar.carreras?.map(c => c.id) : []
     }
   ];
 
-  // 3. Manejar el envío (Crear o Editar)
+  // 3. Manejar el envío
   const handleSubmit = async (formData) => {
     try {
       if (esEdicion) {
-        // --- MODO EDICIÓN (PUT) ---
         await axios.put(`/ofertas/${ofertaAEditar.id}`, formData);
       } else {
-        // --- MODO CREACIÓN (POST) ---
         await axios.post('/ofertas', formData);
       }
       
-      // Mostrar modal de éxito
       setShowSuccess(true);
       
       setTimeout(() => {
-        navigate('/ver-ofertas'); // Volvemos a la lista para ver el cambio
+        // Al guardar con éxito, sí queremos ir a ver la lista para confirmar que está ahí
+        navigate('/ofertas'); 
       }, 2000);
 
     } catch (error) {
@@ -136,7 +134,8 @@ const PublicarOferta = () => {
       {/* HEADER / BOTÓN VOLVER */}
       <div className="max-w-2xl w-full mb-4 text-left">
         <button 
-          onClick={() => navigate('/ver-ofertas')}
+          // 👇 LA SOLUCIÓN: Usamos -1 para volver al historial anterior
+          onClick={() => navigate(-1)}
           className="text-gray-500 hover:text-purple-600 flex items-center gap-2 transition-all duration-300 font-bold group"
         >
           <span className="group-hover:-translate-x-1 transition-transform">←</span> 
@@ -144,11 +143,11 @@ const PublicarOferta = () => {
         </button>
       </div>
 
-      {/* FORMULARIO REUTILIZADO */}
+      {/* FORMULARIO */}
       <Form 
-        title={esEdicion ? "✏️ Editar Oferta" : "🚀 Nueva Oferta de Práctica"} // Título dinámico
+        title={esEdicion ? "✏️ Editar Oferta" : "🚀 Nueva Oferta de Práctica"}
         fields={fields}
-        buttonText={esEdicion ? "💾 Guardar Cambios" : "📢 Publicar Oferta"} // Botón dinámico
+        buttonText={esEdicion ? "💾 Guardar Cambios" : "📢 Publicar Oferta"}
         onSubmit={handleSubmit}
       />
 
