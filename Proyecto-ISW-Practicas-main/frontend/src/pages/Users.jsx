@@ -22,16 +22,21 @@ const Users = () => {
         if (result.isConfirmed) {
             try {
                 await deleteUser(id); 
+                
+                // --- ACTUALIZACIÓN INSTANTÁNEA ---
+                // Filtramos el estado local para quitar el usuario sin recargar la página
+                setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
+
                 Swal.fire(
                     '¡Eliminado!',
-                    'El usuario ha sido removido con éxito.',
+                    'El usuario ha sido eliminado con éxito.',
                     'success'
                 );
             } catch (error) {
                 console.error("Error al eliminar:", error);
                 Swal.fire(
                     'Error',
-                    'No se pudo completar la eliminación.',
+                    'No se pudo completar la acción.',
                     'error'
                 );
             }
@@ -121,4 +126,4 @@ const Users = () => {
     );
 };
 
-export default Users;   
+export default Users;
