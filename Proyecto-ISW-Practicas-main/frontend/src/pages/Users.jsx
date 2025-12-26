@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Importaciones del Commit 11
 import { getUsers, deleteUser } from '../services/user.service';
 import Swal from 'sweetalert2'; 
 
@@ -23,12 +22,14 @@ const Users = () => {
 
         if (result.isConfirmed) {
             try {
+                // Llamada al servicio para eliminar el usuario por ID
                 await deleteUser(id); 
                 Swal.fire(
                     '¡Eliminado!',
                     'El usuario ha sido removido con éxito.',
                     'success'
                 );
+                // Nota: La recarga automática de la lista se implementará en el Commit 15
             } catch (error) {
                 console.error("Error al eliminar:", error);
                 Swal.fire(
@@ -44,6 +45,7 @@ const Users = () => {
         const fetchUsers = async () => {
             try {
                 const response = await getUsers();
+                // Verificación del formato de respuesta para actualizar el estado
                 setUsers(Array.isArray(response) ? response : response.data || []);
             } catch (error) {
                 console.error("Error al cargar usuarios:", error);
@@ -54,7 +56,7 @@ const Users = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
-            {/* TÍTULOS */}
+            {/* TÍTULOS Y ENCABEZADO */}
             <div className="max-w-6xl mx-auto flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-800">Usuarios Registrados</h1>
