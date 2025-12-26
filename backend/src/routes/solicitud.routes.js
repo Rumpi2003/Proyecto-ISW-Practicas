@@ -7,7 +7,9 @@ import { checkEncargado } from "../middleware/checkEncargado.middleware.js";
 const router = Router();
 const controller = new SolicitudController();
 
-router.post("/", authMiddleware, controller.create);
+router.post("/",
+  authMiddleware, 
+  controller.create);
 
 router.get(
   "/", 
@@ -30,4 +32,15 @@ router.delete(
   controller.delete
 );
 
+router.get(
+  "/mis-solicitudes", 
+  authMiddleware, 
+  controller.getSolicitudesEstudiante
+);
+
+router.put(
+  "/mis-solicitudes/:idSolicitud", 
+  authMiddleware, 
+  controller.updatePropia
+);
 export default router;
