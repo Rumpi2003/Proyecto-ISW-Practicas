@@ -1,14 +1,20 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '@context/AuthContext';
 
+/**
+ * Componente de Protección de Rutas
+ * Verifica si existe un usuario en el sessionStorage antes de permitir el acceso.
+ */
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
+    // Obtenemos el usuario del almacenamiento de sesión
+    const user = JSON.parse(sessionStorage.getItem('usuario'));
 
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
+    // Si no hay usuario, redirigimos al login de forma inmediata
+    if (!user) {
+        return <Navigate to="/auth" replace />;
+    }
 
-  return children;
+    // Si el usuario existe, permitimos que vea el contenido de la ruta (children)
+    return children;
 };
 
 export default ProtectedRoute;
