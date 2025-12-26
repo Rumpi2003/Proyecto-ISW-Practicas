@@ -52,7 +52,25 @@ const HomeEncargado = () => {
                         Crear nuevas cuentas para empresas y eliminar supervisores del sistema.
                     </p>
                 </div>
-
+                {/* Revisar Solicitudes y Documentos */}
+                <div
+                    onClick={() => navigate('/encargado/solicitudes')}
+                    className="relative group bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-orange-200 transition-all cursor-pointer transform hover:-translate-y-1"
+                >
+                    {/* Badge del contador dinámico */}
+                    {pendientes > 0 && (
+                        <div className="absolute -top-3 -right-3 bg-orange-500 text-white w-9 h-9 rounded-full flex items-center justify-center font-black shadow-lg border-4 border-white animate-pulse">
+                            {pendientes}
+                        </div>
+                    )}
+                    <div className="bg-orange-100 w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-2xl group-hover:bg-orange-600 transition-colors">
+                        📄
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Solicitudes de Práctica</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed">
+                        Aceptar o rechazar postulaciones y revisar documentos PDF subidos por alumnos.
+                    </p>
+                </div>
             </div>
         </div>
     );
