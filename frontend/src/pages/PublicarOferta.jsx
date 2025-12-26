@@ -1,6 +1,5 @@
-// frontend/src/pages/PublicarOferta.jsx
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom'; // 👈 Agregamos useLocation
 import Form from '../components/Form';
 import { useAuth } from '../context/AuthContext';
 import axios from '../services/root.service.js'; 
@@ -8,11 +7,17 @@ import axios from '../services/root.service.js';
 const PublicarOferta = () => {
   const [carrerasOptions, setCarrerasOptions] = useState([]);
   const [empresasOptions, setEmpresasOptions] = useState([]);
-  const [showSuccess, setShowSuccess] = useState(false); // 👈 Nuevo estado para el modal
+  const [showSuccess, setShowSuccess] = useState(false);
+  
   const navigate = useNavigate();
+  const location = useLocation(); // 👈 Hook para recibir los datos de la tarjeta
   const { user } = useAuth(); 
 
   const today = new Date().toISOString().split("T")[0];
+
+  // 1. Detectar si estamos en Modo Edición
+  const ofertaAEditar = location.state?.oferta;
+  const esEdicion = !!ofertaAEditar;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,6 +50,7 @@ const PublicarOferta = () => {
     fetchData();
   }, [user]); 
 
+  // 2. Definir campos con 'defaultValue' para rellenar si es edición
   const fields = [
     {
       name: "titulo",
@@ -53,7 +59,8 @@ const PublicarOferta = () => {
       type: "text",
       placeholder: "Ej: Práctica Desarrollo Web",
       required: true,
-      minLength: 10
+      minLength: 10,
+      defaultValue: esEdicion ? ofertaAEditar.titulo : "" // 👈 Rellenar Título
     },
     {
       name: "fechaCierre",
@@ -62,6 +69,9 @@ const PublicarOferta = () => {
       type: "date",
       required: true,
       min: today,
+      defaultValue: esEdicion && ofertaAEditar.fechaCierre 
+        ? new Date(ofertaAEditar.fechaCierre).toISOString().split('T')[0] 
+        : "", // 👈 Rellenar Fecha formateada
       validate: (value) => {
         if (value < today) return "No puedes elegir una fecha del pasado";
         return true;
@@ -72,7 +82,8 @@ const PublicarOferta = () => {
       label: "Empresa Oferente",
       fieldType: "select",
       options: empresasOptions,
-      required: true
+      required: true,
+      defaultValue: esEdicion ? ofertaAEditar.empresa?.id : "" // 👈 Rellenar Empresa
     },
     {
       name: "descripcion",
@@ -81,33 +92,41 @@ const PublicarOferta = () => {
       rows: 8,
       placeholder: "Detalla las responsabilidades, requisitos y beneficios...",
       required: true,
-      minLength: 30
+      minLength: 30,
+      defaultValue: esEdicion ? ofertaAEditar.descripcion : "" // 👈 Rellenar Descripción
     },
     {
       name: "carreras",
       label: `Carreras Destinadas (${user?.facultad?.nombre || 'Cargando...'})`, 
       fieldType: "checkbox-group", 
       options: carrerasOptions,
-      required: true
+      required: true,
+      defaultValue: esEdicion ? ofertaAEditar.carreras?.map(c => c.id) : [] // 👈 Rellenar Checkboxes
     }
   ];
 
-  const handlePublish = async (formData) => {
+  // 3. Manejar el envío (Crear o Editar)
+  const handleSubmit = async (formData) => {
     try {
-      await axios.post('/ofertas', formData);
+      if (esEdicion) {
+        // --- MODO EDICIÓN (PUT) ---
+        await axios.put(`/ofertas/${ofertaAEditar.id}`, formData);
+      } else {
+        // --- MODO CREACIÓN (POST) ---
+        await axios.post('/ofertas', formData);
+      }
       
-      // 1. Mostrar el modal de éxito
+      // Mostrar modal de éxito
       setShowSuccess(true);
       
-      // 2. Esperar 2 segundos y redirigir
       setTimeout(() => {
-        navigate('/home'); 
+        navigate('/ver-ofertas'); // Volvemos a la lista para ver el cambio
       }, 2000);
 
     } catch (error) {
-      console.error("Error al publicar:", error);
-      const mensajeError = error.response?.data?.message || "Ocurrió un error al guardar la oferta.";
-      alert(`Error: ${mensajeError}`); // El error sí lo dejamos como alert por ahora
+      console.error("Error al procesar:", error);
+      const mensajeError = error.response?.data?.message || "Ocurrió un error al procesar la solicitud.";
+      alert(`Error: ${mensajeError}`);
     }
   };
 
@@ -117,32 +136,34 @@ const PublicarOferta = () => {
       {/* HEADER / BOTÓN VOLVER */}
       <div className="max-w-2xl w-full mb-4 text-left">
         <button 
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/ver-ofertas')}
           className="text-gray-500 hover:text-purple-600 flex items-center gap-2 transition-all duration-300 font-bold group"
         >
           <span className="group-hover:-translate-x-1 transition-transform">←</span> 
-          Volver al Panel
+          Cancelar y Volver
         </button>
       </div>
 
-      {/* FORMULARIO */}
+      {/* FORMULARIO REUTILIZADO */}
       <Form 
-        title="Nueva Oferta de Práctica"
+        title={esEdicion ? "✏️ Editar Oferta" : "🚀 Nueva Oferta de Práctica"} // Título dinámico
         fields={fields}
-        buttonText="Publicar Oferta"
-        onSubmit={handlePublish}
+        buttonText={esEdicion ? "💾 Guardar Cambios" : "📢 Publicar Oferta"} // Botón dinámico
+        onSubmit={handleSubmit}
       />
 
-      {/* MODAL DE ÉXITO (Overlay) */}
+      {/* MODAL DE ÉXITO */}
       {showSuccess && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-300">
           <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center max-w-sm w-full transform scale-100 animate-in zoom-in duration-300">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
               <span className="text-4xl">✅</span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-800 mb-2">¡Oferta Publicada!</h3>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                {esEdicion ? "¡Cambios Guardados!" : "¡Oferta Publicada!"}
+            </h3>
             <p className="text-gray-500 text-center mb-6">
-              Tu oferta ha sido creada correctamente. 
+              La operación se realizó correctamente.
             </p>
             <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                <div className="bg-green-500 h-full w-full animate-[wiggle_2s_linear]"></div>

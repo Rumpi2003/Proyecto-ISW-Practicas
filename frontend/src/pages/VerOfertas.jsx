@@ -72,16 +72,28 @@ const VerOfertas = () => {
           {ofertas.map((oferta) => (
             <div 
                 key={oferta.id} 
-                onClick={() => setSelectedOferta(oferta)} // 👈 Clic en cualquier parte de la tarjeta
+                onClick={() => setSelectedOferta(oferta)}
                 className="group bg-white rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-1 cursor-pointer transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full"
             >
               <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-600 w-full group-hover:from-indigo-500 group-hover:to-purple-600 transition-all"></div>
               
               <div className="p-6 flex-1 flex flex-col">
-                <div className="mb-4">
+                <div className="flex justify-between items-start mb-4">
                     <span className="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
                         {oferta.empresa?.nombre || "Empresa Inc."}
                     </span>
+                    
+                    {/* 👇 BOTÓN EDITAR */}
+                    <button 
+                        onClick={(e) => {
+                            e.stopPropagation(); // Evita que se abra el modal al hacer clic aquí
+                            navigate('/publicar-oferta', { state: { oferta } });
+                        }}
+                        className="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors border border-amber-100"
+                        title="Editar publicación"
+                    >
+                        ✏️
+                    </button>
                 </div>
 
                 <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
@@ -102,7 +114,7 @@ const VerOfertas = () => {
                          <span className="mt-0.5">🎓 Para:</span>
                          <div className="flex flex-wrap gap-1">
                             {oferta.carreras?.slice(0, 3).map((c, index) => (
-                                <span key={index} className="bg-gray-100 text-gray-600 text-[10px] font-bold px-1.5 py-0.5 rounded border border-gray-200">
+                                <span key={index} className="bg-gray-100 text-gray-600 text-[10px] font-bold px-1.5 py-0.5 rounded border border-gray-200 uppercase">
                                     {c.abreviacion || "S/A"}
                                 </span>
                             ))}
@@ -169,7 +181,14 @@ const VerOfertas = () => {
                     </div>
                 </div>
 
-                <div className="p-6 border-t border-gray-100 bg-gray-50 rounded-b-3xl flex justify-end">
+                <div className="p-6 border-t border-gray-100 bg-gray-50 rounded-b-3xl flex justify-between gap-4">
+                    {/* Botón Editar dentro del modal también por comodidad */}
+                    <button 
+                        onClick={() => navigate('/publicar-oferta', { state: { oferta: selectedOferta } })}
+                        className="bg-amber-500 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-amber-600 transition-all shadow-md flex items-center gap-2"
+                    >
+                        ✏️ Editar Oferta
+                    </button>
                     <button 
                         onClick={(e) => { e.stopPropagation(); setSelectedOferta(null); }}
                         className="bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md"

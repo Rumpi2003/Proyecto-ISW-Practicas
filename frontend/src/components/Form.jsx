@@ -2,7 +2,24 @@ import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 
 const Form = ({ title, fields, buttonText, onSubmit, footerContent }) => {
-  const { register, handleSubmit, formState: { errors }, watch } = useForm();
+  
+  // 1. Extraemos los valores iniciales de la configuración de campos
+  const defaultValues = fields.reduce((acc, field) => {
+    if (field.defaultValue !== undefined) {
+      acc[field.name] = field.defaultValue;
+    }
+    return acc;
+  }, {});
+
+  // 2. Inicializamos useForm con esos valores por defecto
+  const { register, handleSubmit, formState: { errors }, reset } = useForm({
+    defaultValues: defaultValues 
+  });
+
+  // 3. Efecto para resetear el formulario si los valores por defecto cambian (ej. al cargar datos de edición)
+  useEffect(() => {
+    reset(defaultValues);
+  }, [JSON.stringify(defaultValues), reset]);
 
   return (
     <div className="bg-white p-8 md:p-10 rounded-3xl shadow-xl w-full max-w-2xl border border-gray-100">
@@ -21,18 +38,17 @@ const Form = ({ title, fields, buttonText, onSubmit, footerContent }) => {
               </label>
             )}
 
-            {/* --- INPUT TYPE TEXT, DATE, PASSWORD, ETC --- */}
+            {/* --- INPUT (Texto, Fecha, Email, etc) --- */}
             {field.fieldType === 'input' && (
               <input
                 {...register(field.name, {
                   required: field.required ? "Este campo es obligatorio" : false,
                   minLength: field.minLength ? { value: field.minLength, message: `Mínimo ${field.minLength} caracteres` } : undefined,
-                  // 👇 ESTA ES LA LÍNEA MÁGICA QUE FALTABA:
                   validate: field.validate 
                 })}
                 type={field.type}
                 placeholder={field.placeholder}
-                min={field.min} // Para bloquear fechas pasadas en el calendario
+                min={field.min}
                 className={`w-full px-4 py-3 rounded-xl border-2 focus:ring-4 transition-all outline-none bg-gray-50
                   ${errors[field.name] 
                     ? "border-red-300 focus:border-red-500 focus:ring-red-100" 
@@ -80,14 +96,13 @@ const Form = ({ title, fields, buttonText, onSubmit, footerContent }) => {
                     </option>
                   ))}
                 </select>
-                {/* Flecha personalizada para el select */}
                 <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
                   <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                 </div>
               </div>
             )}
 
-            {/* --- CHECKBOX GROUP (Para Carreras) --- */}
+            {/* --- CHECKBOX GROUP --- */}
             {field.fieldType === 'checkbox-group' && (
               <div className="bg-gray-50 p-4 rounded-xl border-2 border-gray-100">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
