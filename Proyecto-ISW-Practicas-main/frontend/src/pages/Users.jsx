@@ -7,7 +7,6 @@ const Users = () => {
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
 
-    // --- FUNCIÓN DE ELIMINACIÓN ---
     const handleEliminar = async (id) => {
         const result = await Swal.fire({
             title: '¿Estás seguro?',
@@ -22,14 +21,12 @@ const Users = () => {
 
         if (result.isConfirmed) {
             try {
-                // Llamada al servicio para eliminar el usuario por ID
                 await deleteUser(id); 
                 Swal.fire(
                     '¡Eliminado!',
                     'El usuario ha sido removido con éxito.',
                     'success'
                 );
-                // Nota: La recarga automática de la lista se implementará en el Commit 15
             } catch (error) {
                 console.error("Error al eliminar:", error);
                 Swal.fire(
@@ -45,7 +42,6 @@ const Users = () => {
         const fetchUsers = async () => {
             try {
                 const response = await getUsers();
-                // Verificación del formato de respuesta para actualizar el estado
                 setUsers(Array.isArray(response) ? response : response.data || []);
             } catch (error) {
                 console.error("Error al cargar usuarios:", error);
@@ -56,7 +52,6 @@ const Users = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
-            {/* TÍTULOS Y ENCABEZADO */}
             <div className="max-w-6xl mx-auto flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-800">Usuarios Registrados</h1>
@@ -70,7 +65,6 @@ const Users = () => {
                 </button>
             </div>
 
-            {/* TABLA DE USUARIOS */}
             <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
@@ -80,6 +74,7 @@ const Users = () => {
                                 <th className="p-4 font-bold border-b">RUT</th>
                                 <th className="p-4 font-bold border-b">Correo</th>
                                 <th className="p-4 font-bold border-b">Rol</th>
+                                <th className="p-4 font-bold border-b text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 text-gray-700">
@@ -100,11 +95,20 @@ const Users = () => {
                                                 {user.rol ? user.rol.toUpperCase() : 'USER'}
                                             </span>
                                         </td>
+                                        <td className="p-4 text-center">
+                                            <button 
+                                                onClick={() => handleEliminar(user.id)}
+                                                className="bg-red-50 text-red-600 p-2 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                                                title="Eliminar Usuario"
+                                            >
+                                                🗑️
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="4" className="p-8 text-center text-gray-400">
+                                    <td colSpan="5" className="p-8 text-center text-gray-400">
                                         Cargando usuarios...
                                     </td>
                                 </tr>
@@ -117,4 +121,4 @@ const Users = () => {
     );
 };
 
-export default Users;
+export default Users;   
