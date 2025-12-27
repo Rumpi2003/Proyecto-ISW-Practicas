@@ -15,6 +15,9 @@ const VerOfertas = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  // 👇 LÓGICA DE PERMISOS: Verificamos si es encargado
+  const esEncargado = user?.rol === 'encargado';
+
   useEffect(() => {
     const fetchOfertas = async () => {
       try {
@@ -91,15 +94,23 @@ const VerOfertas = () => {
                 <span className="group-hover:-translate-x-1 transition-transform">←</span> 
                 Volver al Panel
             </button>
-            <h1 className="text-3xl font-extrabold text-gray-800">Mis Publicaciones</h1>
-            <p className="text-gray-500">Gestiona las ofertas de práctica de {user?.facultad?.nombre}</p>
+            <h1 className="text-3xl font-extrabold text-gray-800">
+                {esEncargado ? "Mis Publicaciones" : "Ofertas de Práctica"}
+            </h1>
+            <p className="text-gray-500">
+                {esEncargado ? `Gestiona las ofertas de ${user?.facultad?.nombre}` : "Explora las oportunidades disponibles para ti"}
+            </p>
         </div>
-        <button 
-            onClick={() => navigate('/publicar-oferta')}
-            className="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 shadow-lg hover:shadow-xl transition-all"
-        >
-            + Nueva Oferta
-        </button>
+        
+        {/* 👇 SOLO EL ENCARGADO PUEDE VER EL BOTÓN DE CREAR */}
+        {esEncargado && (
+            <button 
+                onClick={() => navigate('/publicar-oferta')}
+                className="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 shadow-lg hover:shadow-xl transition-all"
+            >
+                + Nueva Oferta
+            </button>
+        )}
       </div>
 
       {/* LISTADO DE OFERTAS */}
@@ -111,7 +122,7 @@ const VerOfertas = () => {
         <div className="bg-white rounded-3xl p-12 text-center shadow-sm border border-gray-100 max-w-2xl mx-auto mt-10">
             <div className="text-6xl mb-4">📭</div>
             <h3 className="text-xl font-bold text-gray-800 mb-2">Aún no hay ofertas</h3>
-            <p className="text-gray-500 mb-6">Parece que no has subido ninguna vacante todavía.</p>
+            <p className="text-gray-500 mb-6">Parece que no hay vacantes disponibles por ahora.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
@@ -146,7 +157,6 @@ const VerOfertas = () => {
                       {oferta.descripcion}
                   </p>
 
-                  {/* PIE DE TARJETA CON BOTONES A LA DERECHA */}
                   <div className="border-t border-gray-100 pt-4 mt-auto flex justify-between items-end gap-4">
                       
                       <div className="flex flex-col gap-2">
@@ -174,28 +184,31 @@ const VerOfertas = () => {
                         </div>
                       </div>
 
-                      <div className="flex gap-2 shrink-0">
-                        <button 
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                navigate('/publicar-oferta', { state: { oferta } });
-                            }}
-                            className="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors border border-amber-100 shadow-sm"
-                            title="Editar"
-                        >
-                            ✏️
-                        </button>
-                        <button 
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setOfertaAEliminar(oferta.id); 
-                            }}
-                            className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-100 shadow-sm"
-                            title="Eliminar"
-                        >
-                            🗑️
-                        </button>
-                      </div>
+                      {/* 👇 SOLO EL ENCARGADO VE LOS BOTONES EN LA TARJETA */}
+                      {esEncargado && (
+                        <div className="flex gap-2 shrink-0">
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate('/publicar-oferta', { state: { oferta } });
+                                }}
+                                className="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors border border-amber-100 shadow-sm"
+                                title="Editar"
+                            >
+                                ✏️
+                            </button>
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOfertaAEliminar(oferta.id); 
+                                }}
+                                className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-100 shadow-sm"
+                                title="Eliminar"
+                            >
+                                🗑️
+                            </button>
+                        </div>
+                      )}
 
                   </div>
                 </div>
@@ -205,7 +218,7 @@ const VerOfertas = () => {
         </div>
       )}
 
-      {/* 🟢 MODAL DE DETALLES */}
+      {/* MODAL DE DETALLES */}
       {selectedOferta && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto flex flex-col animate-in zoom-in-95 duration-200">
@@ -240,7 +253,7 @@ const VerOfertas = () => {
                         </p>
                     </div>
 
-                    {/* 👇 SECCIÓN DE DATOS DE LA EMPRESA (NUEVA) */}
+                    {/* SECCIÓN DATOS EMPRESA */}
                     <div className="bg-indigo-50 p-5 rounded-xl border border-indigo-100">
                         <h4 className="text-sm font-bold text-indigo-900 uppercase tracking-wider mb-3 flex items-center gap-2">
                             🏢 Sobre la Empresa
@@ -249,23 +262,17 @@ const VerOfertas = () => {
                             <p>
                                 <span className="font-semibold text-indigo-900">Empresa:</span> {selectedOferta.empresa?.nombre}
                             </p>
-                            
-                            {/* Razón Social (si es diferente o existe) */}
                             {selectedOferta.empresa?.razonSocial && (
                                 <p>
                                     <span className="font-semibold text-indigo-900">Razón Social:</span> {selectedOferta.empresa.razonSocial}
                                 </p>
                             )}
-
-                            {/* Dirección */}
                             {selectedOferta.empresa?.direccion && (
                                 <p className="flex items-center gap-2">
                                     <span>📍</span> 
                                     <span>{selectedOferta.empresa.direccion}</span>
                                 </p>
                             )}
-
-                            {/* Sitio Web (Clicable) */}
                             {selectedOferta.empresa?.web && (
                                 <a 
                                     href={selectedOferta.empresa.web.startsWith('http') ? selectedOferta.empresa.web : `https://${selectedOferta.empresa.web}`} 
@@ -281,11 +288,11 @@ const VerOfertas = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="bg-gray-50 p-4 rounded-xl">
-                            <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Fecha Límite</h4>
+                            <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Fecha Límite de Postulación</h4>
                             <p className="font-semibold text-gray-800">{formatDate(selectedOferta.fechaCierre)}</p>
                         </div>
                         <div className="bg-gray-50 p-4 rounded-xl">
-                             <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Carreras</h4>
+                             <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Carreras Destinadas</h4>
                              <ul className="list-disc list-inside text-gray-700 text-sm space-y-1">
                                 {selectedOferta.carreras?.map(c => (
                                     <li key={c.id}>
@@ -299,20 +306,27 @@ const VerOfertas = () => {
                 </div>
 
                 <div className="p-6 border-t border-gray-100 bg-gray-50 rounded-b-3xl flex flex-wrap justify-between gap-4">
-                    <div className="flex gap-2 w-full md:w-auto">
-                        <button 
-                            onClick={() => navigate('/publicar-oferta', { state: { oferta: selectedOferta } })}
-                            className="flex-1 md:flex-none bg-amber-500 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-amber-600 transition-all shadow-md flex items-center justify-center gap-2"
-                        >
-                            ✏️ Editar
-                        </button>
-                        <button 
-                            onClick={() => setOfertaAEliminar(selectedOferta.id)} 
-                            className="flex-1 md:flex-none bg-red-500 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-red-600 transition-all shadow-md flex items-center justify-center gap-2"
-                        >
-                            🗑️ Eliminar
-                        </button>
-                    </div>
+                    
+                    {/* 👇 SOLO EL ENCARGADO VE LOS BOTONES DE ACCIÓN EN EL MODAL */}
+                    {esEncargado ? (
+                        <div className="flex gap-2 w-full md:w-auto">
+                            <button 
+                                onClick={() => navigate('/publicar-oferta', { state: { oferta: selectedOferta } })}
+                                className="flex-1 md:flex-none bg-amber-500 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-amber-600 transition-all shadow-md flex items-center justify-center gap-2"
+                            >
+                                ✏️ Editar
+                            </button>
+                            <button 
+                                onClick={() => setOfertaAEliminar(selectedOferta.id)} 
+                                className="flex-1 md:flex-none bg-red-500 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-red-600 transition-all shadow-md flex items-center justify-center gap-2"
+                            >
+                                🗑️ Eliminar
+                            </button>
+                        </div>
+                    ) : (
+                        // Espaciador para que el botón cerrar se vaya a la derecha en móvil
+                        <div className="w-full md:w-auto"></div>
+                    )}
 
                     <button 
                         onClick={(e) => { e.stopPropagation(); setSelectedOferta(null); }}
@@ -325,7 +339,7 @@ const VerOfertas = () => {
         </div>
       )}
 
-      {/* MODAL DE CONFIRMACIÓN */}
+      {/* MODAL DE CONFIRMACIÓN (Solo útil si eres encargado, pero no molesta tenerlo renderizado) */}
       {ofertaAEliminar && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 transform scale-100 animate-in zoom-in duration-200">

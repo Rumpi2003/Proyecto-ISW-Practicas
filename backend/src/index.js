@@ -5,6 +5,7 @@ import { Supervisor } from "./entities/supervisor.entity.js";
 import { Carrera } from "./entities/carrera.entity.js";
 import { Facultad } from "./entities/facultad.entity.js";
 import { Empresa } from "./entities/empresa.entity.js";
+import { Estudiante } from "./entities/estudiante.entity.js"; 
 import bcrypt from "bcrypt";
 
 async function main() {
@@ -15,14 +16,17 @@ async function main() {
     const facultadRepo = AppDataSource.getRepository(Facultad);
     const carreraRepo = AppDataSource.getRepository(Carrera);
     const encargadoRepo = AppDataSource.getRepository(Encargado);
-    const supervisorRepo = AppDataSource.getRepository(Supervisor);
     const empresaRepo = AppDataSource.getRepository(Empresa);
+    const estudianteRepo = AppDataSource.getRepository(Estudiante);
+    // const supervisorRepo = AppDataSource.getRepository(Supervisor); // Omitido por ahora
 
-    // 1. CREAR FACULTADES Y CARRERAS (ACTUALIZADO CON SIGLAS) 🎓
+    // ==========================================
+    // 1. CREAR FACULTADES Y CARRERAS 🎓
+    // ==========================================
     const countFacultades = await facultadRepo.count();
     
     if (countFacultades === 0) {
-      console.log("Creando Facultades y Carreras UBB con abreviaciones...");
+      console.log("⚙️  Sembrando Facultades y Carreras UBB...");
 
       const dataUBB = [
         {
@@ -73,10 +77,8 @@ async function main() {
       ];
 
       for (const f of dataUBB) {
-        // Guardamos la facultad
         const facultadGuardada = await facultadRepo.save(facultadRepo.create({ nombre: f.nombre }));
         
-        // Guardamos sus carreras con la sigla
         for (const car of f.carreras) {
           await carreraRepo.save(carreraRepo.create({ 
             nombre: car.nombre, 
@@ -88,36 +90,36 @@ async function main() {
       console.log("✅ Facultades y Carreras listas.");
     }
 
-    // 2. CREAR ENCARGADO INICIAL
+    // ==========================================
+    // 2. CREAR ENCARGADO INICIAL 👤
+    // ==========================================
     const totalEncargados = await encargadoRepo.count();
     
     if (totalEncargados === 0) {
-      console.log("⚠️ Creando encargado inicial...");
+      console.log("⚙️  Creando encargado inicial...");
       
       const facultadInicial = await facultadRepo.findOneBy({ nombre: "Arquitectura, Construcción y Diseño" });
       
-      if (!facultadInicial) {
-         console.error("❌ ERROR: No se encontró la facultad especificada para el encargado.");
-      } else {
-          const hashedPassword = await bcrypt.hash("admin123", 10);
+      if (facultadInicial) {
+         const hashedPassword = await bcrypt.hash("admin123", 10);
     
-          const nuevoEncargado = encargadoRepo.create({
-            nombre: "Administrador Inicial",
-            rut: "11.111.111-1",
-            email: "admin@ubb.cl",
-            password: hashedPassword,
-            facultad: facultadInicial, 
-          });
-    
-          await encargadoRepo.save(nuevoEncargado);
-          console.log(`🚀 Encargado inicial creado para la facultad: ${facultadInicial.nombre}`);
+         await encargadoRepo.save(encargadoRepo.create({
+           nombre: "Administrador Inicial",
+           rut: "11.111.111-1",
+           email: "admin@ubb.cl",
+           password: hashedPassword,
+           facultad: facultadInicial, 
+         }));
+         console.log(`✅ Encargado inicial creado.`);
       }
     }
 
-    // 3. CREAR EMPRESAS
+    // ==========================================
+    // 3. CREAR EMPRESAS 🏢
+    // ==========================================
     const totalEmpresas = await empresaRepo.count();
     if (totalEmpresas === 0) {
-      console.log("⚠️ Creando empresas de prueba...");
+      console.log("⚙️  Creando empresas de prueba...");
 
       const empresasData = [
         {
@@ -144,23 +146,39 @@ async function main() {
       console.log("✅ Empresas de prueba creadas.");
     }
 
-    // 4. CREAR SUPERVISOR INICIAL
-    const totalSupervisores = await supervisorRepo.count();
-    if (totalSupervisores === 0) {
-      const hashedSupPassword = await bcrypt.hash("supervisor123", 10);
-      await supervisorRepo.save(supervisorRepo.create({
-        nombre: "Supervisor de Prueba",
-        rut: "22.222.222-2",
-        email: "supervisor@empresa.com",
-        password: hashedSupPassword,
-        empresa: "Tech Solutions Biobío", 
-      }));
-      console.log("🚀 Supervisor inicial creado");
+    // ==========================================
+    // 4. CREAR ESTUDIANTE INICIAL 🎓
+    // ==========================================
+    const totalEstudiantes = await estudianteRepo.count();
+    if (totalEstudiantes === 0) {
+        console.log("⚙️  Creando estudiante inicial...");
+
+        // Buscamos la carrera ICI para asignarla al alumno
+        const carreraICI = await carreraRepo.findOneBy({ abreviacion: "ICI" });
+
+        if (carreraICI) {
+            const hashedEstPassword = await bcrypt.hash("estudiante123", 10);
+            
+            await estudianteRepo.save(estudianteRepo.create({
+                nombre: "Estudiante UBB",
+                rut: "12.345.678-9",
+                email: "estudiante@alumnos.ubb.cl",
+                password: hashedEstPassword,
+                carrera: carreraICI, // Pasamos el objeto carrera (ManyToOne)
+                nivelPractica: "IV"
+            }));
+            console.log("✅ Estudiante inicial creado: estudiante@alumnos.ubb.cl / estudiante123");
+        } else {
+            console.warn("⚠️ No se encontró la carrera ICI. El estudiante no pudo ser creado.");
+        }
     }
 
+    // ==========================================
+    // 5. SERVER START
+    // ==========================================
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-      console.log(`✅ Servidor escuchando en el puerto ${PORT}`);
+      console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
     });
 
   } catch (error) {
