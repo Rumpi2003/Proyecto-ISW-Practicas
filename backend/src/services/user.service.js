@@ -39,9 +39,10 @@ export async function deleteEstudiante(id) {
   await estudianteRepo.remove(estudiante);
 }
 
+// MODIFICADO: Ahora incluimos la relación con carrera
 export async function findAllEstudiantes() {
   return await estudianteRepo.find({
-    select: ["id", "nombre", "rut", "email", "carrera", "nivelPractica", "created_at"]
+    relations: ["carrera"] 
   });
 }
 
@@ -69,9 +70,10 @@ export async function deleteEncargado(id) {
   await encargadoRepo.remove(encargado);
 }
 
+// MODIFICADO: Ahora incluimos la relación con facultad
 export async function findAllEncargados() {
   return await encargadoRepo.find({
-    select: ["id", "nombre", "rut", "email", "facultad", "created_at"]
+    relations: ["facultad"]
   });
 }
 
@@ -100,14 +102,11 @@ export async function deleteSupervisor(id) {
 }
 
 export async function findAllSupervisores() {
-  return await supervisorRepo.find({
-    select: ["id", "nombre", "rut", "email", "empresa", "created_at"]
-  });
+  return await supervisorRepo.find(); // Los supervisores no tienen relaciones externas simples por ahora
 }
 
 
 //================== funciones genericas =================
-//seleccionar el repositorio correcto según el rol
 const getRepoByRole = (rol) => {
   switch (rol) {
     case 'estudiante': return estudianteRepo;
@@ -117,19 +116,28 @@ const getRepoByRole = (rol) => {
   }
 };
 
+// MODIFICADO: Para que al actualizar el perfil se devuelva con sus relaciones
 export async function updateUserProfile(id, rol, data) {
   const repo = getRepoByRole(rol);
   
-  const user = await repo.findOneBy({ id });
+  // Usamos findOne con relations según el rol
+  const user = await repo.findOne({ 
+    where: { id },
+    relations: rol === 'encargado' ? ["facultad"] : rol === 'estudiante' ? ["carrera"] : []
+  });
+
   if (!user) throw new Error("Usuario no encontrado");
 
   if (data.password) {
     data.password = await encryptPassword(data.password);
   }
 
-  //actualizar
   repo.merge(user, data);
-  return await repo.save(user);
+  const updatedUser = await repo.save(user);
+  
+  // Ocultar password antes de retornar
+  delete updatedUser.password;
+  return updatedUser;
 }
 
 export async function deleteUserAccount(id, rol) {

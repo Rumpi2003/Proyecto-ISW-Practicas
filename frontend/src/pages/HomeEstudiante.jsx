@@ -1,8 +1,8 @@
-import { useAuth } from '@context/AuthContext';
-import { logout } from '@services/auth.service';
+import { useAuth } from '../context/AuthContext';
+import { logout } from '../services/auth.service';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { getMyProfile } from '@services/user.service';
+import { getMyProfile } from '../services/user.service'; 
 import Swal from 'sweetalert2';
 
 const HomeEstudiante = () => {
@@ -19,7 +19,6 @@ const HomeEstudiante = () => {
   const handleGetProfile = async () => {
     try {
       const response = await getMyProfile();
-
       const userData = response.data?.userData || response.data?.userData || response.data;
       
       setProfileData(userData);
@@ -36,13 +35,16 @@ const HomeEstudiante = () => {
       });
     } catch (error) {
       console.error(error);
+      // COMBINACIÓN: Limpiamos datos Y mostramos error
       setProfileData(null);
+      Swal.fire('Error', 'No se pudo cargar el perfil', 'error');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="bg-white rounded-3xl shadow-xl w-full max-w-5xl min-h-[70vh] p-8 md:p-12 flex flex-col">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
+      {/* Aumenté el ancho máximo a max-w-7xl para que quepan las 3 columnas */}
+      <div className="bg-white rounded-3xl shadow-xl w-full max-w-7xl min-h-[70vh] p-8 md:p-12 flex flex-col">
         
         {/* HEADER ESTUDIANTE */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-gray-100 pb-6">
@@ -67,10 +69,10 @@ const HomeEstudiante = () => {
             </button>
         </div>
 
-        {/* ACCIONES DEL ESTUDIANTE */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* ACCIONES - AHORA SON 3 COLUMNAS */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            {/* TARJETA 1: DATOS PERSONALES */}
+            {/* 1. MI INFORMACIÓN (Diseño elegante de MAIN) */}
             <div className="bg-indigo-50 p-8 rounded-2xl border border-indigo-100 hover:shadow-lg transition-shadow flex flex-col">
                 <h3 className="text-xl font-bold text-indigo-900 mb-2">👤 Mi Información</h3>
                 <p className="text-indigo-700 mb-6 text-sm">Consulta tus datos académicos y personales.</p>
@@ -85,7 +87,7 @@ const HomeEstudiante = () => {
                     </button>
                 )}
 
-                {/* FICHA TÉCNICA ELEGANTE */}
+                {/* FICHA TÉCNICA */}
                 {profileData && (
                     <div className="bg-white rounded-xl shadow-sm border border-indigo-100 overflow-hidden animate-fade-in-up">
                         <div className="bg-indigo-600 px-4 py-2 flex justify-between items-center">
@@ -102,7 +104,6 @@ const HomeEstudiante = () => {
                                     <p className="text-gray-800 font-bold text-sm">{profileData.nombre || 'No registrado'}</p>
                                 </div>
                             </div>
-
                             {/* RUT */}
                             <div className="flex items-center gap-3 pb-3 border-b border-gray-50">
                                 <div className="bg-indigo-50 p-2 rounded-lg text-lg">🆔</div>
@@ -111,8 +112,7 @@ const HomeEstudiante = () => {
                                     <p className="text-gray-800 font-medium text-sm">{profileData.rut || 'No registrado'}</p>
                                 </div>
                             </div>
-
-                            {/* Carrera (Dato Nuevo) */}
+                            {/* Carrera */}
                             <div className="flex items-center gap-3 pb-3 border-b border-gray-50">
                                 <div className="bg-indigo-50 p-2 rounded-lg text-lg">🎓</div>
                                 <div>
@@ -120,21 +120,11 @@ const HomeEstudiante = () => {
                                     <p className="text-gray-800 font-medium text-sm">{profileData.carrera || 'No registrada'}</p>
                                 </div>
                             </div>
-
-                            {/* Nivel Práctica (Dato Nuevo) */}
-                            <div className="flex items-center gap-3 pb-3 border-b border-gray-50">
-                                <div className="bg-indigo-50 p-2 rounded-lg text-lg">📊</div>
-                                <div>
-                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Nivel Práctica</p>
-                                    <p className="text-gray-800 font-medium text-sm">{profileData.nivelPractica || 'No asignado'}</p>
-                                </div>
-                            </div>
-
                             {/* Email */}
                             <div className="flex items-center gap-3">
                                 <div className="bg-indigo-50 p-2 rounded-lg text-lg">📧</div>
                                 <div>
-                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Correo Institucional</p>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Correo</p>
                                     <p className="text-gray-800 font-medium text-sm break-all">{profileData.email}</p>
                                 </div>
                             </div>
@@ -143,9 +133,23 @@ const HomeEstudiante = () => {
                 )}
             </div>
 
-            {/* TARJETA 2: POSTULACIONES */}
+            {/* 2. VER OFERTAS (TU FUNCIONALIDAD - HEAD) */}
+            {/* Le puse color AZUL para diferenciarlo */}
+            <div className="bg-blue-50 p-8 rounded-2xl border border-blue-100 hover:shadow-lg transition-shadow flex flex-col">
+                <h3 className="text-xl font-bold text-blue-900 mb-2">🚀 Ofertas de Práctica</h3>
+                <p className="text-blue-700 mb-4 text-sm">Explora las vacantes disponibles publicadas por los encargados.</p>
+                <button 
+                    onClick={() => navigate('/ofertas')}
+                    className="mt-auto bg-blue-600 text-white px-4 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors w-full shadow-md flex items-center justify-center gap-2"
+                >
+                    Ver Publicaciones
+                </button>
+            </div>
+
+            {/* 3. POSTULACIONES (FUNCIONALIDAD DE MAIN) */}
+            {/* Se queda en VERDE */}
             <div className="bg-green-50 p-8 rounded-2xl border border-green-100 hover:shadow-lg transition-shadow flex flex-col">
-                <h3 className="text-xl font-bold text-green-900 mb-2">💼 Postular a Práctica</h3>
+                <h3 className="text-xl font-bold text-green-900 mb-2">💼 Mis Postulaciones</h3>
                 <p className="text-green-700 mb-6 text-sm">Crea nuevas solicitudes o revisa el estado de las anteriores.</p>
                 <button 
                     onClick={() => navigate('/solicitudes')}
@@ -154,8 +158,8 @@ const HomeEstudiante = () => {
                     Gestionar Solicitudes
                 </button>
             </div>
-        </div>
 
+        </div>
       </div>
     </div>
   );

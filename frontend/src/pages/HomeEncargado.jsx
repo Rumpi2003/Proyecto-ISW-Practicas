@@ -13,8 +13,9 @@ const HomeEncargado = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-7xl min-h-[80vh] p-8 md:p-12 flex flex-col">
+        
         {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 border-b border-gray-100 pb-6">
             <div>
@@ -39,7 +40,9 @@ const HomeEncargado = () => {
         </div>
 
         {/* MENU PRINCIPAL */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4 max-w-4xl mx-auto w-full">
+            
+            {/* 1. ADMINISTRAR USUARIOS */}
             <div 
                 onClick={() => navigate('/dashboard/users')}
                 className="group bg-indigo-50 border-2 border-indigo-100 rounded-2xl p-10 cursor-pointer hover:bg-indigo-600 hover:border-indigo-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
@@ -57,18 +60,25 @@ const HomeEncargado = () => {
                 </div>
             </div>
 
-            <div className="group bg-gray-50 border-2 border-gray-100 rounded-2xl p-10 cursor-not-allowed opacity-70 flex items-center gap-6">
-                <div className="bg-white p-4 rounded-full text-4xl shadow-sm grayscale">
-                    📄
+            {/* 2. GESTIONAR PUBLICACIONES (TU TRABAJO) */}
+            <div 
+                onClick={() => navigate('/ofertas')}
+                className="group bg-blue-50 border-2 border-blue-100 rounded-2xl p-10 cursor-pointer hover:bg-blue-600 hover:border-blue-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
+            >
+                <div className="bg-white p-4 rounded-full text-4xl shadow-sm group-hover:scale-110 transition-transform">
+                    📋
                 </div>
                 <div>
-                    <h3 className="text-2xl font-bold text-gray-400">
-                        Gestionar Solicitudes
+                    <h3 className="text-2xl font-bold text-gray-800 group-hover:text-white transition-colors">
+                        Gestionar Publicaciones
                     </h3>
-                    <p className="text-gray-400 mt-1 text-sm">Próximamente...</p>
+                    <p className="text-gray-500 mt-1 group-hover:text-blue-100 transition-colors">
+                        Ver listado y crear nuevas ofertas.
+                    </p>
                 </div>
             </div>
 
+            {/* 3. PAUTAS DE EVALUACIÓN (TRABAJO DE MAIN) */}
             <div 
                 onClick={() => navigate('/dashboard/pautas')}
                 className="group bg-emerald-50 border-2 border-emerald-100 rounded-2xl p-10 cursor-pointer hover:bg-emerald-600 hover:border-emerald-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
@@ -86,6 +96,7 @@ const HomeEncargado = () => {
                 </div>
             </div>
 
+            {/* 4. EVALUACIONES SUPERVISOR (TRABAJO DE MAIN) */}
             <div 
                 onClick={() => navigate('/dashboard/evaluaciones/gestionar')}
                 className="group bg-teal-50 border-2 border-teal-100 rounded-2xl p-10 cursor-pointer hover:bg-teal-600 hover:border-teal-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
@@ -102,6 +113,7 @@ const HomeEncargado = () => {
                     </p>
                 </div>
             </div>
+
         </div>
       </div>
     </div>

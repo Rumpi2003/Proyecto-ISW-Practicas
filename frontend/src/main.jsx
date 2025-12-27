@@ -1,9 +1,16 @@
-// frontend/src/main.jsx
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { AuthProvider } from './context/AuthContext'; 
+
 import Login from '@pages/Login';
 import Home from '@pages/Home';
 import Users from '@pages/Users'; 
+
+// --- IMPORTACIONES TUYAS (OFERTAS) ---
+import PublicarOferta from '@pages/PublicarOferta';
+import VerOfertas from '@pages/VerOfertas';
+
+// --- IMPORTACIONES DE MAIN (PAUTAS, EVALUACIONES, SOLICITUDES) ---
 import PautasEvaluacion from '@pages/PautasEvaluacion';
 import CrearPauta from '@pages/CrearPauta';
 import GestionarPautas from '@pages/GestionarPautas';
@@ -12,13 +19,15 @@ import GestionarEvaluacionesSupervisor from '@pages/GestionarEvaluacionesSupervi
 import CrearEvaluacionSupervisor from '@pages/CrearEvaluacionSupervisor';
 import EvaluarEvaluacion from '@pages/EvaluarEvaluacion';
 import VerEvaluacion from '@pages/VerEvaluacion';
+import SolicitudesMenu from './pages/SolicitudesMenu';
+import CrearSolicitud from './pages/CrearSolicitud';
+import MisSolicitudes from './pages/MisSolicitudes';
+
 import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute'; 
 import '@styles/styles.css';
-import SolicitudesMenu from './pages/SolicitudesMenu';
-import CrearSolicitud from './pages/CrearSolicitud';
-import MisSolicitudes from './pages/MisSolicitudes';
+
 
 const router = createBrowserRouter([
   {
@@ -58,6 +67,24 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         )
       },
+      // --- TUS RUTAS (OFERTAS) ---
+      {
+        path: '/publicar-oferta', 
+        element: (
+          <ProtectedRoute>
+            <PublicarOferta />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: '/ofertas', 
+        element: (
+          <ProtectedRoute>
+            <VerOfertas />
+          </ProtectedRoute>
+        )
+      },
+      // --- RUTAS DE MAIN (SOLICITUDES) ---
       {
         path: '/solicitudes',
         element: (
@@ -81,8 +108,8 @@ const router = createBrowserRouter([
              <MisSolicitudes />
           </ProtectedRoute>
         )
-      }
-      ,
+      },
+      // --- RUTAS DE MAIN (PAUTAS) ---
       {
         path: '/dashboard/pautas', 
         element: (
@@ -90,8 +117,7 @@ const router = createBrowserRouter([
             <PautasEvaluacion />
           </ProtectedRoute>
         )
-      }
-      ,
+      },
       {
         path: '/dashboard/pautas/crear',
         element: (
@@ -99,8 +125,7 @@ const router = createBrowserRouter([
             <CrearPauta />
           </ProtectedRoute>
         )
-      }
-      ,
+      },
       {
         path: '/dashboard/pautas/gestionar',
         element: (
@@ -108,8 +133,7 @@ const router = createBrowserRouter([
             <GestionarPautas />
           </ProtectedRoute>
         )
-      }
-      ,
+      },
       {
         path: '/dashboard/pautas/editar/:id',
         element: (
@@ -117,8 +141,8 @@ const router = createBrowserRouter([
             <EditarPauta />
           </ProtectedRoute>
         )
-      }
-      ,
+      },
+      // --- RUTAS DE MAIN (EVALUACIONES) ---
       {
         path: '/dashboard/evaluaciones/gestionar',
         element: (
@@ -126,8 +150,7 @@ const router = createBrowserRouter([
             <GestionarEvaluacionesSupervisor />
           </ProtectedRoute>
         )
-      }
-      ,
+      },
       {
         path: '/dashboard/evaluaciones/crear',
         element: (
@@ -135,8 +158,7 @@ const router = createBrowserRouter([
             <CrearEvaluacionSupervisor />
           </ProtectedRoute>
         )
-      }
-      ,
+      },
       {
         path: '/dashboard/evaluaciones/evaluar/:id',
         element: (
@@ -144,8 +166,7 @@ const router = createBrowserRouter([
             <EvaluarEvaluacion />
           </ProtectedRoute>
         )
-      }
-      ,
+      },
       {
         path: '/dashboard/evaluaciones/ver/:id',
         element: (
@@ -158,7 +179,8 @@ const router = createBrowserRouter([
   }
 ]);
 
-//enrutador
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <RouterProvider router={router} />
+  <AuthProvider>
+    <RouterProvider router={router} />
+  </AuthProvider>
 );

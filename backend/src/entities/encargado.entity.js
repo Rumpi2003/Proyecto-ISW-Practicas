@@ -5,44 +5,33 @@ export const Encargado = new EntitySchema({
   tableName: "encargados",
   columns: {
     id: {
-      primary: true,
-      type: "int",
-      generated: "increment",
-    },
+       primary: true,
+        type: "int",
+         generated: true 
+        },
     nombre: {
-      type: "varchar",
-      length: 255,
-      nullable: false,
-    },
+       type: "varchar" 
+      },
     rut: {
-      type: "varchar",
-      length: 12,
-      unique: true,
-      nullable: false,
-    },
+       type: "varchar",
+        unique: true 
+      },
     email: {
-      type: "varchar",
-      length: 255,
-      unique: true,
-      nullable: false,
+       type: "varchar",
+        unique: true 
+      },
+    password: 
+    { type: "varchar" 
+
     },
-    password: {
-      type: "varchar",
-      length: 255,
-      nullable: false,
-    },
+  },
+  relations: {
     facultad: {
-      type: "varchar",
-      length: 100,
+      type: "many-to-one",
+      target: "Facultad", // Nombre de la entidad Facultad
+      joinColumn: { name: "facultadId" }, // Esto crea la columna de ID real en la DB
       nullable: false,
-    },
-    created_at: {
-      type: "timestamp",
-      createDate: true,
-    },
-    updated_at: {
-      type: "timestamp",
-      updateDate: true,
+      eager: true, 
     },
   },
 });
