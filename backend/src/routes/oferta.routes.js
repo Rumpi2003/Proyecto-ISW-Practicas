@@ -6,28 +6,28 @@ import { checkEncargado } from "../middleware/checkEncargado.middleware.js";
 const router = Router();
 const ofertaController = new OfertaController(); 
 
-// 1. Crear nueva oferta (POST /api/ofertas)
+// 1. Crear nueva oferta (POST) -> Solo Encargado
 router.post("/", 
     authMiddleware, 
     checkEncargado, 
     (req, res) => ofertaController.publish(req, res)
 );
 
-// 2. Obtener todas las ofertas (GET /api/ofertas)
+// 2. Obtener todas las ofertas (GET) -> Accesible para Estudiantes y Encargados
+// 👇 Se eliminó checkEncargado para que el estudiante pueda ver la lista
 router.get("/", 
     authMiddleware, 
-    checkEncargado, 
     (req, res) => ofertaController.getOffers(req, res)
 );
 
-// 3. Modificar oferta existente (PUT /api/ofertas/:id)
+// 3. Modificar oferta (PUT) -> Solo Encargado
 router.put("/:id", 
     authMiddleware, 
     checkEncargado, 
     (req, res) => ofertaController.update(req, res)
 );
 
-// 4. Eliminar oferta (DELETE /api/ofertas/:id) 👇 ESTA FALTABA
+// 4. Eliminar oferta (DELETE) -> Solo Encargado
 router.delete("/:id", 
     authMiddleware, 
     checkEncargado, 

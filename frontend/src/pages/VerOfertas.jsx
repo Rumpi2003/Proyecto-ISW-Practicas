@@ -153,7 +153,8 @@ const VerOfertas = () => {
                       {oferta.titulo}
                   </h3>
                   
-                  <p className="text-gray-500 text-sm mb-6 line-clamp-4 flex-1">
+                  {/* 👇 FIX: Agregado 'break-words' para evitar desbordamiento horizontal */}
+                  <p className="text-gray-500 text-sm mb-6 line-clamp-4 flex-1 break-words">
                       {oferta.descripcion}
                   </p>
 
@@ -248,7 +249,8 @@ const VerOfertas = () => {
                 <div className="p-8 space-y-6">
                     <div>
                         <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Descripción Completa</h4>
-                        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                        {/* 👇 FIX: Agregado 'break-words' aquí también para el modal */}
+                        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
                             {selectedOferta.descripcion}
                         </p>
                     </div>
@@ -324,7 +326,6 @@ const VerOfertas = () => {
                             </button>
                         </div>
                     ) : (
-                        // Espaciador para que el botón cerrar se vaya a la derecha en móvil
                         <div className="w-full md:w-auto"></div>
                     )}
 
@@ -339,7 +340,7 @@ const VerOfertas = () => {
         </div>
       )}
 
-      {/* MODAL DE CONFIRMACIÓN (Solo útil si eres encargado, pero no molesta tenerlo renderizado) */}
+      {/* MODAL DE CONFIRMACIÓN */}
       {ofertaAEliminar && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 transform scale-100 animate-in zoom-in duration-200">
