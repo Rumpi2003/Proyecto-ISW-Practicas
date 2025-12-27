@@ -19,7 +19,7 @@ const EvaluarEvaluacion = () => {
   const [loading, setLoading] = useState(false);
 
   const [actividades, setActividades] = useState('');
-  const [respuestas, setRespuestas] = useState([]); // array of arrays per competencia
+  const [respuestas, setRespuestas] = useState([]); // array of arrays por competencia
   const [fortalezas, setFortalezas] = useState('');
   const [debilidades, setDebilidades] = useState('');
   const [observaciones, setObservaciones] = useState('');
@@ -35,7 +35,6 @@ const EvaluarEvaluacion = () => {
       setDebilidades(ev.debilidades || '');
       setObservaciones(ev.observacionesGenerales || '');
 
-      // Initialize respuestas state from existing or from pauta
       const aspectos = ev.pauta?.aspectos_a_evaluar || [];
       if (ev.respuestas && Array.isArray(ev.respuestas) && ev.respuestas.length > 0) {
         // Map to arrays

@@ -101,7 +101,7 @@ const CrearPauta = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl p-8 md:p-12">
-        <button onClick={() => navigate('/dashboard/pautas')} className="mb-4 text-gray-600">← Volver</button>
+        <button onClick={() => navigate('/dashboard/pautas/gestionar')} className="mb-4 text-gray-600">← Volver</button>
         <h1 className="text-2xl font-bold mb-4">Crear Pauta de Evaluación</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">

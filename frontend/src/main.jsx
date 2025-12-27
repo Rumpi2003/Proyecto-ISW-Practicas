@@ -4,7 +4,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from '@pages/Login';
 import Home from '@pages/Home';
 import Users from '@pages/Users'; // <--- 1. IMPORTANTE: Importamos la nueva página
-import PautasEvaluacion from '@pages/PautasEvaluacion';
+// import PautasEvaluacion removed: using GestionarPautas directly
+import GestionarEvaluaciones from '@pages/GestionarEvaluaciones';
 import CrearPauta from '@pages/CrearPauta';
 import GestionarPautas from '@pages/GestionarPautas';
 import EditarPauta from '@pages/EditarPauta';
@@ -54,17 +55,15 @@ const router = createBrowserRouter([
             <Users />
           </ProtectedRoute>
         )
-      }
-      ,
+      },
       {
-        path: '/dashboard/pautas', 
+        path: '/dashboard/gestionar-evaluaciones',
         element: (
           <ProtectedRoute>
-            <PautasEvaluacion />
+            <GestionarEvaluaciones />
           </ProtectedRoute>
         )
-      }
-      ,
+      },
       {
         path: '/dashboard/pautas/crear',
         element: (

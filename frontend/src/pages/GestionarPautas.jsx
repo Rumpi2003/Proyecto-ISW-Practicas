@@ -51,7 +51,7 @@ const GestionarPautas = () => {
           <h1 className="text-2xl font-bold">Gestionar Pautas de Evaluación</h1>
           <div>
             <button onClick={() => navigate('/dashboard/pautas/crear')} className="bg-blue-600 text-white px-4 py-2 rounded-md mr-2">Crear Pauta</button>
-            <button onClick={() => navigate('/dashboard/pautas')} className="text-gray-600">Volver</button>
+            <button onClick={() => navigate('/dashboard/gestionar-evaluaciones')} className="text-gray-600">Volver</button>
           </div>
         </div>
 
