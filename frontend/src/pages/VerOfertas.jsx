@@ -7,6 +7,7 @@ const VerOfertas = () => {
   const [ofertas, setOfertas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOferta, setSelectedOferta] = useState(null);
+  
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -25,11 +26,31 @@ const VerOfertas = () => {
     fetchOfertas();
   }, [user]);
 
+  // Formateador de fecha
   const formatDate = (dateString) => {
     if (!dateString) return "Sin fecha";
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
     const date = new Date(dateString);
-    return new Date(date.valueOf() + date.getTimezoneOffset() * 60 * 1000).toLocaleDateString('es-ES', options);
+    // Ajuste visual para zona horaria local
+    return new Date(date.valueOf() + date.getTimezoneOffset() * 60 * 1000)
+      .toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+  };
+
+  // Lógica para determinar el estado visual
+  const getEstadoOferta = (oferta) => {
+    const fechaCierre = new Date(oferta.fechaCierre);
+    // Ajuste para comparar solo fechas sin hora
+    fechaCierre.setMinutes(fechaCierre.getMinutes() + fechaCierre.getTimezoneOffset());
+    fechaCierre.setHours(23, 59, 59); // Consideramos activa hasta el final del día
+
+    const hoy = new Date();
+
+    if (oferta.estado === 'cerrada') {
+      return { label: '🔴 Cerrada', color: 'bg-red-100 text-red-700 border-red-200', active: false };
+    }
+    if (fechaCierre < hoy) {
+      return { label: '⏳ Expirada', color: 'bg-gray-100 text-gray-600 border-gray-200', active: false };
+    }
+    return { label: '🟢 Activa', color: 'bg-green-100 text-green-700 border-green-200', active: true };
   };
 
   return (
@@ -69,66 +90,67 @@ const VerOfertas = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-          {ofertas.map((oferta) => (
-            <div 
+          {ofertas.map((oferta) => {
+            const estado = getEstadoOferta(oferta);
+            
+            return (
+              <div 
                 key={oferta.id} 
                 onClick={() => setSelectedOferta(oferta)}
-                className="group bg-white rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-1 cursor-pointer transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full"
-            >
-              <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-600 w-full group-hover:from-indigo-500 group-hover:to-purple-600 transition-all"></div>
-              
-              <div className="p-6 flex-1 flex flex-col">
-                <div className="flex justify-between items-start mb-4">
-                    <span className="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
-                        {oferta.empresa?.nombre || "Empresa Inc."}
-                    </span>
-                    
-                    {/* 👇 BOTÓN EDITAR */}
-                    <button 
-                        onClick={(e) => {
-                            e.stopPropagation(); // Evita que se abra el modal al hacer clic aquí
-                            navigate('/publicar-oferta', { state: { oferta } });
-                        }}
-                        className="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors border border-amber-100"
-                        title="Editar publicación"
-                    >
-                        ✏️
-                    </button>
-                </div>
-
-                <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                    {oferta.titulo}
-                </h3>
+                className={`group bg-white rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-1 cursor-pointer transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full ${!estado.active ? 'opacity-80' : ''}`}
+              >
+                {/* Indicador superior de estado */}
+                <div className={`h-1.5 w-full ${estado.active ? 'bg-gradient-to-r from-blue-500 to-indigo-600' : 'bg-gray-300'}`}></div>
                 
-                <p className="text-gray-500 text-sm mb-6 line-clamp-4 flex-1">
-                    {oferta.descripcion}
-                </p>
+                <div className="p-6 flex-1 flex flex-col relative">
+                  
+                  {/* Badge de Estado */}
+                  <div className={`absolute top-4 right-4 text-[10px] font-bold px-2 py-1 rounded-full border uppercase ${estado.color}`}>
+                    {estado.label}
+                  </div>
 
-                <div className="border-t border-gray-100 pt-4 mt-auto">
-                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                        <span>📅 Cierre:</span>
-                        <span className="font-semibold text-gray-800">{formatDate(oferta.fechaCierre)}</span>
-                    </div>
-                    
-                    <div className="flex items-start gap-2 text-sm text-gray-600">
-                         <span className="mt-0.5">🎓 Para:</span>
-                         <div className="flex flex-wrap gap-1">
-                            {oferta.carreras?.slice(0, 3).map((c, index) => (
-                                <span key={index} className="bg-gray-100 text-gray-600 text-[10px] font-bold px-1.5 py-0.5 rounded border border-gray-200 uppercase">
-                                    {c.abreviacion || "S/A"}
-                                </span>
-                            ))}
-                            {(oferta.carreras?.length || 0) > 3 && (
-                                <span className="text-xs text-gray-400 font-medium self-center">
-                                    +{oferta.carreras.length - 3}
-                                </span>
-                            )}
-                         </div>
-                    </div>
+                  <div className="flex justify-between items-start mb-4 pr-16">
+                      <span className="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                          {oferta.empresa?.nombre || "Empresa Inc."}
+                      </span>
+                  </div>
+
+                  <h3 className={`text-xl font-bold mb-2 line-clamp-2 transition-colors ${estado.active ? 'text-gray-900 group-hover:text-blue-600' : 'text-gray-500'}`}>
+                      {oferta.titulo}
+                  </h3>
+                  
+                  <p className="text-gray-500 text-sm mb-6 line-clamp-4 flex-1">
+                      {oferta.descripcion}
+                  </p>
+
+                  <div className="border-t border-gray-100 pt-4 mt-auto">
+                      <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                          <span>📅 Cierre:</span>
+                          <span className={`font-semibold ${estado.active ? 'text-gray-800' : 'text-red-500'}`}>
+                            {formatDate(oferta.fechaCierre)}
+                          </span>
+                      </div>
+                      
+                      <div className="flex items-start gap-2 text-sm text-gray-600">
+                           <span className="mt-0.5">🎓 Para:</span>
+                           <div className="flex flex-wrap gap-1">
+                              {oferta.carreras?.slice(0, 3).map((c, index) => (
+                                  <span key={index} className="bg-gray-100 text-gray-600 text-[10px] font-bold px-1.5 py-0.5 rounded border border-gray-200 uppercase">
+                                      {c.abreviacion || "S/A"}
+                                  </span>
+                              ))}
+                              {(oferta.carreras?.length || 0) > 3 && (
+                                  <span className="text-xs text-gray-400 font-medium self-center">
+                                      +{oferta.carreras.length - 3}
+                                  </span>
+                              )}
+                           </div>
+                      </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -139,9 +161,15 @@ const VerOfertas = () => {
                 
                 <div className="p-8 border-b border-gray-100 sticky top-0 bg-white z-10 flex justify-between items-start">
                     <div>
-                        <span className="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide mb-2 inline-block">
-                            {selectedOferta.empresa?.nombre}
-                        </span>
+                        <div className="flex gap-2 mb-2">
+                            <span className="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide inline-block">
+                                {selectedOferta.empresa?.nombre}
+                            </span>
+                            {/* Mostrar Estado en el Modal también */}
+                            <span className={`text-[10px] font-bold px-3 py-1 rounded-full border uppercase ${getEstadoOferta(selectedOferta).color}`}>
+                                {getEstadoOferta(selectedOferta).label}
+                            </span>
+                        </div>
                         <h2 className="text-2xl font-bold text-gray-900 mt-1">
                             {selectedOferta.titulo}
                         </h2>
@@ -182,7 +210,6 @@ const VerOfertas = () => {
                 </div>
 
                 <div className="p-6 border-t border-gray-100 bg-gray-50 rounded-b-3xl flex justify-between gap-4">
-                    {/* Botón Editar dentro del modal también por comodidad */}
                     <button 
                         onClick={() => navigate('/publicar-oferta', { state: { oferta: selectedOferta } })}
                         className="bg-amber-500 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-amber-600 transition-all shadow-md flex items-center gap-2"

@@ -19,12 +19,22 @@ export const Oferta = new EntitySchema({
       nullable: false,
     },
     fechaCierre: {
-      type: "timestamp",
-      nullable: true,
+      type: "timestamp", // Esta actúa como tu "fecha límite"
+      nullable: false,   // Lo cambié a false porque debería ser obligatorio tener un límite
+    },
+    estado: {
+      type: "varchar",
+      length: 20,
+      default: "activa", // Por defecto nace activa
+      nullable: false,
     },
     created_at: {
       type: "timestamp",
       createDate: true,
+    },
+    updated_at: {
+      type: "timestamp",
+      updateDate: true,
     },
   },
   relations: {

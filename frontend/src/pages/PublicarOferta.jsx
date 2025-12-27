@@ -13,11 +13,13 @@ const PublicarOferta = () => {
   const location = useLocation(); 
   const { user } = useAuth(); 
 
-  const today = new Date().toISOString().split("T")[0];
-
   // 1. Detectar si estamos en Modo Edición
   const ofertaAEditar = location.state?.oferta;
   const esEdicion = !!ofertaAEditar;
+
+  // 2. Calcular fecha mínima (Hoy) respetando zona horaria local
+  const today = new Date();
+  const todayString = today.toLocaleDateString('en-CA'); // Formato YYYY-MM-DD local
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,7 +52,7 @@ const PublicarOferta = () => {
     fetchData();
   }, [user]); 
 
-  // 2. Definir campos
+  // 3. Definir campos del formulario
   const fields = [
     {
       name: "titulo",
@@ -68,12 +70,12 @@ const PublicarOferta = () => {
       fieldType: "input",
       type: "date",
       required: true,
-      min: today,
+      min: todayString, // Bloquea fechas pasadas en el calendario
       defaultValue: esEdicion && ofertaAEditar.fechaCierre 
         ? new Date(ofertaAEditar.fechaCierre).toISOString().split('T')[0] 
         : "",
       validate: (value) => {
-        if (value < today) return "No puedes elegir una fecha del pasado";
+        if (value < todayString) return "No puedes elegir una fecha del pasado";
         return true;
       }
     },
@@ -85,6 +87,18 @@ const PublicarOferta = () => {
       required: true,
       defaultValue: esEdicion ? ofertaAEditar.empresa?.id : ""
     },
+    // SOLO EN EDICIÓN: Permitir cambiar el estado (Activa/Cerrada)
+    ...(esEdicion ? [{
+      name: "estado",
+      label: "Estado de la Oferta",
+      fieldType: "select",
+      options: [
+        { label: "🟢 Activa", value: "activa" },
+        { label: "🔴 Cerrada", value: "cerrada" }
+      ],
+      required: true,
+      defaultValue: ofertaAEditar.estado || "activa"
+    }] : []),
     {
       name: "descripcion",
       label: "Descripción de la Práctica",
@@ -105,7 +119,7 @@ const PublicarOferta = () => {
     }
   ];
 
-  // 3. Manejar el envío
+  // 4. Manejar el envío
   const handleSubmit = async (formData) => {
     try {
       if (esEdicion) {
@@ -117,7 +131,6 @@ const PublicarOferta = () => {
       setShowSuccess(true);
       
       setTimeout(() => {
-        // Al guardar con éxito, sí queremos ir a ver la lista para confirmar que está ahí
         navigate('/ofertas'); 
       }, 2000);
 
@@ -134,7 +147,6 @@ const PublicarOferta = () => {
       {/* HEADER / BOTÓN VOLVER */}
       <div className="max-w-2xl w-full mb-4 text-left">
         <button 
-          // 👇 LA SOLUCIÓN: Usamos -1 para volver al historial anterior
           onClick={() => navigate(-1)}
           className="text-gray-500 hover:text-purple-600 flex items-center gap-2 transition-all duration-300 font-bold group"
         >
