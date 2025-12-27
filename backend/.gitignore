@@ -1,0 +1,19 @@
+# Dependencias (Buscar en cualquier subcarpeta)
+node_modules/
+**/node_modules/
+
+# Archivos de entorno (Claves secretas)
+.env
+**/.env
+
+# Base de datos
+database.sqlite
+**/database.sqlite
+
+# Archivos de sistema y logs
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+.vite/
+**/dist/
+**/build/
