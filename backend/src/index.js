@@ -154,7 +154,7 @@ async function main() {
         console.log("⚙️  Creando estudiante inicial...");
 
         // Buscamos la carrera ICI para asignarla al alumno
-        const carreraICI = await carreraRepo.findOneBy({ abreviacion: "ICI" });
+        const carreraICI = await carreraRepo.findOneBy({ abreviacion: "ICINF" });
 
         if (carreraICI) {
             const hashedEstPassword = await bcrypt.hash("estudiante123", 10);
