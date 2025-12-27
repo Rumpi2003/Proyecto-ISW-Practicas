@@ -42,7 +42,7 @@ const HomeEstudiante = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center p-6">
       {/* Aumenté el ancho máximo a max-w-7xl para que quepan las 3 columnas */}
       <div className="bg-white rounded-3xl shadow-xl w-full max-w-7xl min-h-[70vh] p-8 md:p-12 flex flex-col">
         
