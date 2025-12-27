@@ -68,6 +68,40 @@ const HomeEncargado = () => {
                     <p className="text-gray-400 mt-1 text-sm">Próximamente...</p>
                 </div>
             </div>
+
+            <div 
+                onClick={() => navigate('/dashboard/pautas')}
+                className="group bg-emerald-50 border-2 border-emerald-100 rounded-2xl p-10 cursor-pointer hover:bg-emerald-600 hover:border-emerald-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
+            >
+                <div className="bg-white p-4 rounded-full text-4xl shadow-sm group-hover:scale-110 transition-transform">
+                    📝
+                </div>
+                <div>
+                    <h3 className="text-2xl font-bold text-gray-800 group-hover:text-white transition-colors">
+                        Pautas de Evaluación
+                    </h3>
+                    <p className="text-gray-500 mt-1 group-hover:text-emerald-100 transition-colors">
+                        Crear y gestionar pautas de evaluación.
+                    </p>
+                </div>
+            </div>
+
+            <div 
+                onClick={() => navigate('/dashboard/evaluaciones/gestionar')}
+                className="group bg-teal-50 border-2 border-teal-100 rounded-2xl p-10 cursor-pointer hover:bg-teal-600 hover:border-teal-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
+            >
+                <div className="bg-white p-4 rounded-full text-4xl shadow-sm group-hover:scale-110 transition-transform">
+                    🧾
+                </div>
+                <div>
+                    <h3 className="text-2xl font-bold text-gray-800 group-hover:text-white transition-colors">
+                        Evaluaciones Supervisor
+                    </h3>
+                    <p className="text-gray-500 mt-1 group-hover:text-teal-100 transition-colors">
+                        Ver y eliminar evaluaciones realizadas por supervisores.
+                    </p>
+                </div>
+            </div>
         </div>
       </div>
     </div>

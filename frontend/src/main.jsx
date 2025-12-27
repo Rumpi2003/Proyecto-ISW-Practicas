@@ -4,6 +4,14 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from '@pages/Login';
 import Home from '@pages/Home';
 import Users from '@pages/Users'; 
+import PautasEvaluacion from '@pages/PautasEvaluacion';
+import CrearPauta from '@pages/CrearPauta';
+import GestionarPautas from '@pages/GestionarPautas';
+import EditarPauta from '@pages/EditarPauta';
+import GestionarEvaluacionesSupervisor from '@pages/GestionarEvaluacionesSupervisor';
+import CrearEvaluacionSupervisor from '@pages/CrearEvaluacionSupervisor';
+import EvaluarEvaluacion from '@pages/EvaluarEvaluacion';
+import VerEvaluacion from '@pages/VerEvaluacion';
 import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute'; 
@@ -71,6 +79,78 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
              <MisSolicitudes />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/pautas', 
+        element: (
+          <ProtectedRoute>
+            <PautasEvaluacion />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/pautas/crear',
+        element: (
+          <ProtectedRoute>
+            <CrearPauta />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/pautas/gestionar',
+        element: (
+          <ProtectedRoute>
+            <GestionarPautas />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/pautas/editar/:id',
+        element: (
+          <ProtectedRoute>
+            <EditarPauta />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/evaluaciones/gestionar',
+        element: (
+          <ProtectedRoute>
+            <GestionarEvaluacionesSupervisor />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/evaluaciones/crear',
+        element: (
+          <ProtectedRoute>
+            <CrearEvaluacionSupervisor />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/evaluaciones/evaluar/:id',
+        element: (
+          <ProtectedRoute>
+            <EvaluarEvaluacion />
+          </ProtectedRoute>
+        )
+      }
+      ,
+      {
+        path: '/dashboard/evaluaciones/ver/:id',
+        element: (
+          <ProtectedRoute>
+            <VerEvaluacion />
           </ProtectedRoute>
         )
       }
