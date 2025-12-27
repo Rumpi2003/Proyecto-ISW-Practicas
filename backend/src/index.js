@@ -49,7 +49,7 @@ async function main() {
           carreras: [
             { nombre: "Contador Público y Auditor (Concepción)", abrev: "CPA" },
             { nombre: "Derecho", abrev: "DER" },
-            { nombre: "Ingeniería Civil en Informática (Concepción)", abrev: "ICI" },
+            { nombre: "Ingeniería Civil en Informática (Concepción)", abrev: "ICINF" },
             { nombre: "Ingeniería Comercial (Concepción)", abrev: "ICO" },
             { nombre: "Ingeniería de Ejecución en Computación e Informática", abrev: "IECI" }
           ]

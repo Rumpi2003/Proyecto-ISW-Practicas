@@ -1,13 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../services/root.service.js';
 import { useAuth } from '../context/AuthContext';
 
 const VerOfertas = () => {
+  // 1. Estados de Datos
   const [ofertas, setOfertas] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // 2. Estados de Filtros
+  const [filterEmpresa, setFilterEmpresa] = useState("");
+  const [filterCarrera, setFilterCarrera] = useState("");
+  const [filterEstado, setFilterEstado] = useState("todos"); // 'todos', 'activa', 'cerrada'
   
-  // Estados para los Modales
+  // 3. Estados de Modales
   const [selectedOferta, setSelectedOferta] = useState(null); 
   const [ofertaAEliminar, setOfertaAEliminar] = useState(null); 
   const [showSuccessDelete, setShowSuccessDelete] = useState(false);
@@ -15,9 +21,10 @@ const VerOfertas = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // 👇 LÓGICA DE PERMISOS: Verificamos si es encargado
+  // Lógica de Permisos
   const esEncargado = user?.rol === 'encargado';
 
+  // --- FETCH DE DATOS ---
   useEffect(() => {
     const fetchOfertas = async () => {
       try {
@@ -33,6 +40,7 @@ const VerOfertas = () => {
     fetchOfertas();
   }, [user]);
 
+  // --- HELPERS ---
   const formatDate = (dateString) => {
     if (!dateString) return "Sin fecha";
     const date = new Date(dateString);
@@ -56,24 +64,60 @@ const VerOfertas = () => {
     return { label: '🟢 Activa', color: 'bg-green-100 text-green-700 border-green-200', active: true };
   };
 
+  // --- LÓGICA DE FILTRADO (NUEVO) ---
+
+  // A. Obtener listas únicas para los selectores
+  const empresasUnicas = useMemo(() => {
+    const empresas = ofertas.map(o => o.empresa?.nombre).filter(Boolean);
+    return [...new Set(empresas)].sort();
+  }, [ofertas]);
+
+  const carrerasUnicas = useMemo(() => {
+    const carreras = ofertas.flatMap(o => o.carreras?.map(c => c.abreviacion)).filter(Boolean);
+    return [...new Set(carreras)].sort();
+  }, [ofertas]);
+
+  // B. Aplicar filtros al array de ofertas
+  const ofertasFiltradas = ofertas.filter(oferta => {
+    const estadoCalc = getEstadoOferta(oferta);
+    
+    // 1. Filtro Empresa
+    if (filterEmpresa && oferta.empresa?.nombre !== filterEmpresa) return false;
+
+    // 2. Filtro Carrera
+    if (filterCarrera && !oferta.carreras?.some(c => c.abreviacion === filterCarrera)) return false;
+
+    // 3. Filtro Estado
+    if (filterEstado !== "todos") {
+        if (filterEstado === "activa" && !estadoCalc.active) return false;
+        if (filterEstado === "cerrada" && estadoCalc.active) return false; // "cerrada" incluye expiradas
+    }
+
+    return true;
+  });
+
+  const handleResetFilters = () => {
+    setFilterEmpresa("");
+    setFilterCarrera("");
+    setFilterEstado("todos");
+  };
+
+  // --- HANDLERS DE ACCIÓN ---
   const handleConfirmDelete = async () => {
     if (!ofertaAEliminar) return;
 
     try {
         await axios.delete(`/ofertas/${ofertaAEliminar}`);
         
+        // Actualizamos la lista original
         setOfertas(prevOfertas => prevOfertas.filter(oferta => oferta.id !== ofertaAEliminar));
         
         if (selectedOferta?.id === ofertaAEliminar) {
             setSelectedOferta(null);
         }
-
         setOfertaAEliminar(null);
-        
         setShowSuccessDelete(true);
-        setTimeout(() => {
-            setShowSuccessDelete(false);
-        }, 2000);
+        setTimeout(() => setShowSuccessDelete(false), 2000);
 
     } catch (error) {
         console.error("Error al eliminar:", error);
@@ -84,49 +128,111 @@ const VerOfertas = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6 md:p-12 relative">
       
-      {/* HEADER */}
-      <div className="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-            <button 
-                onClick={() => navigate('/home')}
-                className="text-gray-500 hover:text-blue-600 flex items-center gap-2 transition-all duration-300 font-bold group mb-4"
-            >
-                <span className="group-hover:-translate-x-1 transition-transform">←</span> 
-                Volver al Panel
-            </button>
-            <h1 className="text-3xl font-extrabold text-gray-800">
-                {esEncargado ? "Mis Publicaciones" : "Ofertas de Práctica"}
-            </h1>
-            <p className="text-gray-500">
-                {esEncargado ? `Gestiona las ofertas de ${user?.facultad?.nombre}` : "Explora las oportunidades disponibles para ti"}
-            </p>
-        </div>
+      {/* HEADER Y BARRA DE FILTROS */}
+      <div className="max-w-7xl mx-auto mb-8">
         
-        {/* 👇 SOLO EL ENCARGADO PUEDE VER EL BOTÓN DE CREAR */}
-        {esEncargado && (
-            <button 
-                onClick={() => navigate('/publicar-oferta')}
-                className="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 shadow-lg hover:shadow-xl transition-all"
-            >
-                + Nueva Oferta
-            </button>
-        )}
+        {/* Título y Botón Crear */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <div>
+                <button 
+                    onClick={() => navigate('/home')}
+                    className="text-gray-500 hover:text-blue-600 flex items-center gap-2 transition-all duration-300 font-bold group mb-4"
+                >
+                    <span className="group-hover:-translate-x-1 transition-transform">←</span> 
+                    Volver al Panel
+                </button>
+                <h1 className="text-3xl font-extrabold text-gray-800">
+                    {esEncargado ? "Mis Publicaciones" : "Ofertas de Práctica"}
+                </h1>
+                <p className="text-gray-500">
+                    Mostrando {ofertasFiltradas.length} de {ofertas.length} ofertas
+                </p>
+            </div>
+            
+            {esEncargado && (
+                <button 
+                    onClick={() => navigate('/publicar-oferta')}
+                    className="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 shadow-lg hover:shadow-xl transition-all"
+                >
+                    + Nueva Oferta
+                </button>
+            )}
+        </div>
+
+        {/* BARRA DE FILTROS */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-4 gap-4 items-end animate-in fade-in slide-in-from-top-4 duration-300">
+            
+            {/* Filtro Empresa */}
+            <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Empresa</label>
+                <select 
+                    value={filterEmpresa}
+                    onChange={(e) => setFilterEmpresa(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2.5 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                >
+                    <option value="">Todas las empresas</option>
+                    {empresasUnicas.map(emp => (
+                        <option key={emp} value={emp}>{emp}</option>
+                    ))}
+                </select>
+            </div>
+
+            {/* Filtro Carrera */}
+            <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Carrera</label>
+                <select 
+                    value={filterCarrera}
+                    onChange={(e) => setFilterCarrera(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2.5 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                >
+                    <option value="">Todas las carreras</option>
+                    {carrerasUnicas.map(carrera => (
+                        <option key={carrera} value={carrera}>{carrera}</option>
+                    ))}
+                </select>
+            </div>
+
+            {/* Filtro Estado */}
+            <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Estado</label>
+                <select 
+                    value={filterEstado}
+                    onChange={(e) => setFilterEstado(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2.5 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                >
+                    <option value="todos">Todos los estados</option>
+                    <option value="activa">🟢 Solo Activas</option>
+                    <option value="cerrada">🔴 Cerradas / Expiradas</option>
+                </select>
+            </div>
+
+            {/* Botón Limpiar */}
+            <div>
+                <button 
+                    onClick={handleResetFilters}
+                    className="w-full bg-gray-100 text-gray-500 font-bold py-2.5 px-4 rounded-xl hover:bg-gray-200 hover:text-gray-700 transition-colors flex items-center justify-center gap-2"
+                >
+                    ↺ Limpiar Filtros
+                </button>
+            </div>
+        </div>
       </div>
 
-      {/* LISTADO DE OFERTAS */}
+      {/* LISTADO DE OFERTAS (Usando ofertasFiltradas) */}
       {loading ? (
         <div className="flex justify-center items-center h-64">
              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
-      ) : ofertas.length === 0 ? (
+      ) : ofertasFiltradas.length === 0 ? (
         <div className="bg-white rounded-3xl p-12 text-center shadow-sm border border-gray-100 max-w-2xl mx-auto mt-10">
-            <div className="text-6xl mb-4">📭</div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2">Aún no hay ofertas</h3>
-            <p className="text-gray-500 mb-6">Parece que no hay vacantes disponibles por ahora.</p>
+            <div className="text-6xl mb-4">🔍</div>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">No se encontraron resultados</h3>
+            <p className="text-gray-500 mb-6">Prueba cambiando los filtros o limpiando la búsqueda.</p>
+            <button onClick={handleResetFilters} className="text-blue-600 font-bold hover:underline">Limpiar filtros</button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-          {ofertas.map((oferta) => {
+          {ofertasFiltradas.map((oferta) => {
             const estado = getEstadoOferta(oferta);
             
             return (
@@ -153,7 +259,7 @@ const VerOfertas = () => {
                       {oferta.titulo}
                   </h3>
                   
-                  {/* 👇 FIX: Agregado 'break-words' para evitar desbordamiento horizontal */}
+                  {/* Break-words mantenido */}
                   <p className="text-gray-500 text-sm mb-6 line-clamp-4 flex-1 break-words">
                       {oferta.descripcion}
                   </p>
@@ -185,7 +291,6 @@ const VerOfertas = () => {
                         </div>
                       </div>
 
-                      {/* 👇 SOLO EL ENCARGADO VE LOS BOTONES EN LA TARJETA */}
                       {esEncargado && (
                         <div className="flex gap-2 shrink-0">
                             <button 
@@ -249,7 +354,7 @@ const VerOfertas = () => {
                 <div className="p-8 space-y-6">
                     <div>
                         <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Descripción Completa</h4>
-                        {/* 👇 FIX: Agregado 'break-words' aquí también para el modal */}
+                        {/* Break-words mantenido en el modal */}
                         <p className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
                             {selectedOferta.descripcion}
                         </p>
@@ -308,8 +413,6 @@ const VerOfertas = () => {
                 </div>
 
                 <div className="p-6 border-t border-gray-100 bg-gray-50 rounded-b-3xl flex flex-wrap justify-between gap-4">
-                    
-                    {/* 👇 SOLO EL ENCARGADO VE LOS BOTONES DE ACCIÓN EN EL MODAL */}
                     {esEncargado ? (
                         <div className="flex gap-2 w-full md:w-auto">
                             <button 
@@ -328,7 +431,6 @@ const VerOfertas = () => {
                     ) : (
                         <div className="w-full md:w-auto"></div>
                     )}
-
                     <button 
                         onClick={(e) => { e.stopPropagation(); setSelectedOferta(null); }}
                         className="w-full md:w-auto bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md"
@@ -340,7 +442,7 @@ const VerOfertas = () => {
         </div>
       )}
 
-      {/* MODAL DE CONFIRMACIÓN */}
+      {/* MODAL DE CONFIRMACIÓN DE ELIMINACIÓN */}
       {ofertaAEliminar && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 transform scale-100 animate-in zoom-in duration-200">
@@ -348,15 +450,12 @@ const VerOfertas = () => {
                     <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
                         <span className="text-3xl">⚠️</span>
                     </div>
-                    
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
                         ¿Eliminar esta oferta?
                     </h3>
-                    
                     <p className="text-gray-500 text-sm mb-6">
                         Esta acción borrará la publicación permanentemente. No podrás deshacer esto.
                     </p>
-
                     <div className="flex gap-3 w-full">
                         <button 
                             onClick={() => setOfertaAEliminar(null)}
