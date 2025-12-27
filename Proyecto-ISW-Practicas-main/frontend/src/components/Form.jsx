@@ -26,7 +26,7 @@ const Form = ({ title, fields, buttonText, onSubmit, onChange }) => {
           {field.fieldType === 'input' && (
             <input
               {...register(field.name, {
-                required: field.required ? `${field.label} es requerido` : false,
+                required: field.required ? `${field.label} es requerido`   : false,
                 minLength: field.minLength ? {
                   value: field.minLength,
                   message: `Mínimo ${field.minLength} caracteres`

@@ -1,4 +1,4 @@
-import { obtenerDetallesPractica, calificarPractica } from "../services/evaluacion.service.js";
+import { obtenerDetallesPractica, calificarPractica, getHistorialEvaluaciones } from "../services/evaluacion.service.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
 
 export class EvaluacionController {
@@ -7,18 +7,10 @@ export class EvaluacionController {
     async getDetalles(req, res) {
         try {
             const { id } = req.params;
-
-            if (!id || isNaN(id)) {
-                return handleErrorClient(res, 400, "ID de práctica inválido");
-            }
-
+            if (!id || isNaN(id)) return handleErrorClient(res, 400, "ID de práctica inválido");
             const solicitud = await obtenerDetallesPractica(id);
+            if (!solicitud) return handleErrorClient(res, 404, "Práctica no encontrada");
 
-            if (!solicitud) {
-                return handleErrorClient(res, 404, "Práctica no encontrada");
-            }
-
-            // Filtramos solo lo que nos interesa enviar al frontend
             const respuesta = {
                 estudiante: solicitud.estudiante,
                 informeFinal: solicitud.urlInformeFinal,
@@ -27,9 +19,7 @@ export class EvaluacionController {
                 fechaLimite: solicitud.fechaLimiteEvaluacion,
                 estado: solicitud.estado
             };
-
             handleSuccess(res, 200, "Detalles obtenidos correctamente", respuesta);
-
         } catch (error) {
             handleErrorServer(res, 500, "Error al obtener detalles", error.message);
         }
@@ -46,15 +36,23 @@ export class EvaluacionController {
             }
 
             const resultado = await calificarPractica(id, notaEncargado);
-
             handleSuccess(res, 200, "Evaluación registrada exitosamente", resultado);
 
         } catch (error) {
             if (error.message === "Solicitud no encontrada") return handleErrorClient(res, 404, error.message);
             if (error.message === "Falta la nota del supervisor") return handleErrorClient(res, 400, error.message);
-            if (error.message === "Plazo vencido") return handleErrorClient(res, 400, "El plazo de evaluación ha expirado según el calendario académico.");
-
+            if (error.message === "Plazo vencido") return handleErrorClient(res, 400, "El plazo de evaluación ha expirado.");
             handleErrorServer(res, 500, "Error interno al calificar", error.message);
         }
     }
-}
+
+    async verHistorial(req, res) {
+        try {
+            const historial = await getHistorialEvaluaciones();
+            handleSuccess(res, 200, "Historial obtenido correctamente", historial);
+        } catch (error) {
+            handleErrorServer(res, 500, "Error al obtener historial", error.message);
+        }
+    }
+
+} 

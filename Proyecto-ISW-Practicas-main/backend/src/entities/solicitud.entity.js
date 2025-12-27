@@ -1,90 +1,68 @@
-// src/entities/solicitud.entity.js
 import { EntitySchema } from "typeorm";
 
 export const Solicitud = new EntitySchema({
   name: "Solicitud",
-  tableName: "solicitudes", // Nombre de la tabla en PostgreSQL
+  tableName: "solicitudes",
   columns: {
     id: {
       primary: true,
       type: "int",
       generated: "increment",
     },
-      idEstudiante: {
-      type: "int", 
+    idEstudiante: {
+      type: "int",
       nullable: false,
     },
-    // texto dentro de la soli
     mensaje: {
       type: "text",
-      nullable: false, //el estudiante debe escribir un mensaje
+      nullable: false,
     },
-    // archivo adjunto osea el documento
+    // Archivos adjuntos (documentos)
     documentos: {
-      type: "text", 
+      type: "text",
       array: true,
       nullable: true,
-      default: "{}", 
     },
-    // estado de la solicitud una vez enviada
+    urlInformeFinal: {
+      type: "text",
+      nullable: true,
+    },
+    urlsBitacoras: {
+      type: "text",
+      array: true,
+      nullable: true,
+    },
     estado: {
       type: "varchar",
       length: 50,
-      default: "espera", // al enviar queda en 'espera', luego revisada pasa a 'rechazada' o 'aprobada'
-    },
-    //luego de la revision del encargado (post enviado)
-    comentariosEncargado: {
-      type: "text",
-      nullable: true, 
+      default: "espera",
     },
     fechaEnvio: {
       type: "timestamp",
-      createDate: true, 
+      createDate: true,
       default: () => "CURRENT_TIMESTAMP",
     },
     fechaRevision: {
       type: "timestamp",
       nullable: true,
     },
-    notaSupervisor: {
-      type: "decimal",
-      presicion: 3,
-      scale: 1,
-      nullable: true,
-    },
-    notaEncargado: {
-      type: "decimal",
-      presicion: 3,
-      scale: 1,
-      nullable: true,
-    },
-    notaFinal: {
-      type: "decimal",
-      presicion: 3,
-      scale: 1,
-      nullable: true,
-    },
     fechaLimiteEvaluacion: {
       type: "timestamp",
-      nullable: true, 
-    },
-    urlInformeFinal: {
-      type: "text",
       nullable: true,
     },
-    urlsBitacoras:{
-      type: "text",
-      array: true,
-      nullable: true,
-      default: "{}",
-    }
   },
   relations: {
     estudiante: {
-      target: "Estudiante", //apunta a la entidad estudiante
-      type: "many-to-one",  //muchas solicitudes pertenecen a un estudiante
-      joinColumn: { name: "idEstudiante" }, //une usando id del estudiante
-      onDelete: "CASCADE",  //si se borra al estudiante, se borran sus solicitudes
+      target: "Estudiante",
+      type: "many-to-one",
+      joinColumn: { name: "idEstudiante" },
+      onDelete: "CASCADE",
+    },
+    evaluacion: {
+      target: "Evaluacion",
+      type: "one-to-one",
+      inverseSide: "solicitud",
+      cascade: true,
     },
   },
 });

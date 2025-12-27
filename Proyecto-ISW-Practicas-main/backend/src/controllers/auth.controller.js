@@ -1,34 +1,65 @@
-import { loginUser } from "../services/auth.service.js";
-import { createEstudiante } from "../services/user.service.js"; 
-import { handleSuccess, handleErrorClient } from "../handlers/responseHandlers.js";
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { AppDataSource } from '../config/db.config.js';
+import { Estudiante } from '../entities/estudiante.entity.js';
+import { Encargado } from '../entities/encargado.entity.js';
+import { Supervisor } from '../entities/supervisor.entity.js';
 
-// 1. LOGIN
-export async function login(req, res) {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    
-    if (!email || !password) {
-      return handleErrorClient(res, 400, "Email y contraseña son requeridos");
+
+    // 1. Buscamos al usuario en las 3 tablas (en orden)
+    let user = await AppDataSource.getRepository(Estudiante).findOneBy({ email });
+    let rol = 'estudiante';
+
+    if (!user) {
+      user = await AppDataSource.getRepository(Encargado).findOneBy({ email });
+      rol = 'encargado';
     }
-    
-    const data = await loginUser(email, password);
-    handleSuccess(res, 200, "Login exitoso", data);
+
+    if (!user) {
+      user = await AppDataSource.getRepository(Supervisor).findOneBy({ email });
+      rol = 'supervisor';
+    }
+
+    // 2. Si no lo encontramos en ninguna tabla
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado. Verifique el correo.' });
+    }
+
+    // 3. Verificamos la contraseña
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Contraseña incorrecta' });
+    }
+
+    // 4. Generamos el Token (JWT)
+    const token = jwt.sign(
+      { id: user.id, email: user.email, rol: rol }, 
+      process.env.JWT_SECRET || "claveSecreta123", 
+      { expiresIn: '2h' }
+    );
+
+    // 5. Respondemos al Frontend
+    res.json({
+      message: 'Login exitoso',
+      token,
+      user: {
+        id: user.id,
+        nombre: user.nombre,
+        email: user.email,
+        rol: rol
+      }
+    });
+
   } catch (error) {
-    handleErrorClient(res, 401, error.message);
+    console.error("Error en login:", error);
+    res.status(500).json({ message: 'Error interno del servidor' });
   }
-}
+};
 
-// 2. REGISTER
-export async function register(req, res) {
-  try {
-    // Recibimos los datos del Postman
-    const userBody = req.body;
-
-    // Llamamos al servicio para crear el usuario. 
-    const newUser = await createEstudiante(userBody);
-
-    handleSuccess(res, 201, "Usuario creado exitosamente", newUser);
-  } catch (error) {
-    handleErrorClient(res, 500, "Error al registrar usuario", error.message);
-  }
-}
+export const logout = (req, res) => {
+  res.clearCookie('jwt'); 
+  res.json({ message: 'Sesión cerrada exitosamente' });
+};

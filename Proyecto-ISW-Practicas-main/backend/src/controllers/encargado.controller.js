@@ -1,5 +1,5 @@
 // src/controllers/encargado.controller.js
-import { obtenerPendientes, obtenerDetalleEvaluacion, registrarNotaEncargado } from "../services/evaluacion.service.js";
+import { obtenerPendientes, obtenerDetalleEvaluacion, registrarNotaEncargado, getHistorialEvaluaciones } from "../services/evaluacion.service.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
 
 export class EncargadoController {
@@ -50,6 +50,16 @@ export class EncargadoController {
             if (error.message === "Plazo vencido") return handleErrorClient(res, 400, "Plazo de evaluación cerrado.");
 
             handleErrorServer(res, 500, "Error al evaluar", error.message);
+        }
+    }
+
+    // Ver Historial
+    async verHistorial(req, res) {
+        try {
+            const historial = await getHistorialEvaluaciones();
+            handleSuccess(res, 200, "Historial obtenido correctamente", historial);
+        } catch (error) {
+            handleErrorServer(res, 500, "Error al obtener historial", error.message);
         }
     }
 }

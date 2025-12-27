@@ -5,9 +5,8 @@ import { createSupervisor, createEncargado } from '../services/user.service';
 const CreateUser = () => {
     const navigate = useNavigate();
     
-    // Por defecto, ahora creamos Supervisores (tu tarea principal)
+    // Estado inicial para el rol y formulario
     const [rol, setRol] = useState('supervisor');
-
     const [formData, setFormData] = useState({
         nombre: '',
         rut: '',
@@ -21,7 +20,7 @@ const CreateUser = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // --- FORMATEO RUT ---
+    // Formateo automático de RUT (12.345.678-9)
     const handleRutChange = (e) => {
         let value = e.target.value.replace(/[^0-9kK]/g, ""); 
         if (value.length > 1) {
@@ -39,7 +38,7 @@ const CreateUser = () => {
         return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     };
 
-    // --- VALIDACIONES ---
+    // Algoritmo de validación Módulo 11 (RUT Chileno)
     const validarRutChileno = (rutCompleto) => {
         const rutLimpio = rutCompleto.replace(/[.-]/g, "").toUpperCase();
         if (rutLimpio.length < 7) return false;
@@ -66,31 +65,29 @@ const CreateUser = () => {
         e.preventDefault();
         
         if (!validarRutChileno(formData.rut)) {
-            alert("RUT INVÁLIDO:\n- Revise el dígito verificador.");
+            alert("RUT Inválido: Verifique el dígito verificador.");
             return;
         }
 
         const pwd = formData.password;
         if (pwd.length < 6) {
-            alert("CONTRASEÑA MUY CORTA:\nMínimo 6 caracteres.");
+            alert("Contraseña demasiado corta (Mínimo 6 caracteres).");
             return;
         }
 
-        // Validación estricta de contraseña
+        // Validación de complejidad de contraseña
         const passwordRegex = /^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{6,8}$/;
         if (!passwordRegex.test(pwd)) {
-            alert("CONTRASEÑA INVÁLIDA:\n- Entre 6 y 8 caracteres.\n- Al menos 1 Mayúscula.\n- Al menos 1 Símbolo.");
+            alert("La contraseña debe tener entre 6 y 8 caracteres, incluir una mayúscula y un símbolo.");
             return;
         }
 
-        // Validación básica de nombre
         const nombreParts = normalizeString(formData.nombre).trim().split(/\s+/);
         if (nombreParts.length < 2) {
-            alert("Por favor escriba el Nombre Completo.");
+            alert("Por favor ingrese su nombre y apellido.");
             return;
         }
 
-        // ENVÍO AL BACKEND
         try {
             if (rol === 'supervisor') {
                 await createSupervisor(formData);
@@ -98,13 +95,13 @@ const CreateUser = () => {
                 await createEncargado(formData);
             }
             
-            alert(`¡${rol.toUpperCase()} creado con éxito!`);
+            alert(`Usuario ${rol.toUpperCase()} creado exitosamente.`);
             navigate('/dashboard/users');
             
         } catch (error) {
             console.error(error);
             const msg = error.message || error.details || "Error desconocido";
-            alert('Error al crear: ' + msg);
+            alert('Error al crear usuario: ' + msg);
         }
     };
 
@@ -118,14 +115,14 @@ const CreateUser = () => {
                 </div>
 
                 <div className="mb-6 bg-blue-50 p-4 rounded-xl border border-blue-100">
-                    <label className="block text-blue-800 font-bold mb-2 text-sm">Rol a crear:</label>
+                    <label className="block text-blue-800 font-bold mb-2 text-sm">Tipo de Usuario:</label>
                     <select 
                         value={rol}
                         onChange={(e) => setRol(e.target.value)}
                         className="w-full p-2 border-none bg-white rounded-lg text-gray-700 shadow-sm focus:ring-2 focus:ring-blue-500"
                     >
                         <option value="supervisor">Supervisor (Empresa)</option>
-                        <option value="encargado">Encargado (Profesor)</option>
+                        <option value="encargado">Encargado (Facultad)</option>
                     </select>
                 </div>
 
@@ -145,7 +142,7 @@ const CreateUser = () => {
                             <input 
                                 name="password" 
                                 type="password" 
-                                placeholder="6-8 chars"
+                                placeholder="6-8 caracteres"
                                 onChange={handleChange} 
                                 maxLength={8} 
                                 required 
@@ -165,8 +162,6 @@ const CreateUser = () => {
                             className="w-full p-3 border rounded-lg focus:outline-none focus:border-blue-500" 
                         />
                     </div>
-
-                    {/* CAMPOS ESPECÍFICOS SEGÚN ROL */}
 
                     {rol === 'supervisor' && (
                         <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 animate-fade-in">

@@ -13,12 +13,14 @@ const router = Router();
 //ruta publica (no requiere estar logueado)
 router.get("/public", getPublicProfile);
 
-//rutas privadas (estar logueado)
-//obtener mis datos 
+// Rutas protegidas (Requieren autenticación)
+// Obtener datos del usuario autenticado
 router.get("/private", authMiddleware, getPrivateProfile);
-//actualizar mi propio perfil (Email/Password)
+
+// Actualizar perfil del usuario actual
 router.patch("/update", authMiddleware, updateProfile);
-//eliminar mi propia cuenta
+
+// Eliminar cuenta del usuario actual
 router.delete("/delete", authMiddleware, deleteProfile);
 
 export default router;

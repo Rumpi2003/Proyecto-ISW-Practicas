@@ -1,33 +1,20 @@
-// src/routes/solicitud.routes.js
 import { Router } from "express";
-import { SolicitudController } from "../controllers/solicitud.controller.js";
+import { solicitudController } from "../controllers/solicitud.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
-import { checkEncargado } from "../middleware/checkEncargado.middleware.js"; 
 
 const router = Router();
-const controller = new SolicitudController();
 
-router.post("/", authMiddleware, controller.create);
+// Aplicar seguridad a todas las rutas
+router.use(authMiddleware);
 
-router.get(
-  "/", 
-  authMiddleware,
-  checkEncargado,
-  controller.getAll
-);
+// Rutas Generales
+router.post("/", solicitudController.create);
+router.get("/", solicitudController.getAll);
 
-router.put(
-  "/:idSolicitud", 
-  authMiddleware,
-  checkEncargado,
-  controller.updateEstado
-);
+router.get("/:id", solicitudController.getById);
 
-router.delete(
-  "/:idSolicitud",
-  authMiddleware,
-  checkEncargado,
-  controller.delete
-);
+// Rutas de modificación
+router.patch("/:id", solicitudController.updateEstado);
+router.delete("/:id", solicitudController.delete);
 
 export default router;

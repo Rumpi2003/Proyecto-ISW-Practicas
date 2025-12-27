@@ -1,46 +1,54 @@
-// src/index.js
-import app from "./app.js"; //configuracion de Express
+import app from "./app.js"; 
 import { AppDataSource } from "./config/db.config.js";
-import { Encargado } from "./entities/encargado.entity.js"; //entidad correcta
+import { Encargado } from "./entities/encargado.entity.js"; 
 import bcrypt from "bcrypt";
 
 async function main() {
   try {
-    //iniciar conexion a BD
     await AppDataSource.initialize();
     console.log("Base de datos conectada correctamente");
 
-    //crear Encargado inicial
     const encargadoRepo = AppDataSource.getRepository(Encargado);
     
-    //si existe al menos un encargado
-    const totalEncargados = await encargadoRepo.count();
+    // Configuración predeterminada del administrador
+    const rutAdmin = "11.111.111-1";
+    const emailAdmin = "admin@ubb.cl";
+    const passAdmin = "admin123";
 
-    if (totalEncargados === 0) {
-      console.log("No hay encargados en la base de datos. Creando uno inicial...");
+    // Verificar si el administrador ya existe por RUT
+    const adminExiste = await encargadoRepo.findOneBy({ rut: rutAdmin });
 
-      const hashedPassword = await bcrypt.hash("admin123", 10); //contraseña inicial
-
+    if (!adminExiste) {
+      console.log("Creando administrador inicial...");
+      const hashedPassword = await bcrypt.hash(passAdmin, 10);
       const nuevoEncargado = encargadoRepo.create({
         nombre: "Administrador Inicial",
-        rut: "11.111.111-1",
-        email: "admin@ubb.cl", //usuario maestro
+        rut: rutAdmin,        
+        email: emailAdmin,
         password: hashedPassword,
         facultad: "Administración",
       });
-
       await encargadoRepo.save(nuevoEncargado);
-      console.log("Encargado inicial creado: admin@ubb.cl / admin123");
+      console.log("Usuario administrador creado exitosamente.");
+
+    } else {
+      console.log("El usuario ya existe. Actualizando credenciales...");
+      
+      // Actualizar datos de acceso para asegurar consistencia
+      adminExiste.email = emailAdmin;
+      adminExiste.password = await bcrypt.hash(passAdmin, 10);
+      
+      await encargadoRepo.save(adminExiste);
+      console.log("Credenciales de administrador actualizadas correctamente.");
     }
 
-    // iniciar servidor
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-      console.log(` servidor escuchando en el puerto ${PORT}`);
+      console.log(`Servidor iniciado en http://localhost:${PORT}`);
     });
 
   } catch (error) {
-    console.error("Error al iniciar la aplicación:", error);
+    console.error("Error durante la inicialización:", error);
   }
 }
 

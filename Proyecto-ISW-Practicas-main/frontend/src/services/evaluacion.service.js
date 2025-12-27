@@ -1,41 +1,34 @@
 import axios from './root.service';
 
-// 1. Obtener la lista de estudiantes pendientes
-export const getPendientes = async () => {
-    try {
-        const response = await axios.get('/encargado/pendientes');
-        const { status, data } = response.data;
-        if (status === 'Success') {
-            return data;
-        }
-    } catch (error) {
-        console.error("Error al obtener pendientes:", error);
-        throw error;
-    }
-};
-
-// 2. Obtener el detalle de una solicitud específica
+/**
+ * REQUISITO: Visualizar bitácoras e informe final.
+ * Obtiene la información detallada de la práctica del alumno.
+ */
 export const getDetalleSolicitud = async (id) => {
     try {
-        const response = await axios.get(`/encargado/${id}`);
-        const { status, data } = response.data;
-        if (status === 'Success') {
-            return data;
-        }
+        const response = await axios.get(`/solicitudes/${id}`);
+        // Retornamos el objeto data que contiene los documentos y notas
+        return response.data.data;
     } catch (error) {
-        console.error("Error al obtener detalle:", error);
-        throw error;
+        console.error("Error al cargar detalle para evaluación:", error);
+        throw error.response?.data || error.message;
     }
 };
 
-// 3. Enviar la evaluación (Nota)
-export const evaluarSolicitud = async (id, nota) => {
+/**
+ * REQUISITO: Calificación y promedio automático.
+ * Envía la nota del encargado al endpoint PATCH de solicitudes.
+ */
+export const evaluarSolicitud = async (id, notaEncargado) => {
     try {
-        // El backend espera { "nota": valor }
-        const response = await axios.post(`/encargado/${id}/evaluar`, { nota });
+        // Enviamos un objeto con la nota del encargado
+        // El backend promediará automáticamente con la del supervisor
+        const response = await axios.patch(`/solicitudes/${id}`, { 
+            notaEncargado: parseFloat(notaEncargado) 
+        });
         return response.data;
     } catch (error) {
-        console.error("Error al evaluar:", error);
-        throw error;
+        console.error("Error al enviar calificación:", error);
+        throw error.response?.data || error.message;
     }
 };

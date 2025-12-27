@@ -4,161 +4,114 @@ import { Encargado } from "../entities/encargado.entity.js";
 import { Supervisor } from "../entities/supervisor.entity.js";
 import bcrypt from "bcrypt";
 
-// ==========================================
-// 1. REPOSITORIOS
-// ==========================================
 const estudianteRepo = AppDataSource.getRepository(Estudiante);
 const encargadoRepo = AppDataSource.getRepository(Encargado);
 const supervisorRepo = AppDataSource.getRepository(Supervisor);
 
-// Helper para encriptar contraseñas
-async function encryptPassword(password) {
+const encryptPassword = async (password) => {
     return await bcrypt.hash(password, 10);
-}
+};
 
-// ==========================================
-// 2. FUNCIÓN UNIFICADA
-// ==========================================
-export async function getAllUsers() {
-    const estudiantes = await estudianteRepo.find();
-    const encargados = await encargadoRepo.find();
-    const supervisores = await supervisorRepo.find();
+export const getAllUsers = async () => {
+    // Ejecutamos las tres consultas en paralelo para mayor velocidad
+    const [estudiantes, encargados, supervisores] = await Promise.all([
+        estudianteRepo.find(),
+        encargadoRepo.find(),
+        supervisorRepo.find()
+    ]);
 
-    const listaEstudiantes = estudiantes.map(u => ({ ...u, rol: 'estudiante' }));
-    const listaEncargados = encargados.map(u => ({ ...u, rol: 'encargado' }));
-    const listaSupervisores = supervisores.map(u => ({ ...u, rol: 'supervisor' }));
+    return [
+        ...estudiantes.map(u => ({ ...u, rol: 'estudiante' })),
+        ...encargados.map(u => ({ ...u, rol: 'encargado' })),
+        ...supervisores.map(u => ({ ...u, rol: 'supervisor' }))
+    ];
+};
 
-    return [...listaEstudiantes, ...listaEncargados, ...listaSupervisores];
-}
+// --- Gestión de Estudiantes ---
 
-// ==========================================
-// 3. MÓDULO ESTUDIANTES
-// ==========================================
-export async function createEstudiante(data) {
+export const createEstudiante = async (data) => {
     const exists = await estudianteRepo.findOneBy({ email: data.email });
-    if (exists) throw new Error("El email ya existe en estudiantes");
+    if (exists) throw new Error("El email ya se encuentra registrado");
 
     const hashedPassword = await encryptPassword(data.password);
-
-    const newEstudiante = estudianteRepo.create({
-        nombre: data.nombre,
-        rut: data.rut,
-        email: data.email,
-        password: hashedPassword,
-        carrera: data.carrera,
-        nivelPractica: data.nivelPractica,
-    });
+    const newEstudiante = estudianteRepo.create({ ...data, password: hashedPassword });
 
     return await estudianteRepo.save(newEstudiante);
-}
+};
 
-export async function deleteEstudiante(id) {
-    const estudiante = await estudianteRepo.findOneBy({ id });
-    if (!estudiante) throw new Error("Estudiante no encontrado");
-    await estudianteRepo.remove(estudiante);
-}
-
-export async function findAllEstudiantes() {
+export const findAllEstudiantes = async () => {
     return await estudianteRepo.find({
         select: ["id", "nombre", "rut", "email", "carrera", "nivelPractica", "created_at"]
     });
-}
+};
 
-// ==========================================
-// 4. MÓDULO ENCARGADOS
-// ==========================================
-export async function createEncargado(data) {
+export const deleteEstudiante = async (id) => {
+    const result = await estudianteRepo.delete(id);
+    if (result.affected === 0) throw new Error("Estudiante no encontrado");
+};
+
+// --- Gestión de Encargados ---
+
+export const createEncargado = async (data) => {
     const exists = await encargadoRepo.findOneBy({ email: data.email });
-    if (exists) throw new Error("El email ya existe en encargados");
+    if (exists) throw new Error("El email ya se encuentra registrado");
 
     const hashedPassword = await encryptPassword(data.password);
-
-    const newEncargado = encargadoRepo.create({
-        nombre: data.nombre,
-        rut: data.rut,
-        email: data.email,
-        password: hashedPassword,
-        facultad: data.facultad,
-    });
+    const newEncargado = encargadoRepo.create({ ...data, password: hashedPassword });
 
     return await encargadoRepo.save(newEncargado);
-}
+};
 
-export async function deleteEncargado(id) {
-    const encargado = await encargadoRepo.findOneBy({ id });
-    if (!encargado) throw new Error("Encargado no encontrado");
-    await encargadoRepo.remove(encargado);
-}
-
-export async function findAllEncargados() {
+export const findAllEncargados = async () => {
     return await encargadoRepo.find({
         select: ["id", "nombre", "rut", "email", "facultad", "created_at"]
     });
-}
+};
 
-// ==========================================
-// 5. MÓDULO SUPERVISORES
-// ==========================================
-export async function createSupervisor(data) {
+export const deleteEncargado = async (id) => {
+    const result = await encargadoRepo.delete(id);
+    if (result.affected === 0) throw new Error("Encargado no encontrado");
+};
+
+// --- Gestión de Supervisores ---
+
+export const createSupervisor = async (data) => {
     const exists = await supervisorRepo.findOneBy({ email: data.email });
-    if (exists) throw new Error("El email ya existe en supervisores");
+    if (exists) throw new Error("El email ya se encuentra registrado");
 
     const hashedPassword = await encryptPassword(data.password);
-
-    const newSupervisor = supervisorRepo.create({
-        nombre: data.nombre,
-        rut: data.rut,
-        email: data.email,
-        password: hashedPassword,
-        empresa: data.empresa,
-    });
+    const newSupervisor = supervisorRepo.create({ ...data, password: hashedPassword });
 
     return await supervisorRepo.save(newSupervisor);
-}
+};
 
-export async function deleteSupervisor(id) {
-    const supervisor = await supervisorRepo.findOneBy({ id });
-    if (!supervisor) throw new Error("Supervisor no encontrado");
-    await supervisorRepo.remove(supervisor);
-}
-
-export async function findAllSupervisores() {
+export const findAllSupervisores = async () => {
     return await supervisorRepo.find({
         select: ["id", "nombre", "rut", "email", "empresa", "created_at"]
     });
-}
-
-// ==========================================
-// 6. FUNCIONES GENÉRICAS (Update/Delete)
-// ==========================================
-export async function deleteUser(id) {
-    // Buscar y borrar en Estudiante
-    const estudiante = await estudianteRepo.findOneBy({ id });
-    if (estudiante) return await estudianteRepo.remove(estudiante);
-
-    // Buscar y borrar en Encargado
-    const encargado = await encargadoRepo.findOneBy({ id });
-    if (encargado) return await encargadoRepo.remove(encargado);
-
-    // Buscar y borrar en Supervisor
-    const supervisor = await supervisorRepo.findOneBy({ id });
-    if (supervisor) return await supervisorRepo.remove(supervisor);
-
-    throw new Error("No se encontró el usuario con ese ID en ninguna tabla");
-}
-
-const getRepoByRole = (rol) => {
-    switch (rol) {
-        case 'estudiante': return estudianteRepo;
-        case 'encargado': return encargadoRepo;
-        case 'supervisor': return supervisorRepo;
-        default: throw new Error("Rol no válido para esta operación");
-    }
 };
 
-export async function updateUserProfile(id, rol, data) {
+export const deleteSupervisor = async (id) => {
+    const result = await supervisorRepo.delete(id);
+    if (result.affected === 0) throw new Error("Supervisor no encontrado");
+};
+
+// --- Utilidades Generales ---
+
+const getRepoByRole = (rol) => {
+    const repos = {
+        estudiante: estudianteRepo,
+        encargado: encargadoRepo,
+        supervisor: supervisorRepo
+    };
+    if (!repos[rol]) throw new Error("Rol de usuario no válido");
+    return repos[rol];
+};
+
+export const updateUserProfile = async (id, rol, data) => {
     const repo = getRepoByRole(rol);
     const user = await repo.findOneBy({ id });
+    
     if (!user) throw new Error("Usuario no encontrado");
 
     if (data.password) {
@@ -167,11 +120,23 @@ export async function updateUserProfile(id, rol, data) {
 
     repo.merge(user, data);
     return await repo.save(user);
-}
+};
 
-export async function deleteUserAccount(id, rol) {
+export const deleteUserAccount = async (id, rol) => {
     const repo = getRepoByRole(rol);
-    const user = await repo.findOneBy({ id });
-    if (!user) throw new Error("Usuario no encontrado");
-    await repo.remove(user);
-}
+    const result = await repo.delete(id);
+    if (result.affected === 0) throw new Error("No se pudo eliminar el usuario");
+};
+
+// Eliminación genérica (busca en todas las tablas por ID)
+export const deleteUser = async (id) => {
+    const [delEst, delEnc, delSup] = await Promise.all([
+        estudianteRepo.delete(id),
+        encargadoRepo.delete(id),
+        supervisorRepo.delete(id)
+    ]);
+
+    if (delEst.affected === 0 && delEnc.affected === 0 && delSup.affected === 0) {
+        throw new Error("Usuario no encontrado en ningún registro");
+    }
+};

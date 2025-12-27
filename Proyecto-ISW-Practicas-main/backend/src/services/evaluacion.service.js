@@ -4,19 +4,18 @@ import { IsNull, Not } from "typeorm";
 
 const solicitudRepository = AppDataSource.getRepository(Solicitud);
 
-// 1. Obtener pendientes
+// Obtener solicitudes pendientes de evaluación final (Nota Supervisor OK, Nota Final NULL)
 export async function obtenerPendientes() {
-    console.log(" Buscando pendientes en la BD..."); 
     return await solicitudRepository.find({
         where: {
             notaSupervisor: Not(IsNull()),
             notaFinal: IsNull(),
         },
-        relations: ["estudiante"], 
+        relations: ["estudiante"],
     });
 }
 
-// 2. Obtener detalle de una evaluación
+// Obtener detalles completos de una evaluación específica
 export async function obtenerDetalleEvaluacion(idSolicitud) {
     const solicitud = await solicitudRepository.findOne({
         where: { id: idSolicitud },
@@ -41,30 +40,45 @@ export async function obtenerDetalleEvaluacion(idSolicitud) {
     };
 }
 
-// 3. Registrar la nota del encargado
+// Registrar nota del encargado, calcular promedio y cerrar evaluación
 export async function registrarNotaEncargado(idSolicitud, notaEncargado) {
     const solicitud = await solicitudRepository.findOne({ where: { id: idSolicitud } });
 
-    if (!solicitud) throw new Error("No encontrado");
+    if (!solicitud) throw new Error("Solicitud no encontrada");
 
-    if (!solicitud.notaSupervisor) throw new Error("Falta nota supervisor");
+    // Verificación de seguridad
+    if (!solicitud.notaSupervisor) throw new Error("Falta la calificación del supervisor externo");
 
     const fechaActual = new Date();
-    // Validar plazo (opcional, depende de tus reglas)
+
+    // Validar si está dentro del plazo
     if (solicitud.fechaLimiteEvaluacion && fechaActual > solicitud.fechaLimiteEvaluacion) {
-        throw new Error("Plazo vencido");
+        throw new Error("El plazo de evaluación ha vencido");
     }
 
     const nSup = parseFloat(solicitud.notaSupervisor);
     const nEnc = parseFloat(notaEncargado);
-    
-    // Calcular promedio simple
+
+    // Promedio simple (50% Supervisor / 50% Encargado)
     const promedio = (nSup + nEnc) / 2;
 
     solicitud.notaEncargado = nEnc;
     solicitud.notaFinal = parseFloat(promedio.toFixed(1));
-    solicitud.estado = "evaluada"; // Cambiamos el estado
+    solicitud.estado = "evaluada";
     solicitud.fechaRevision = fechaActual;
 
     return await solicitudRepository.save(solicitud);
 }
+
+// Obtener historial histórico de evaluaciones completadas
+export const getHistorialEvaluaciones = async () => {
+    return await solicitudRepository.find({
+        where: {
+            notaFinal: Not(IsNull())
+        },
+        relations: ["estudiante"],
+        order: {
+            id: "DESC"
+        }
+    });
+};

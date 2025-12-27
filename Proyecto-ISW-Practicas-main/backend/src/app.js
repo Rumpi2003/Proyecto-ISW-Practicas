@@ -1,28 +1,23 @@
-// src/app.js
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { routerApi } from "./routes/index.routes.js"; //enrutador principal
+import { routerApi } from "./routes/index.routes.js";
 
 const app = express();
 
-//ver las peticiones en la consola
+// Middlewares
 app.use(morgan("dev"));
 
-//permitir que Frontend (puerto 5173) hable con el Backend (puerto 3000)
 app.use(cors({
   origin: "http://localhost:5173", 
-  credentials: true //cookies de sesión
+  credentials: true
 }));
 
-//JSON que vienen en el body de las peticiones
 app.use(express.json());
-
-//cookies que guardan el token
 app.use(cookieParser());
 
-// --- Rutas ---
-routerApi(app); //todas las rutas (/api/auth, /api/users, etc.)
+// Routes
+routerApi(app);
 
 export default app;
