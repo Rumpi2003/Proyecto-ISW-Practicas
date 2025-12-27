@@ -1,133 +1,100 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '@services/auth.service.js'; 
-import { useAuth } from '@context/AuthContext';
-import { jwtDecode } from 'jwt-decode';
-import Swal from 'sweetalert2'; 
+import { login } from '../services/auth.service';
 
 const Login = () => {
     const navigate = useNavigate();
-    const { setUser } = useAuth();
+    const [loading, setLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState(''); // Estado para mensajes de error en pantalla
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [formData, setFormData] = useState({
+        email: '',
+        password: ''
+    });
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+        if (errorMsg) setErrorMsg(''); // Limpia el error mientras el usuario escribe
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setErrorMsg('');
+
         try {
-            const response = await login({ email, password });
+            const response = await login(formData);
 
-            if (response.status !== 'Success' && response.status !== 200) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error de acceso',
-                    text: response.message || 'Credenciales incorrectas',
-                    confirmButtonColor: '#3b82f6'
-                });
-                return;
+            if (response) {
+                // Obtenemos el usuario guardado para saber su rol
+                const user = JSON.parse(sessionStorage.getItem('usuario'));
+                
+                // Redirección basada en Rol
+                if (user?.rol === 'encargado' || user?.rol === 'admin') {
+                    navigate('/home');
+                } else {
+                    navigate('/dashboard');
+                }
             }
-
-            const { token, user } = response.data;
-            const decoded = jwtDecode(token);
-            const userRol = decoded.rol || decoded.role;
-            const userCompleto = {
-                ...user,
-                rol: userRol
-            };
-            setUser(userCompleto);
-
-            Swal.fire({
-                icon: 'success',
-                title: `¡Bienvenido ${user.nombre || ''}!`,
-                text: 'Has iniciado sesión exitosamente.',
-                timer: 1500,
-                showConfirmButton: false
-            });
-
-            if (userRol === 'encargado') {
-                navigate('/dashboard');
-            } else if (userRol === 'estudiante') {
-                navigate('/home');
-            } else {
-                navigate('/home');
-            }
-
         } catch (error) {
-            console.error(error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error de Servidor',
-                text: 'No se pudo conectar al servidor.',
-            });
+            console.error("Error en login:", error);
+            setErrorMsg(error.message || 'Credenciales inválidas. Intente nuevamente.');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4">
-            
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 transform transition-all hover:scale-[1.01]">
-                
-                {/* ZONA DEL ENCABEZADO */}
-                <div className="text-center mb-4">
-                    {/* LOGO DE LA UNIVERSIDAD */}
-                    <img 
-                        src="/logo_universidad.png" 
-                        alt="Logo UBB" 
-                        className="h-16 mx-auto mb-2 object-contain" 
-                    />
-                    
-                    <h1 className="text-2xl font-extrabold text-gray-800 mb-1">
-                        Iniciar Sesión
-                    </h1>
-                    <p className="text-gray-400 font-medium text-xs">
-                        Portal de Prácticas
-                    </p>
+        <div className="min-h-screen flex items-center justify-center bg-blue-600 p-6">
+            <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md">
+                <div className="text-center mb-10">
+                    <h1 className="text-3xl font-black text-gray-800 tracking-normal">Portal de Prácticas</h1>
+                    <p className="text-gray-400 mt-2 font-medium">Inicia sesión para continuar</p>
                 </div>
 
-                <form className="space-y-3" onSubmit={handleSubmit}>
-                    
-                    <div className="space-y-1">
-                        <label htmlFor="email" className="block text-xs font-bold text-gray-700 ml-1">
-                            Correo Institucional
-                        </label>
+                {errorMsg && (
+                    <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm font-medium animate-pulse">
+                        {errorMsg}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    <div>
+                        <label className="block text-gray-700 text-xs uppercase tracking-wide font-black mb-3">Correo Electrónico</label>
                         <input
+                            name="email"
                             type="email"
-                            id="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="contacto@institución.cl"
+                            onChange={handleChange}
+                            className="w-full p-4 border-2 border-gray-100 rounded-2xl bg-gray-50 focus:border-blue-500 focus:bg-white transition-all outline-none"
+                            placeholder="nombre@ejemplo.com"
                             required
-                            className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all duration-200 text-sm"
                         />
                     </div>
 
-                    <div className="space-y-1">
-                        <label htmlFor="password" className="block text-xs font-bold text-gray-700 ml-1">
-                            Contraseña
-                        </label>
+                    <div>
+                        <label className="block text-gray-700 text-xs uppercase tracking-wide font-black mb-3">Contraseña</label>
                         <input
+                            name="password"
                             type="password"
-                            id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={handleChange}
+                            className="w-full p-4 border-2 border-gray-100 rounded-2xl bg-gray-50 focus:border-blue-500 focus:bg-white transition-all outline-none"
                             placeholder="••••••••"
                             required
-                            className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all duration-200 text-sm"
                         />
                     </div>
 
-                    <div className="flex justify-center pt-3">
-                        <button 
-                            type="submit" 
-                            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 text-sm"
-                        >
-                            Ingresar
-                        </button>
-                    </div>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={`w-full py-4 text-white font-black rounded-2xl transition-all shadow-xl uppercase tracking-wide text-sm
+                            ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 active:scale-95'}`}
+                    >
+                        {loading ? 'Validando...' : 'Entrar al sistema'}
+                    </button>
                 </form>
             </div>
         </div>
     );
-}
+};
 
 export default Login;
