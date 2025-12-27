@@ -8,8 +8,9 @@ const VerOfertas = () => {
   const [loading, setLoading] = useState(true);
   
   // Estados para los Modales
-  const [selectedOferta, setSelectedOferta] = useState(null); // Para ver detalles
-  const [ofertaAEliminar, setOfertaAEliminar] = useState(null); // Para confirmar eliminación
+  const [selectedOferta, setSelectedOferta] = useState(null); 
+  const [ofertaAEliminar, setOfertaAEliminar] = useState(null); 
+  const [showSuccessDelete, setShowSuccessDelete] = useState(false);
   
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -52,23 +53,25 @@ const VerOfertas = () => {
     return { label: '🟢 Activa', color: 'bg-green-100 text-green-700 border-green-200', active: true };
   };
 
-  // 👇 LÓGICA DE ELIMINACIÓN CONFIRMADA
   const handleConfirmDelete = async () => {
     if (!ofertaAEliminar) return;
 
     try {
         await axios.delete(`/ofertas/${ofertaAEliminar}`);
         
-        // Actualizamos el estado local
         setOfertas(prevOfertas => prevOfertas.filter(oferta => oferta.id !== ofertaAEliminar));
         
-        // Si la oferta eliminada estaba abierta en detalles, cerramos ese modal también
         if (selectedOferta?.id === ofertaAEliminar) {
             setSelectedOferta(null);
         }
 
-        // Cerramos el modal de confirmación
         setOfertaAEliminar(null);
+        
+        setShowSuccessDelete(true);
+        setTimeout(() => {
+            setShowSuccessDelete(false);
+        }, 2000);
+
     } catch (error) {
         console.error("Error al eliminar:", error);
         alert("Hubo un error al intentar eliminar la oferta.");
@@ -135,30 +138,6 @@ const VerOfertas = () => {
                       </span>
                   </div>
 
-                  {/* BOTONERA EN TARJETA */}
-                  <div className="absolute top-14 right-4 flex gap-2">
-                     <button 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            navigate('/publicar-oferta', { state: { oferta } });
-                        }}
-                        className="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors border border-amber-100 shadow-sm"
-                        title="Editar"
-                     >
-                        ✏️
-                     </button>
-                     <button 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setOfertaAEliminar(oferta.id); // ABRIMOS MODAL DE CONFIRMACIÓN
-                        }}
-                        className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-100 shadow-sm"
-                        title="Eliminar"
-                     >
-                        🗑️
-                     </button>
-                  </div>
-
                   <h3 className={`text-xl font-bold mb-2 line-clamp-2 transition-colors mt-2 ${estado.active ? 'text-gray-900 group-hover:text-blue-600' : 'text-gray-500'}`}>
                       {oferta.titulo}
                   </h3>
@@ -167,29 +146,57 @@ const VerOfertas = () => {
                       {oferta.descripcion}
                   </p>
 
-                  <div className="border-t border-gray-100 pt-4 mt-auto">
-                      <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                          <span>📅 Cierre:</span>
-                          <span className={`font-semibold ${estado.active ? 'text-gray-800' : 'text-red-500'}`}>
-                            {formatDate(oferta.fechaCierre)}
-                          </span>
-                      </div>
+                  {/* PIE DE TARJETA CON BOTONES A LA DERECHA */}
+                  <div className="border-t border-gray-100 pt-4 mt-auto flex justify-between items-end gap-4">
                       
-                      <div className="flex items-start gap-2 text-sm text-gray-600">
-                           <span className="mt-0.5">🎓 Para:</span>
-                           <div className="flex flex-wrap gap-1">
-                              {oferta.carreras?.slice(0, 3).map((c, index) => (
-                                  <span key={index} className="bg-gray-100 text-gray-600 text-[10px] font-bold px-1.5 py-0.5 rounded border border-gray-200 uppercase">
-                                      {c.abreviacion || "S/A"}
-                                  </span>
-                              ))}
-                              {(oferta.carreras?.length || 0) > 3 && (
-                                  <span className="text-xs text-gray-400 font-medium self-center">
-                                      +{oferta.carreras.length - 3}
-                                  </span>
-                              )}
-                           </div>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <span>📅 Cierre:</span>
+                            <span className={`font-semibold ${estado.active ? 'text-gray-800' : 'text-red-500'}`}>
+                                {formatDate(oferta.fechaCierre)}
+                            </span>
+                        </div>
+                        
+                        <div className="flex items-start gap-2 text-sm text-gray-600">
+                            <span className="mt-0.5">🎓 Para:</span>
+                            <div className="flex flex-wrap gap-1">
+                                {oferta.carreras?.slice(0, 3).map((c, index) => (
+                                    <span key={index} className="bg-gray-100 text-gray-600 text-[10px] font-bold px-1.5 py-0.5 rounded border border-gray-200 uppercase">
+                                        {c.abreviacion || "S/A"}
+                                    </span>
+                                ))}
+                                {(oferta.carreras?.length || 0) > 3 && (
+                                    <span className="text-xs text-gray-400 font-medium self-center">
+                                        +{oferta.carreras.length - 3}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
                       </div>
+
+                      <div className="flex gap-2 shrink-0">
+                        <button 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigate('/publicar-oferta', { state: { oferta } });
+                            }}
+                            className="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors border border-amber-100 shadow-sm"
+                            title="Editar"
+                        >
+                            ✏️
+                        </button>
+                        <button 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setOfertaAEliminar(oferta.id); 
+                            }}
+                            className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-100 shadow-sm"
+                            title="Eliminar"
+                        >
+                            🗑️
+                        </button>
+                      </div>
+
                   </div>
                 </div>
               </div>
@@ -233,13 +240,52 @@ const VerOfertas = () => {
                         </p>
                     </div>
 
+                    {/* 👇 SECCIÓN DE DATOS DE LA EMPRESA (NUEVA) */}
+                    <div className="bg-indigo-50 p-5 rounded-xl border border-indigo-100">
+                        <h4 className="text-sm font-bold text-indigo-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            🏢 Sobre la Empresa
+                        </h4>
+                        <div className="space-y-2 text-sm text-indigo-800">
+                            <p>
+                                <span className="font-semibold text-indigo-900">Empresa:</span> {selectedOferta.empresa?.nombre}
+                            </p>
+                            
+                            {/* Razón Social (si es diferente o existe) */}
+                            {selectedOferta.empresa?.razonSocial && (
+                                <p>
+                                    <span className="font-semibold text-indigo-900">Razón Social:</span> {selectedOferta.empresa.razonSocial}
+                                </p>
+                            )}
+
+                            {/* Dirección */}
+                            {selectedOferta.empresa?.direccion && (
+                                <p className="flex items-center gap-2">
+                                    <span>📍</span> 
+                                    <span>{selectedOferta.empresa.direccion}</span>
+                                </p>
+                            )}
+
+                            {/* Sitio Web (Clicable) */}
+                            {selectedOferta.empresa?.web && (
+                                <a 
+                                    href={selectedOferta.empresa.web.startsWith('http') ? selectedOferta.empresa.web : `https://${selectedOferta.empresa.web}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="text-blue-600 hover:underline hover:text-blue-800 font-medium flex items-center gap-2 w-fit mt-1"
+                                >
+                                    <span>🌐</span> Visitar Sitio Web
+                                </a>
+                            )}
+                        </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="bg-gray-50 p-4 rounded-xl">
-                            <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Fecha Límite de Postulación</h4>
+                            <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Fecha Límite</h4>
                             <p className="font-semibold text-gray-800">{formatDate(selectedOferta.fechaCierre)}</p>
                         </div>
                         <div className="bg-gray-50 p-4 rounded-xl">
-                             <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Carreras Destinadas</h4>
+                             <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Carreras</h4>
                              <ul className="list-disc list-inside text-gray-700 text-sm space-y-1">
                                 {selectedOferta.carreras?.map(c => (
                                     <li key={c.id}>
@@ -261,7 +307,7 @@ const VerOfertas = () => {
                             ✏️ Editar
                         </button>
                         <button 
-                            onClick={() => setOfertaAEliminar(selectedOferta.id)} // ABRE EL MODAL DE ELIMINAR ENCIMA
+                            onClick={() => setOfertaAEliminar(selectedOferta.id)} 
                             className="flex-1 md:flex-none bg-red-500 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-red-600 transition-all shadow-md flex items-center justify-center gap-2"
                         >
                             🗑️ Eliminar
@@ -279,7 +325,7 @@ const VerOfertas = () => {
         </div>
       )}
 
-      {/* 🔴 MODAL DE CONFIRMACIÓN DE ELIMINACIÓN (POP UP) */}
+      {/* MODAL DE CONFIRMACIÓN */}
       {ofertaAEliminar && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 transform scale-100 animate-in zoom-in duration-200">
@@ -312,6 +358,26 @@ const VerOfertas = () => {
                     </div>
                 </div>
             </div>
+        </div>
+      )}
+
+      {/* MODAL DE ÉXITO */}
+      {showSuccessDelete && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] animate-in fade-in duration-300">
+          <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center max-w-sm w-full transform scale-100 animate-in zoom-in duration-300">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
+              <span className="text-4xl">✅</span>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">
+               ¡Eliminada!
+            </h3>
+            <p className="text-gray-500 text-center mb-6">
+              La oferta ha sido borrada correctamente.
+            </p>
+            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+               <div className="bg-green-500 h-full w-full animate-[wiggle_2s_linear]"></div>
+            </div>
+          </div>
         </div>
       )}
 
