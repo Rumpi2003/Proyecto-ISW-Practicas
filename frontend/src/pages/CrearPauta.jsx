@@ -90,7 +90,7 @@ const CrearPauta = () => {
       setLoading(true);
       const res = await createPauta(payload);
       Swal.fire({ icon: 'success', title: 'Pauta creada', text: res.message || 'Pauta creada correctamente' });
-      navigate('/dashboard/pautas');
+      navigate('/dashboard/pautas/gestionar');
     } catch (err) {
       Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'No se pudo crear la pauta' });
     } finally {

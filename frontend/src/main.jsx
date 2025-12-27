@@ -3,8 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from '@pages/Login';
 import Home from '@pages/Home';
-import Users from '@pages/Users'; // <--- 1. IMPORTANTE: Importamos la nueva página
-// import PautasEvaluacion removed: using GestionarPautas directly
+import Users from '@pages/Users';
 import GestionarEvaluaciones from '@pages/GestionarEvaluaciones';
 import CrearPauta from '@pages/CrearPauta';
 import GestionarPautas from '@pages/GestionarPautas';
