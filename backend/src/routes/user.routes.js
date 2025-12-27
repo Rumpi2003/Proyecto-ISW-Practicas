@@ -3,15 +3,9 @@ import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { checkEncargado } from "../middleware/checkEncargado.middleware.js"; // Importar el nuevo middleware
 import {
-  createEstudianteCtrl,
-  getEstudiantesCtrl,
-  deleteEstudianteCtrl,
-  createEncargadoCtrl,
-  getEncargadosCtrl,
-  deleteEncargadoCtrl,
-  createSupervisorCtrl,
-  getSupervisoresCtrl,
-  deleteSupervisorCtrl
+  createEstudianteCtrl, getEstudiantesCtrl, deleteEstudianteCtrl,
+  createEncargadoCtrl, getEncargadosCtrl, deleteEncargadoCtrl,
+  createSupervisorCtrl, getSupervisoresCtrl, deleteSupervisorCtrl
 } from "../controllers/user.controller.js";
 
 const router = Router();

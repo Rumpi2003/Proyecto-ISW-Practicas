@@ -4,13 +4,11 @@ import { AuthProvider } from './context/AuthContext';
 
 import Login from '@pages/Login';
 import Home from '@pages/Home';
-import Users from '@pages/Users'; 
-
-// --- IMPORTACIONES TUYAS (OFERTAS) ---
+// --- (OFERTAS) ---
 import PublicarOferta from '@pages/PublicarOferta';
 import VerOfertas from '@pages/VerOfertas';
 
-// --- IMPORTACIONES DE MAIN (PAUTAS, EVALUACIONES, SOLICITUDES) ---
+// --- (PAUTAS, EVALUACIONES, SOLICITUDES) ---
 import PautasEvaluacion from '@pages/PautasEvaluacion';
 import CrearPauta from '@pages/CrearPauta';
 import GestionarPautas from '@pages/GestionarPautas';
@@ -22,6 +20,10 @@ import VerEvaluacion from '@pages/VerEvaluacion';
 import SolicitudesMenu from './pages/SolicitudesMenu';
 import CrearSolicitud from './pages/CrearSolicitud';
 import MisSolicitudes from './pages/MisSolicitudes';
+//--- (Usuarios) ---
+import UsersMenu from './pages/MenuUsers';
+import UserList from './pages/ListaUsers'; 
+import CreateUser from './pages/CrearUser';
 
 import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
@@ -59,15 +61,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         )
       },
-      {
-        path: '/dashboard/users', 
-        element: (
-          <ProtectedRoute>
-            <Users />
-          </ProtectedRoute>
-        )
-      },
-      // --- TUS RUTAS (OFERTAS) ---
+      // --- (OFERTAS) ---
       {
         path: '/publicar-oferta', 
         element: (
@@ -84,7 +78,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         )
       },
-      // --- RUTAS DE MAIN (SOLICITUDES) ---
+      // --- (SOLICITUDES) ---
       {
         path: '/solicitudes',
         element: (
@@ -109,7 +103,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         )
       },
-      // --- RUTAS DE MAIN (PAUTAS) ---
+      // --- (PAUTAS) ---
       {
         path: '/dashboard/pautas', 
         element: (
@@ -142,7 +136,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         )
       },
-      // --- RUTAS DE MAIN (EVALUACIONES) ---
+      // --- (EVALUACIONES) ---
       {
         path: '/dashboard/evaluaciones/gestionar',
         element: (
@@ -172,6 +166,31 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <VerEvaluacion />
+          </ProtectedRoute>
+        )
+      },
+      //--- (USUARIOS) ---
+      {
+        path: '/dashboard/users',
+        element: (
+          <ProtectedRoute>
+            <UsersMenu /> 
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: '/dashboard/users/:tipo', 
+        element: (
+          <ProtectedRoute>
+            <UserList /> 
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: '/dashboard/users/create',
+        element: (
+          <ProtectedRoute>
+            <CreateUser />
           </ProtectedRoute>
         )
       }
