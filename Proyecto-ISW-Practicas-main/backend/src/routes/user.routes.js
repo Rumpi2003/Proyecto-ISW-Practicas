@@ -1,37 +1,40 @@
-// src/routes/user.routes.js
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.middleware.js";
-import { checkEncargado } from "../middleware/checkEncargado.middleware.js"; 
+import { checkEncargado } from "../middleware/checkEncargado.middleware.js";
 import {
-  createEstudianteCtrl,
-  getEstudiantesCtrl,
-  deleteEstudianteCtrl,
-  createEncargadoCtrl,
-  getEncargadosCtrl,
-  deleteEncargadoCtrl,
-  createSupervisorCtrl,
-  getSupervisoresCtrl,
-  deleteSupervisorCtrl
+    getUsers,
+    deleteUser,
+    createEstudianteCtrl,
+    getEstudiantesCtrl,
+    deleteEstudianteCtrl,
+    createEncargadoCtrl,
+    getEncargadosCtrl,
+    deleteEncargadoCtrl,
+    createSupervisorCtrl,
+    getSupervisoresCtrl,
+    deleteSupervisorCtrl
 } from "../controllers/user.controller.js";
 
 const router = Router();
 
-//todas las rutas debajo de esto requieren:
-//estar logueado
-//ser encargado
+// Seguridad para todas las rutas de este archivo
 router.use(authMiddleware, checkEncargado);
 
-// === GESTIÓN DE ESTUDIANTES ===
+// Ruta principal para la tabla (axios.get('/users'))
+router.get("/", getUsers);
+
+// Ruta eliminación
+router.delete("/:id", deleteUser);
+
+// Rutas específicas
 router.post("/estudiantes", createEstudianteCtrl);
 router.get("/estudiantes", getEstudiantesCtrl);
 router.delete("/estudiantes/:id", deleteEstudianteCtrl);
 
-// === GESTIÓN DE ENCARGADOS ===
 router.post("/encargados", createEncargadoCtrl);
 router.get("/encargados", getEncargadosCtrl);
 router.delete("/encargados/:id", deleteEncargadoCtrl);
 
-// === GESTIÓN DE SUPERVISORES ===
 router.post("/supervisores", createSupervisorCtrl);
 router.get("/supervisores", getSupervisoresCtrl);
 router.delete("/supervisores/:id", deleteSupervisorCtrl);
