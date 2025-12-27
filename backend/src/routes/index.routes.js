@@ -1,4 +1,6 @@
 import { Router } from "express";
+import pautaEvaluacionRoutes from "./pautaEvaluacion.routes.js";
+import evaluacionSupervisorRoutes from "./evaluacionSupervisor.routes.js";
 import solicitudRoutes from "./solicitud.routes.js";
 import authRoutes from "./auth.routes.js";
 import profileRoutes from "./profile.routes.js";
@@ -13,7 +15,10 @@ export function routerApi(app) {
   // Prefijo global "/api"
   app.use("/api", router); 
 
-  // Definición de rutas
+  // Mantenemos las rutas nuevas que venían de MAIN
+  router.use("/pautas-evaluacion", pautaEvaluacionRoutes);
+  router.use("/evaluaciones-supervisor", evaluacionSupervisorRoutes);
+
   router.use("/solicitudes", solicitudRoutes);
   router.use("/auth", authRoutes);
   router.use("/profile", profileRoutes);

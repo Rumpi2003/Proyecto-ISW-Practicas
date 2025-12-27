@@ -3,11 +3,16 @@ import { Router } from "express";
 import { SolicitudController } from "../controllers/solicitud.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { checkEncargado } from "../middleware/checkEncargado.middleware.js"; 
+import { uploadMiddleware } from "../middleware/upload.middleware.js";
 
 const router = Router();
 const controller = new SolicitudController();
 
-router.post("/", authMiddleware, controller.create);
+router.post("/", 
+    authMiddleware, 
+    uploadMiddleware,
+    controller.create
+);
 
 router.get(
   "/", 
@@ -30,4 +35,16 @@ router.delete(
   controller.delete
 );
 
+router.get(
+  "/mis-solicitudes", 
+  authMiddleware, 
+  controller.getSolicitudesEstudiante
+);
+
+router.put(
+  "/mis-solicitudes/:idSolicitud", 
+  authMiddleware, 
+  uploadMiddleware,
+  controller.updatePropia
+);
 export default router;

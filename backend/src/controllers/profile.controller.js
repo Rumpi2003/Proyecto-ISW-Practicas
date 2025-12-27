@@ -1,6 +1,11 @@
 // src/controllers/profile.controller.js
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
-import { updateUserProfile, deleteUserAccount } from "../services/user.service.js"; 
+import { updateUserProfile, deleteUserAccount } from "../services/user.service.js";
+
+import { AppDataSource } from "../config/db.config.js"; 
+import { Estudiante } from "../entities/estudiante.entity.js";
+import { Encargado } from "../entities/encargado.entity.js";
+import { Supervisor } from "../entities/supervisor.entity.js";
 
 export function getPublicProfile(req, res) {
   handleSuccess(res, 200, "Perfil público obtenido exitosamente", {
@@ -8,14 +13,40 @@ export function getPublicProfile(req, res) {
   });
 }
 
-export function getPrivateProfile(req, res) {
-  // req.user viene del authMiddleware (tiene id, email, rol)
-  const user = req.user;
+export async function getPrivateProfile(req, res) {
+  try {
+    //ID y ROL del token
+    const { id, rol } = req.user; 
 
-  handleSuccess(res, 200, "Perfil privado obtenido exitosamente", {
-    message: `¡Hola, ${user.email}! Este es tu perfil privado.`,
-    userData: user,
-  });
+    let usuarioEncontrado = null;
+    let repo = null;
+
+    if (rol === 'estudiante') {
+        repo = AppDataSource.getRepository(Estudiante);
+    } else if (rol === 'encargado') {
+        repo = AppDataSource.getRepository(Encargado);
+    } else if (rol === 'supervisor') {
+        repo = AppDataSource.getRepository(Supervisor);
+    }
+
+    if (repo) {
+        usuarioEncontrado = await repo.findOneBy({ id });
+    }
+
+    if (!usuarioEncontrado) {
+        return handleErrorClient(res, 404, "Usuario no encontrado en la Base de Datos");
+    }
+
+    delete usuarioEncontrado.password;
+
+    handleSuccess(res, 200, "Perfil privado obtenido exitosamente", {
+      message: `¡Hola! Este es tu perfil privado.`,
+      userData: usuarioEncontrado, 
+    });
+
+  } catch (error) {
+    handleErrorServer(res, 500, "Error al obtener perfil", error.message);
+  }
 }
 
 //funcion patch
