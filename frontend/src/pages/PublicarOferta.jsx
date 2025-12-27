@@ -8,18 +8,16 @@ const PublicarOferta = () => {
   const [carrerasOptions, setCarrerasOptions] = useState([]);
   const [empresasOptions, setEmpresasOptions] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
   
   const navigate = useNavigate();
   const location = useLocation(); 
   const { user } = useAuth(); 
 
-  // 1. Detectar si estamos en Modo Edición
   const ofertaAEditar = location.state?.oferta;
   const esEdicion = !!ofertaAEditar;
-
-  // 2. Calcular fecha mínima (Hoy) respetando zona horaria local
   const today = new Date();
-  const todayString = today.toLocaleDateString('en-CA'); // Formato YYYY-MM-DD local
+  const todayString = today.toLocaleDateString('en-CA');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,24 +33,25 @@ const PublicarOferta = () => {
         if (resCarreras.data.data) {
           setCarrerasOptions(resCarreras.data.data.map(c => ({
             label: c.nombre, 
-            value: c.id
+            value: String(c.id) // 👈 FORZAMOS A STRING AQUÍ (ID de la opción)
           })));
         }
 
         if (resEmpresas.data.data) {
           setEmpresasOptions(resEmpresas.data.data.map(e => ({
             label: e.nombre, 
-            value: e.id
+            value: String(e.id) // 👈 FORZAMOS A STRING AQUÍ TAMBIÉN
           })));
         }
       } catch (error) {
         console.error("Error al cargar datos:", error);
+      } finally {
+        setLoadingData(false);
       }
     };
     fetchData();
   }, [user]); 
 
-  // 3. Definir campos del formulario
   const fields = [
     {
       name: "titulo",
@@ -70,7 +69,7 @@ const PublicarOferta = () => {
       fieldType: "input",
       type: "date",
       required: true,
-      min: todayString, // Bloquea fechas pasadas en el calendario
+      min: todayString,
       defaultValue: esEdicion && ofertaAEditar.fechaCierre 
         ? new Date(ofertaAEditar.fechaCierre).toISOString().split('T')[0] 
         : "",
@@ -85,9 +84,9 @@ const PublicarOferta = () => {
       fieldType: "select",
       options: empresasOptions,
       required: true,
-      defaultValue: esEdicion ? ofertaAEditar.empresa?.id : ""
+      // 👈 FORZAMOS A STRING PARA QUE COINCIDA CON LA OPCIÓN DE ARRIBA
+      defaultValue: esEdicion ? String(ofertaAEditar.empresa?.id) : ""
     },
-    // SOLO EN EDICIÓN: Permitir cambiar el estado (Activa/Cerrada)
     ...(esEdicion ? [{
       name: "estado",
       label: "Estado de la Oferta",
@@ -115,11 +114,15 @@ const PublicarOferta = () => {
       fieldType: "checkbox-group", 
       options: carrerasOptions,
       required: true,
-      defaultValue: esEdicion ? ofertaAEditar.carreras?.map(c => c.id) : []
+      // 👈 EL ARREGLO DEFINITIVO:
+      // 1. Verificamos que exista el array.
+      // 2. Mapeamos cada ID convirtiéndolo a String explícitamente.
+      defaultValue: esEdicion 
+        ? (ofertaAEditar.carreras?.map(c => String(c.id)) || []) 
+        : []
     }
   ];
 
-  // 4. Manejar el envío
   const handleSubmit = async (formData) => {
     try {
       if (esEdicion) {
@@ -143,8 +146,6 @@ const PublicarOferta = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 relative">
-      
-      {/* HEADER / BOTÓN VOLVER */}
       <div className="max-w-2xl w-full mb-4 text-left">
         <button 
           onClick={() => navigate(-1)}
@@ -155,15 +156,20 @@ const PublicarOferta = () => {
         </button>
       </div>
 
-      {/* FORMULARIO */}
-      <Form 
-        title={esEdicion ? "✏️ Editar Oferta" : "🚀 Nueva Oferta de Práctica"}
-        fields={fields}
-        buttonText={esEdicion ? "💾 Guardar Cambios" : "📢 Publicar Oferta"}
-        onSubmit={handleSubmit}
-      />
+      {loadingData ? (
+         <div className="bg-white p-12 rounded-3xl shadow-xl flex flex-col items-center animate-in fade-in zoom-in duration-300">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
+            <p className="text-gray-500 font-medium">Cargando datos del formulario...</p>
+         </div>
+      ) : (
+        <Form 
+          title={esEdicion ? "✏️ Editar Oferta" : "🚀 Nueva Oferta de Práctica"}
+          fields={fields}
+          buttonText={esEdicion ? "💾 Guardar Cambios" : "📢 Publicar Oferta"}
+          onSubmit={handleSubmit}
+        />
+      )}
 
-      {/* MODAL DE ÉXITO */}
       {showSuccess && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-300">
           <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center max-w-sm w-full transform scale-100 animate-in zoom-in duration-300">
@@ -182,7 +188,6 @@ const PublicarOferta = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };
