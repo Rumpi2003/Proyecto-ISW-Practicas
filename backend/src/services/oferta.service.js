@@ -12,7 +12,6 @@ const validarFechaCierre = (fecha) => {
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
   
-  // Ajuste básico de zona horaria para la comparación
   fechaCierre.setMinutes(fechaCierre.getMinutes() + fechaCierre.getTimezoneOffset());
   fechaCierre.setHours(0, 0, 0, 0);
 
@@ -48,7 +47,7 @@ export const createOferta = async (ofertaData, idEncargado) => {
     titulo: ofertaData.titulo,
     descripcion: ofertaData.descripcion,
     fechaCierre: ofertaData.fechaCierre,
-    estado: "activa", // Por defecto
+    estado: "activa", 
     encargado: encargado,
     carreras: carrerasSeleccionadas,
     empresa: empresa
@@ -57,11 +56,10 @@ export const createOferta = async (ofertaData, idEncargado) => {
   return await ofertaRepository.save(nuevaOferta);
 };
 
-// 2. OBTENER OFERTAS (Con soporte para filtros)
+// 2. OBTENER OFERTAS
 export const getOfertas = async (filters = {}) => {
   const ofertaRepository = AppDataSource.getRepository(Oferta);
   
-  // Si envían filtros (ej: { estado: 'activa' }), se aplican aquí
   return await ofertaRepository.find({
     where: filters, 
     relations: ["empresa", "carreras", "encargado", "encargado.facultad"],
@@ -80,27 +78,23 @@ export const updateOferta = async (id, ofertaData) => {
     relations: ["carreras", "empresa"]
   });
 
-  if (!oferta) return null; // Retornamos null para que el controller maneje el 404
+  if (!oferta) return null; 
 
-  // Actualizar Estado (Manual)
   if (ofertaData.estado) {
     oferta.estado = ofertaData.estado;
   }
 
-  // Validar y Actualizar Fecha
   if (ofertaData.fechaCierre) {
     validarFechaCierre(ofertaData.fechaCierre);
     oferta.fechaCierre = ofertaData.fechaCierre;
   }
 
-  // Actualizar Empresa
   if (ofertaData.empresaId) {
     const empresa = await empresaRepository.findOneBy({ id: ofertaData.empresaId });
     if (!empresa) throw new Error("La empresa seleccionada no existe.");
     oferta.empresa = empresa;
   }
 
-  // Actualizar Carreras
   if (ofertaData.carreras && Array.isArray(ofertaData.carreras)) {
     const nuevasCarreras = await carreraRepository.findBy({
       id: In(ofertaData.carreras)
@@ -109,9 +103,18 @@ export const updateOferta = async (id, ofertaData) => {
     oferta.carreras = nuevasCarreras;
   }
 
-  // Actualizar Textos
   if (ofertaData.titulo) oferta.titulo = ofertaData.titulo;
   if (ofertaData.descripcion) oferta.descripcion = ofertaData.descripcion;
 
   return await ofertaRepository.save(oferta);
+};
+
+// 4. ELIMINAR OFERTA (NUEVO)
+export const deleteOferta = async (id) => {
+  const ofertaRepository = AppDataSource.getRepository(Oferta);
+  const oferta = await ofertaRepository.findOneBy({ id: parseInt(id) });
+  
+  if (!oferta) return null;
+
+  return await ofertaRepository.remove(oferta);
 };

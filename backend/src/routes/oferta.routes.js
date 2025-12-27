@@ -20,11 +20,18 @@ router.get("/",
     (req, res) => ofertaController.getOffers(req, res)
 );
 
-// 3. Modificar oferta existente (PUT /api/ofertas/:id) 👇
+// 3. Modificar oferta existente (PUT /api/ofertas/:id)
 router.put("/:id", 
     authMiddleware, 
     checkEncargado, 
     (req, res) => ofertaController.update(req, res)
+);
+
+// 4. Eliminar oferta (DELETE /api/ofertas/:id) 👇 ESTA FALTABA
+router.delete("/:id", 
+    authMiddleware, 
+    checkEncargado, 
+    (req, res) => ofertaController.delete(req, res)
 );
 
 export default router;
