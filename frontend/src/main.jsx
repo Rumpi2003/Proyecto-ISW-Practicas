@@ -17,6 +17,9 @@ import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute'; 
 import '@styles/styles.css';
+import SolicitudesMenu from './pages/SolicitudesMenu';
+import CrearSolicitud from './pages/CrearSolicitud';
+import MisSolicitudes from './pages/MisSolicitudes';
 
 const router = createBrowserRouter([
   {

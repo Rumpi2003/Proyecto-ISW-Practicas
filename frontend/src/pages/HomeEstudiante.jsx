@@ -19,15 +19,24 @@ const HomeEstudiante = () => {
   const handleGetProfile = async () => {
     try {
       const response = await getMyProfile();
-      setProfileData(response.data);
-      Swal.fire({
-          title: 'Datos Obtenidos',
-          text: 'Revisa la sección inferior para ver tus datos.',
-          icon: 'success',
-          timer: 2000
+
+      const userData = response.data?.userData || response.data?.userData || response.data;
+      
+      setProfileData(userData);
+      
+      Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      }).fire({
+        icon: 'success',
+        title: 'Datos actualizados'
       });
     } catch (error) {
       console.error(error);
+      setProfileData(null);
     }
   };
 
@@ -52,38 +61,97 @@ const HomeEstudiante = () => {
             </div>
             <button 
                 onClick={handleLogout} 
-                className="mt-4 md:mt-0 bg-red-50 text-red-600 hover:bg-red-100 px-6 py-2 rounded-xl font-bold transition-all text-sm"
+                className="mt-4 md:mt-0 bg-red-50 text-red-600 hover:bg-red-100 px-6 py-2 rounded-xl font-bold transition-all text-sm border border-red-100"
             >
-                Salir
+                Cerrar Sesión
             </button>
         </div>
 
         {/* ACCIONES DEL ESTUDIANTE */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-indigo-50 p-8 rounded-2xl border border-indigo-100 hover:shadow-lg transition-shadow">
+            
+            {/* TARJETA 1: DATOS PERSONALES */}
+            <div className="bg-indigo-50 p-8 rounded-2xl border border-indigo-100 hover:shadow-lg transition-shadow flex flex-col">
                 <h3 className="text-xl font-bold text-indigo-900 mb-2">👤 Mi Información</h3>
-                <p className="text-indigo-700 mb-4 text-sm">Consulta tus datos personales registrados.</p>
-                <button 
-                    onClick={handleGetProfile}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors w-full"
-                >
-                    Ver Mis Datos
-                </button>
+                <p className="text-indigo-700 mb-6 text-sm">Consulta tus datos académicos y personales.</p>
+                
+                {/* Botón inicial */}
+                {!profileData && (
+                    <button 
+                        onClick={handleGetProfile}
+                        className="mt-auto bg-indigo-600 text-white px-4 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-colors w-full shadow-md"
+                    >
+                        Ver Mis Datos
+                    </button>
+                )}
+
+                {/* FICHA TÉCNICA ELEGANTE */}
                 {profileData && (
-                    <div className="mt-4 bg-white p-4 rounded-lg text-xs overflow-auto max-h-40 border border-gray-200">
-                        <pre>{JSON.stringify(profileData, null, 2)}</pre>
+                    <div className="bg-white rounded-xl shadow-sm border border-indigo-100 overflow-hidden animate-fade-in-up">
+                        <div className="bg-indigo-600 px-4 py-2 flex justify-between items-center">
+                            <span className="text-xs font-bold text-white uppercase tracking-wider">Ficha Estudiante</span>
+                            <button onClick={() => setProfileData(null)} className="text-indigo-200 hover:text-white text-lg leading-none">&times;</button>
+                        </div>
+                        
+                        <div className="p-4 space-y-3">
+                            {/* Nombre */}
+                            <div className="flex items-center gap-3 pb-3 border-b border-gray-50">
+                                <div className="bg-indigo-50 p-2 rounded-lg text-lg">📛</div>
+                                <div>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Nombre Completo</p>
+                                    <p className="text-gray-800 font-bold text-sm">{profileData.nombre || 'No registrado'}</p>
+                                </div>
+                            </div>
+
+                            {/* RUT */}
+                            <div className="flex items-center gap-3 pb-3 border-b border-gray-50">
+                                <div className="bg-indigo-50 p-2 rounded-lg text-lg">🆔</div>
+                                <div>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">RUT</p>
+                                    <p className="text-gray-800 font-medium text-sm">{profileData.rut || 'No registrado'}</p>
+                                </div>
+                            </div>
+
+                            {/* Carrera (Dato Nuevo) */}
+                            <div className="flex items-center gap-3 pb-3 border-b border-gray-50">
+                                <div className="bg-indigo-50 p-2 rounded-lg text-lg">🎓</div>
+                                <div>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Carrera</p>
+                                    <p className="text-gray-800 font-medium text-sm">{profileData.carrera || 'No registrada'}</p>
+                                </div>
+                            </div>
+
+                            {/* Nivel Práctica (Dato Nuevo) */}
+                            <div className="flex items-center gap-3 pb-3 border-b border-gray-50">
+                                <div className="bg-indigo-50 p-2 rounded-lg text-lg">📊</div>
+                                <div>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Nivel Práctica</p>
+                                    <p className="text-gray-800 font-medium text-sm">{profileData.nivelPractica || 'No asignado'}</p>
+                                </div>
+                            </div>
+
+                            {/* Email */}
+                            <div className="flex items-center gap-3">
+                                <div className="bg-indigo-50 p-2 rounded-lg text-lg">📧</div>
+                                <div>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Correo Institucional</p>
+                                    <p className="text-gray-800 font-medium text-sm break-all">{profileData.email}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
 
-            <div className="bg-green-50 p-8 rounded-2xl border border-green-100 hover:shadow-lg transition-shadow">
+            {/* TARJETA 2: POSTULACIONES */}
+            <div className="bg-green-50 p-8 rounded-2xl border border-green-100 hover:shadow-lg transition-shadow flex flex-col">
                 <h3 className="text-xl font-bold text-green-900 mb-2">💼 Postular a Práctica</h3>
-                <p className="text-green-700 mb-4 text-sm">Postula a nuevas oportunidades.</p>
+                <p className="text-green-700 mb-6 text-sm">Crea nuevas solicitudes o revisa el estado de las anteriores.</p>
                 <button 
-                    onClick={() => Swal.fire('Próximamente', 'Módulo de postulaciones en desarrollo', 'info')}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors w-full"
+                    onClick={() => navigate('/solicitudes')}
+                    className="mt-auto bg-green-600 text-white px-4 py-3 rounded-xl font-bold hover:bg-green-700 transition-colors w-full shadow-md"
                 >
-                    Postular 
+                    Gestionar Solicitudes
                 </button>
             </div>
         </div>
