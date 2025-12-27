@@ -1,5 +1,5 @@
 // src/controllers/solicitud.controller.js
-import { createSolicitud, findSolicitudes, updateSolicitudEstado, deleteSolicitud } from "../services/solicitud.service.js";
+import { createSolicitud, findSolicitudes, updateSolicitudEstado, deleteSolicitud, getSolicitudesEstudiante, updateSolicitudEstudiante } from "../services/solicitud.service.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
 
 //cuando se crea solicitud
@@ -7,15 +7,17 @@ export class SolicitudController {
 
   async create(req, res) {
     try {
-      const { mensaje, documentos } = req.body;
+      const file = req.file; 
+      const { mensaje } = req.body;
       const idEstudianteVerificado = req.user.id;
 
-      // --- AGREGA ESTO PARA DEPURAR ---
-      console.log("Token decodificado (req.user):", req.user);
-      console.log("ID extraído:", idEstudianteVerificado);
-      // -------------------------------
+      let documentosUrls = [];
 
-      // Verificamos que vengan todo lo necesario (minimo para valido)
+      if (file) {
+        const url = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+        documentosUrls.push(url);
+      }
+
       if (!mensaje) { 
         return handleErrorClient(res, 400, "El mensaje es requerido");
       }
@@ -23,7 +25,7 @@ export class SolicitudController {
       const data = {
         idEstudiante: idEstudianteVerificado,
         mensaje,
-        documentos
+        documentos: documentosUrls 
       };
 
       const nuevaSolicitud = await createSolicitud(data);
@@ -40,6 +42,23 @@ export class SolicitudController {
       handleSuccess(res, 200, "Solicitudes obtenidas", solicitudes);
     } catch (error) {
       handleErrorServer(res, 500, "Error al obtener solicitudes", error.message);
+    }
+  }
+
+  async getSolicitudesEstudiante(req, res) {
+    try {
+      //ID del estudiante desde el token 
+      const idEstudiante = req.user.id;
+
+      const solicitudes = await getSolicitudesEstudiante(idEstudiante);
+      
+      if (!solicitudes || solicitudes.length === 0) {
+         return handleSuccess(res, 200, "No tienes solicitudes creadas", []);
+      }
+
+      handleSuccess(res, 200, "Mis solicitudes obtenidas", solicitudes);
+    } catch (error) {
+      handleErrorServer(res, 500, "Error al obtener tus solicitudes", error.message);
     }
   }
 
@@ -84,6 +103,51 @@ export class SolicitudController {
       } else {
         handleErrorServer(res, 500, "Error al eliminar la solicitud", error.message);
       }
+    }
+  }
+
+  async updatePropia(req, res) {
+    try {
+      const { idSolicitud } = req.params;
+      const { mensaje } = req.body;
+      const idEstudiante = req.user.id;
+      const file = req.file;
+
+      if (!idSolicitud) return handleErrorClient(res, 400, "Falta el ID");
+
+      let documentosUrls = undefined;
+      if (file) {
+        const url = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+        documentosUrls = [url]; 
+      }
+
+      if (!mensaje && !file) {
+         return handleErrorClient(res, 400, "Sin datos para actualizar");
+      }
+
+      const solicitudActualizada = await updateSolicitudEstudiante(
+          idSolicitud, 
+          idEstudiante, 
+          { 
+              mensaje, 
+              documentos: documentosUrls 
+          }
+      );
+      
+      handleSuccess(res, 200, "Solicitud corregida y enviada a revisión nuevamente", solicitudActualizada);
+
+    } catch (error) {
+      if (error.message === "Solicitud no encontrada") {
+        return handleErrorClient(res, 404, "La solicitud no existe");
+      }
+      if (error.message === "No autorizado") {
+        return handleErrorClient(res, 403, "No puedes editar esta solicitud");
+      }
+      if (error.message === "Ya aprobada") {
+        return handleErrorClient(res, 400, "No puedes editar una solicitud que ya fue Aprobada.");
+      }
+      
+      handleErrorServer(res, 500, "Error al actualizar", error.message);
     }
   }
 }
