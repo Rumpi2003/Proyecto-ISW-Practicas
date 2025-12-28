@@ -3,6 +3,7 @@ import { logout } from '../services/auth.service';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { getMyProfile } from '../services/user.service'; 
+import { getCarreras } from '../services/carrera.service';
 import Swal from 'sweetalert2';
 
 const HomeEstudiante = () => {
@@ -21,7 +22,20 @@ const HomeEstudiante = () => {
       const response = await getMyProfile();
       const userData = response.data?.userData || response.data?.userData || response.data;
       
-      setProfileData(userData);
+            // Si el perfil contiene solo el id de la carrera, resolverla desde el servicio
+            let finalProfile = userData;
+            try {
+                const carreraId = userData?.carrera?.id ?? userData?.carrera ?? userData?.carreraId ?? null;
+                if (carreraId && typeof userData.carrera !== 'object') {
+                    const carreras = await getCarreras();
+                    const found = (Array.isArray(carreras) ? carreras : []).find(c => String(c.id) === String(carreraId));
+                    if (found) finalProfile = { ...userData, carrera: found };
+                }
+            } catch (err) {
+                console.warn('No se pudo resolver la carrera desde el servicio:', err);
+            }
+
+            setProfileData(finalProfile);
       
       Swal.mixin({
         toast: true,
@@ -117,7 +131,7 @@ const HomeEstudiante = () => {
                                 <div className="bg-indigo-50 p-2 rounded-lg text-lg">🎓</div>
                                 <div>
                                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Carrera</p>
-                                    <p className="text-gray-800 font-medium text-sm">{profileData.carrera || 'No registrada'}</p>
+                                    <p className="text-gray-800 font-medium text-sm">{profileData.carrera?.nombre || profileData.carrera || 'No registrada'}</p>
                                 </div>
                             </div>
                             {/* Email */}

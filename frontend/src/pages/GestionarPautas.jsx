@@ -64,7 +64,7 @@ const GestionarPautas = () => {
               <div key={p.id} className="p-4 border rounded-lg flex items-center justify-between">
                 <div>
                   <div className="text-lg font-semibold">{p.nombre}</div>
-                  <div className="text-sm text-gray-500">{p.carrera} · Nivel: {p.nivelPractica} · Modificado: {new Date(p.updated_at).toLocaleString()}</div>
+                  <div className="text-sm text-gray-500">{p.carrera?.nombre || p.carrera || 'Carrera desconocida'} · Nivel: {p.nivelPractica} · Modificado: {new Date(p.updated_at).toLocaleString()}</div>
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => navigate(`/dashboard/pautas/editar/${p.id}`)} className="px-3 py-1 bg-yellow-200 hover:bg-yellow-300 rounded-md">Editar</button>

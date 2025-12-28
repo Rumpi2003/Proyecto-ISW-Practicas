@@ -37,8 +37,13 @@ const CrearEvaluacionSupervisor = () => {
     if (!selectedPauta) return [];
     const pauta = pautas.find(p => String(p.id) === String(selectedPauta));
     if (!pauta) return [];
-    return (estudiantes || []).filter(e => String((e.carrera||'').trim()).toLowerCase() === String((pauta.carrera||'').trim()).toLowerCase()
-      && String((e.nivelPractica||'').trim()).toUpperCase() === String((pauta.nivelPractica||'').trim()).toUpperCase());
+    return (estudiantes || []).filter(e => {
+      const estudianteCarreraId = e.carrera?.id ?? e.carrera ?? null;
+      const pautaCarreraId = pauta.carrera?.id ?? pauta.carrera ?? null;
+      if (!estudianteCarreraId || !pautaCarreraId) return false;
+      return String(estudianteCarreraId) === String(pautaCarreraId)
+        && String((e.nivelPractica||'').trim()).toUpperCase() === String((pauta.nivelPractica||'').trim()).toUpperCase();
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -75,7 +80,7 @@ const CrearEvaluacionSupervisor = () => {
               <label className="block text-sm font-medium text-gray-700">Pauta de evaluación</label>
               <select value={selectedPauta} onChange={e=>{ setSelectedPauta(e.target.value); setSelectedEstudiante(''); }} className="mt-1 block w-full rounded-md border-gray-200 shadow-sm">
                 <option value="">-- Seleccione --</option>
-                {pautas.map(p => <option key={p.id} value={p.id}>{p.nombre} — {p.carrera} (Nivel {p.nivelPractica})</option>)}
+                {pautas.map(p => <option key={p.id} value={p.id}>{p.nombre} — {p.carrera?.nombre || p.carrera || 'Carrera desconocida'} (Nivel {p.nivelPractica})</option>)}
               </select>
             </div>
 

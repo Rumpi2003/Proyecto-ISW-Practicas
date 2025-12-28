@@ -165,7 +165,7 @@ async function main() {
                 email: "estudiante@alumnos.ubb.cl",
                 password: hashedEstPassword,
                 carrera: carreraICI, // Pasamos el objeto carrera (ManyToOne)
-                nivelPractica: "IV"
+                nivelPractica: "II"
             }));
             console.log("✅ Estudiante inicial creado: estudiante@alumnos.ubb.cl / estudiante123");
         } else {
