@@ -30,7 +30,7 @@ async function main() {
 
       const dataUBB = [
         {
-          nombre: "Arquitectura, Construcción y Diseño",
+          nombre: "Arquitectura, Construcción y Diseño", // id 1
           carreras: [
             { nombre: "Arquitectura", abrev: "ARQ" },
             { nombre: "Diseño Industrial", abrev: "DI" },
@@ -38,14 +38,14 @@ async function main() {
           ]
         },
         {
-          nombre: "Ciencias",
+          nombre: "Ciencias", //id 2
           carreras: [
             { nombre: "Programa de Bachillerato en Ciencias (Concepción)", abrev: "BACH" },
             { nombre: "Ingeniería Estadística", abrev: "IE" }
           ]
         },
         {
-          nombre: "Ciencias Empresariales",
+          nombre: "Ciencias Empresariales", //id 3
           carreras: [
             { nombre: "Contador Público y Auditor (Concepción)", abrev: "CPA" },
             { nombre: "Derecho", abrev: "DER" },
@@ -55,13 +55,13 @@ async function main() {
           ]
         },
         {
-          nombre: "Educación y Humanidades",
+          nombre: "Educación y Humanidades", //id 4
           carreras: [
             { nombre: "Trabajo Social (Concepción)", abrev: "TS" }
           ]
         },
         {
-          nombre: "Ingeniería",
+          nombre: "Ingeniería", //id 5
           carreras: [
             { nombre: "Ingeniería Civil", abrev: "ICIVIL" },
             { nombre: "Ingeniería Civil Eléctrica", abrev: "ICE" },
