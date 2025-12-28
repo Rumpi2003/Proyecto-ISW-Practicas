@@ -8,7 +8,7 @@ import Home from '@pages/Home';
 import PublicarOferta from '@pages/PublicarOferta';
 import VerOfertas from '@pages/VerOfertas';
 
-// --- (PAUTAS, EVALUACIONES, SOLICITUDES) ---
+// --- (PAUTAS, EVALUACIONES) ---
 import PautasEvaluacion from '@pages/PautasEvaluacion';
 import CrearPauta from '@pages/CrearPauta';
 import GestionarPautas from '@pages/GestionarPautas';
@@ -17,9 +17,12 @@ import GestionarEvaluacionesSupervisor from '@pages/GestionarEvaluacionesSupervi
 import CrearEvaluacionSupervisor from '@pages/CrearEvaluacionSupervisor';
 import EvaluarEvaluacion from '@pages/EvaluarEvaluacion';
 import VerEvaluacion from '@pages/VerEvaluacion';
+// --- (SOLICITUDES) ---
 import SolicitudesMenu from './pages/SolicitudesMenu';
 import CrearSolicitud from './pages/CrearSolicitud';
 import MisSolicitudes from './pages/MisSolicitudes';
+import MenuGestionSolicitudes from './pages/MenuGestionSolicitudes';
+import ListaSolicitudesEncargado from './pages/ListaSolicitudesEncargado';
 //--- (Usuarios) ---
 import UsersMenu from './pages/MenuUsers';
 import UserList from './pages/ListaUsers'; 
@@ -100,6 +103,22 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
              <MisSolicitudes />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: '/dashboard/solicitudes-encargado',
+        element: (
+          <ProtectedRoute>
+             <MenuGestionSolicitudes />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: '/dashboard/solicitudes-encargado/:filtro', //'pendientes' o 'historial'
+        element: (
+          <ProtectedRoute>
+             <ListaSolicitudesEncargado />
           </ProtectedRoute>
         )
       },

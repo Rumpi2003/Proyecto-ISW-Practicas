@@ -12,7 +12,14 @@ export class SolicitudController {
       const idEstudianteVerificado = req.user.id;
 
       let documentosUrls = [];
-
+      
+      if (mensaje && mensaje.length > 2000) {
+        return handleErrorClient(res, 400, "El mensaje es demasiado largo (máximo 2000 caracteres).");
+      }
+      if (!file) {
+        return handleErrorClient(res, 400, "Debes adjuntar un archivo PDF obligatorio.");
+      }
+      
       if (file) {
         const url = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
         documentosUrls.push(url);
@@ -74,6 +81,9 @@ export class SolicitudController {
       if (!estado) {
         return handleErrorClient(res, 400, "El nuevo 'estado' es requerido");
       }
+      if (comentarios && comentarios.length > 1000) {
+        return handleErrorClient(res, 400, "El comentario es demasiado largo (máximo 1000 caracteres).");
+      }
 
       const solicitudActualizada = await updateSolicitudEstado(idSolicitud, estado, comentarios);
       handleSuccess(res, 200, "Solicitud actualizada", solicitudActualizada);
@@ -112,6 +122,10 @@ export class SolicitudController {
       const { mensaje } = req.body;
       const idEstudiante = req.user.id;
       const file = req.file;
+
+      if (mensaje && mensaje.length > 2000) {
+        return handleErrorClient(res, 400, "El mensaje es demasiado largo (máximo 2000 caracteres).");
+      }
 
       if (!idSolicitud) return handleErrorClient(res, 400, "Falta el ID");
 

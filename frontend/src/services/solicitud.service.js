@@ -1,5 +1,5 @@
-import axios from './axios.config';
-
+import axios from './root.service.js';
+//-- (ESTUDIANTE) ---
 export const createSolicitud = async (formData) => {
   const response = await axios.post('/solicitudes', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
@@ -18,3 +18,33 @@ export const updateSolicitud = async (id, formData) => {
   });
   return response.data;
 };
+//-- (ENCARGADO) ---
+export async function getAllSolicitudes() {
+    try {
+        const response = await axios.get('/solicitudes'); 
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || new Error('Error al obtener solicitudes');
+    }
+}
+
+export async function evaluarSolicitud(id, estado, comentarios) {
+    try {
+        const response = await axios.patch(`/solicitudes/${id}/estado`, { 
+            estado, 
+            comentarios 
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || new Error('Error al evaluar solicitud');
+    }
+}
+
+export async function deleteSolicitud(id) {
+    try {
+        const response = await axios.delete(`/solicitudes/${id}`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || new Error('Error al eliminar solicitud');
+    }
+}

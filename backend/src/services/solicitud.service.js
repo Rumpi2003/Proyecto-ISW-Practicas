@@ -59,6 +59,7 @@ export const deleteSolicitud = async (idSolicitud) => {
 export async function getSolicitudesEstudiante(idEstudiante) {
   return await solicitudRepo.find({
     where: { idEstudiante: idEstudiante },
+    relations: ["estudiante"],
     order: { fechaEnvio: "DESC" } //recientes primero
   });
 }
