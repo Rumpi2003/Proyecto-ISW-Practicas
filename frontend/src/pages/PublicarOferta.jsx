@@ -61,7 +61,14 @@ const PublicarOferta = () => {
       placeholder: "Ej: Práctica Desarrollo Web",
       required: true,
       minLength: 10,
-      defaultValue: esEdicion ? ofertaAEditar.titulo : ""
+      defaultValue: esEdicion ? ofertaAEditar.titulo : "",
+      validate: (value) => {
+        const tieneLetras = /[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]/.test(value);
+        if (!tieneLetras) {
+          return "El título debe contener palabras reales (no puede ser solo números o símbolos)";
+        }
+        return true;
+      }
     },
     {
       name: "fechaCierre",
@@ -105,7 +112,14 @@ const PublicarOferta = () => {
       placeholder: "Detalla las responsabilidades, requisitos y beneficios...",
       required: true,
       minLength: 30,
-      defaultValue: esEdicion ? ofertaAEditar.descripcion : ""
+      defaultValue: esEdicion ? ofertaAEditar.descripcion : "",
+      validate: (value) => {
+        const tieneLetras = /[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]/.test(value);
+        if (!tieneLetras) {
+          return "La descripción debe contener texto explicativo (no puede ser solo números o símbolos)";
+        }
+        return true;
+      }
     },
     {
       name: "carreras",
@@ -141,14 +155,11 @@ const PublicarOferta = () => {
   };
 
   return (
-    // CAMBIO: Quitamos bg-gray-50 para ver el gradiente azul
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
       
-      {/* Botón Volver */}
       <div className="max-w-2xl w-full mb-6 text-left">
         <button 
           onClick={() => navigate(-1)}
-          // CAMBIO: Texto blanco para contraste con fondo azul
           className="text-white/80 hover:text-white flex items-center gap-2 transition-all duration-300 font-bold group"
         >
           <span className="group-hover:-translate-x-1 transition-transform">←</span> 
@@ -157,13 +168,11 @@ const PublicarOferta = () => {
       </div>
 
       {loadingData ? (
-         // CAMBIO: Estilo Glassmorphism para el loading
          <div className="bg-white/95 backdrop-blur-sm p-12 rounded-3xl shadow-2xl flex flex-col items-center animate-in fade-in zoom-in duration-300 border border-white/50">
             <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mb-4"></div>
             <p className="text-gray-600 font-bold">Cargando datos del formulario...</p>
          </div>
       ) : (
-        // Contenedor del Formulario con animación de entrada
         <div className="w-full max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
             <Form 
               title={esEdicion ? "✏️ Editar Oferta" : "🚀 Nueva Oferta de Práctica"}
@@ -174,7 +183,6 @@ const PublicarOferta = () => {
         </div>
       )}
 
-      {/* Modal de Éxito */}
       {showSuccess && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-300">
           <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center max-w-sm w-full transform scale-100 animate-in zoom-in duration-300">
