@@ -2,7 +2,6 @@ import { AppDataSource } from "../config/db.config.js";
 import { Oferta } from "../entities/oferta.entity.js";
 import { Carrera } from "../entities/carrera.entity.js";
 import { Encargado } from "../entities/encargado.entity.js";
-import { Empresa } from "../entities/empresa.entity.js";
 import { In } from "typeorm";
 
 // Función auxiliar para validar fecha
@@ -25,15 +24,11 @@ export const createOferta = async (ofertaData, idEncargado) => {
   const ofertaRepository = AppDataSource.getRepository(Oferta);
   const carreraRepository = AppDataSource.getRepository(Carrera);
   const encargadoRepository = AppDataSource.getRepository(Encargado);
-  const empresaRepository = AppDataSource.getRepository(Empresa);
 
   validarFechaCierre(ofertaData.fechaCierre);
 
   const encargado = await encargadoRepository.findOneBy({ id: idEncargado });
   if (!encargado) throw new Error("El encargado no existe.");
-
-  const empresa = await empresaRepository.findOneBy({ id: ofertaData.empresaId });
-  if (!empresa) throw new Error("La empresa seleccionada no existe.");
 
   const carrerasSeleccionadas = await carreraRepository.findBy({
     id: In(ofertaData.carreras)
@@ -50,7 +45,7 @@ export const createOferta = async (ofertaData, idEncargado) => {
     estado: "activa", 
     encargado: encargado,
     carreras: carrerasSeleccionadas,
-    empresa: empresa
+    empresa: ofertaData.empresa
   });
 
   return await ofertaRepository.save(nuevaOferta);
@@ -62,7 +57,7 @@ export const getOfertas = async (filters = {}) => {
   
   return await ofertaRepository.find({
     where: filters, 
-    relations: ["empresa", "carreras", "encargado", "encargado.facultad"],
+    relations: ["carreras", "encargado", "encargado.facultad"],
     order: { created_at: "DESC" },
   });
 };
@@ -71,11 +66,10 @@ export const getOfertas = async (filters = {}) => {
 export const updateOferta = async (id, ofertaData) => {
   const ofertaRepository = AppDataSource.getRepository(Oferta);
   const carreraRepository = AppDataSource.getRepository(Carrera);
-  const empresaRepository = AppDataSource.getRepository(Empresa);
 
   const oferta = await ofertaRepository.findOne({
     where: { id: parseInt(id) },
-    relations: ["carreras", "empresa"]
+    relations: ["carreras"]
   });
 
   if (!oferta) return null; 
@@ -87,12 +81,6 @@ export const updateOferta = async (id, ofertaData) => {
   if (ofertaData.fechaCierre) {
     validarFechaCierre(ofertaData.fechaCierre);
     oferta.fechaCierre = ofertaData.fechaCierre;
-  }
-
-  if (ofertaData.empresaId) {
-    const empresa = await empresaRepository.findOneBy({ id: ofertaData.empresaId });
-    if (!empresa) throw new Error("La empresa seleccionada no existe.");
-    oferta.empresa = empresa;
   }
 
   if (ofertaData.carreras && Array.isArray(ofertaData.carreras)) {

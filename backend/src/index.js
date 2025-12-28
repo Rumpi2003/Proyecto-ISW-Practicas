@@ -4,7 +4,6 @@ import { Encargado } from "./entities/encargado.entity.js";
 import { Supervisor } from "./entities/supervisor.entity.js";
 import { Carrera } from "./entities/carrera.entity.js";
 import { Facultad } from "./entities/facultad.entity.js";
-import { Empresa } from "./entities/empresa.entity.js";
 import { Estudiante } from "./entities/estudiante.entity.js"; 
 import bcrypt from "bcrypt";
 
@@ -16,7 +15,6 @@ async function main() {
     const facultadRepo = AppDataSource.getRepository(Facultad);
     const carreraRepo = AppDataSource.getRepository(Carrera);
     const encargadoRepo = AppDataSource.getRepository(Encargado);
-    const empresaRepo = AppDataSource.getRepository(Empresa);
     const estudianteRepo = AppDataSource.getRepository(Estudiante);
     // const supervisorRepo = AppDataSource.getRepository(Supervisor); // Omitido por ahora
 
@@ -115,39 +113,7 @@ async function main() {
     }
 
     // ==========================================
-    // 3. CREAR EMPRESAS 🏢
-    // ==========================================
-    const totalEmpresas = await empresaRepo.count();
-    if (totalEmpresas === 0) {
-      console.log("⚙️  Creando empresas de prueba...");
-
-      const empresasData = [
-        {
-          nombre: "Tech Solutions Biobío",
-          razonSocial: "Tech Solutions SpA",
-          direccion: "Av. Collao 1202, Concepción",
-          web: "www.techsolutions.cl"
-        },
-        {
-          nombre: "Constructora del Sur",
-          razonSocial: "Constructora Del Sur S.A.",
-          direccion: "Calle O Higgins 440, Concepción",
-          web: "www.constructorasur.cl"
-        },
-        {
-          nombre: "Banco Estado",
-          razonSocial: "Banco del Estado de Chile",
-          direccion: "Barros Arana 500, Concepción",
-          web: "www.bancoestado.cl"
-        }
-      ];
-
-      await empresaRepo.save(empresasData);
-      console.log("✅ Empresas de prueba creadas.");
-    }
-
-    // ==========================================
-    // 4. CREAR ESTUDIANTE INICIAL 🎓
+    // 3. CREAR ESTUDIANTE INICIAL 🎓
     // ==========================================
     const totalEstudiantes = await estudianteRepo.count();
     if (totalEstudiantes === 0) {
@@ -174,7 +140,7 @@ async function main() {
     }
 
     // ==========================================
-    // 5. SERVER START
+    // 4. SERVER START
     // ==========================================
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {

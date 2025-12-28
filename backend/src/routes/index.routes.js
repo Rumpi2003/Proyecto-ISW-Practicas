@@ -7,7 +7,6 @@ import profileRoutes from "./profile.routes.js";
 import userRoutes from "./user.routes.js";
 import ofertaRoutes from "./oferta.routes.js";
 import carreraRoutes from "./carrera.routes.js";
-import empresaRoutes from "./empresa.routes.js";
 
 export function routerApi(app) {
   const router = Router();
@@ -25,5 +24,4 @@ export function routerApi(app) {
   router.use("/users", userRoutes);
   router.use("/ofertas", ofertaRoutes); // Ruta: /api/ofertas
   router.use("/carreras", carreraRoutes);
-  router.use("/empresas", empresaRoutes);
 }
