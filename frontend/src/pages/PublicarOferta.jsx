@@ -33,14 +33,14 @@ const PublicarOferta = () => {
         if (resCarreras.data.data) {
           setCarrerasOptions(resCarreras.data.data.map(c => ({
             label: c.nombre, 
-            value: String(c.id) // 👈 FORZAMOS A STRING AQUÍ (ID de la opción)
+            value: String(c.id)
           })));
         }
 
         if (resEmpresas.data.data) {
           setEmpresasOptions(resEmpresas.data.data.map(e => ({
             label: e.nombre, 
-            value: String(e.id) // 👈 FORZAMOS A STRING AQUÍ TAMBIÉN
+            value: String(e.id)
           })));
         }
       } catch (error) {
@@ -84,7 +84,6 @@ const PublicarOferta = () => {
       fieldType: "select",
       options: empresasOptions,
       required: true,
-      // 👈 FORZAMOS A STRING PARA QUE COINCIDA CON LA OPCIÓN DE ARRIBA
       defaultValue: esEdicion ? String(ofertaAEditar.empresa?.id) : ""
     },
     ...(esEdicion ? [{
@@ -114,9 +113,6 @@ const PublicarOferta = () => {
       fieldType: "checkbox-group", 
       options: carrerasOptions,
       required: true,
-      // 👈 EL ARREGLO DEFINITIVO:
-      // 1. Verificamos que exista el array.
-      // 2. Mapeamos cada ID convirtiéndolo a String explícitamente.
       defaultValue: esEdicion 
         ? (ofertaAEditar.carreras?.map(c => String(c.id)) || []) 
         : []
@@ -145,11 +141,15 @@ const PublicarOferta = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 relative">
-      <div className="max-w-2xl w-full mb-4 text-left">
+    // CAMBIO: Quitamos bg-gray-50 para ver el gradiente azul
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
+      
+      {/* Botón Volver */}
+      <div className="max-w-2xl w-full mb-6 text-left">
         <button 
           onClick={() => navigate(-1)}
-          className="text-gray-500 hover:text-purple-600 flex items-center gap-2 transition-all duration-300 font-bold group"
+          // CAMBIO: Texto blanco para contraste con fondo azul
+          className="text-white/80 hover:text-white flex items-center gap-2 transition-all duration-300 font-bold group"
         >
           <span className="group-hover:-translate-x-1 transition-transform">←</span> 
           Cancelar y Volver
@@ -157,19 +157,24 @@ const PublicarOferta = () => {
       </div>
 
       {loadingData ? (
-         <div className="bg-white p-12 rounded-3xl shadow-xl flex flex-col items-center animate-in fade-in zoom-in duration-300">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
-            <p className="text-gray-500 font-medium">Cargando datos del formulario...</p>
+         // CAMBIO: Estilo Glassmorphism para el loading
+         <div className="bg-white/95 backdrop-blur-sm p-12 rounded-3xl shadow-2xl flex flex-col items-center animate-in fade-in zoom-in duration-300 border border-white/50">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mb-4"></div>
+            <p className="text-gray-600 font-bold">Cargando datos del formulario...</p>
          </div>
       ) : (
-        <Form 
-          title={esEdicion ? "✏️ Editar Oferta" : "🚀 Nueva Oferta de Práctica"}
-          fields={fields}
-          buttonText={esEdicion ? "💾 Guardar Cambios" : "📢 Publicar Oferta"}
-          onSubmit={handleSubmit}
-        />
+        // Contenedor del Formulario con animación de entrada
+        <div className="w-full max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <Form 
+              title={esEdicion ? "✏️ Editar Oferta" : "🚀 Nueva Oferta de Práctica"}
+              fields={fields}
+              buttonText={esEdicion ? "💾 Guardar Cambios" : "📢 Publicar Oferta"}
+              onSubmit={handleSubmit}
+            />
+        </div>
       )}
 
+      {/* Modal de Éxito */}
       {showSuccess && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-300">
           <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center max-w-sm w-full transform scale-100 animate-in zoom-in duration-300">
