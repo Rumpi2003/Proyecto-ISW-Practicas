@@ -6,96 +6,142 @@ import { Not, IsNull } from "typeorm";
 const solicitudRepo = AppDataSource.getRepository(Solicitud);
 const evaluacionRepo = AppDataSource.getRepository(Evaluacion);
 
-// 1. Obtener lista de pendientes
+/**
+ * 1) Obtener lista de pendientes
+ * - Ajusta el estado según tu flujo real
+ */
 export async function obtenerPendientes() {
-    // Busca solicitudes en estado de espera para ser evaluadas
-    const pendientes = await solicitudRepo.find({
-        where: { estado: "pendiente_evaluacion" }, 
-        relations: ["estudiante"]
+    return await solicitudRepo.find({
+        where: { estado: "pendiente_evaluacion" },
+        relations: ["estudiante"],
     });
-    return pendientes;
 }
 
-// 2. Obtener detalles (VISUALIZACIÓN DE DOCUMENTOS)
+/**
+ * Helper: detectar tipo de documento
+ */
+function isInformeFinal(doc) {
+    if (!doc) return false;
+    const t = (doc.tipo || doc.type || doc.nombre || "").toString().toLowerCase();
+    const url = (doc.url || doc.path || doc).toString().toLowerCase();
+    return t.includes("informe") || t.includes("final") || url.includes("informe");
+}
+
+function isBitacora(doc) {
+    if (!doc) return false;
+    const t = (doc.tipo || doc.type || doc.nombre || "").toString().toLowerCase();
+    const url = (doc.url || doc.path || doc).toString().toLowerCase();
+    return t.includes("bitac") || url.includes("bitac");
+}
+
+function getDocUrl(doc) {
+    if (!doc) return null;
+    if (typeof doc === "string") return doc;
+    return doc.url || doc.path || null;
+}
+
+/**
+ * 2) Obtener detalles: estudiante + documentos + nota supervisor + fecha límite
+ */
 export async function obtenerDetallesPractica(id) {
     const solicitud = await solicitudRepo.findOne({
         where: { id: Number(id) },
-        relations: ["estudiante"]
+        relations: ["estudiante"],
     });
 
     if (!solicitud) return null;
 
-    // Buscamos la evaluación que ya tiene la nota del supervisor
+    // Traemos evaluación si existe (ahí viene nota supervisor)
     const evaluacion = await evaluacionRepo.findOne({
-        where: { solicitud: { id: Number(id) } }
+        where: { solicitud: { id: Number(id) } },
     });
+
+    // Documentos: evitamos depender de [0] y [1]
+    const docs = Array.isArray(solicitud.documentos) ? solicitud.documentos : [];
+
+    const informeDoc = docs.find(isInformeFinal) || null;
+    const bitacoraDocs = docs.filter(isBitacora);
+
+    const informeFinal = getDocUrl(informeDoc);
+    const bitacoras = bitacoraDocs.map(getDocUrl).filter(Boolean);
 
     return {
         estudiante: solicitud.estudiante,
-        // Accedemos al array de documentos subidos por el alumno
-        // Asumimos: [0] Informe Final, [1] Bitácoras
-        informeFinal: solicitud.documentos && solicitud.documentos[0] ? solicitud.documentos[0] : null,
-        bitacoras: solicitud.documentos && solicitud.documentos[1] ? solicitud.documentos[1] : null,
+        informeFinal,
+        bitacoras,
         notaSupervisor: evaluacion ? evaluacion.notaSupervisor : null,
         estado: solicitud.estado,
-        fechaEnvio: solicitud.fechaEnvio 
+        fechaEnvio: solicitud.fechaEnvio,
+        // CAMPO PARA PLAZO (debe existir en entidad o esto vendrá undefined)
+        fechaLimiteEvaluacion: solicitud.fechaLimiteEvaluacion ?? null,
     };
 }
 
-// 3. Calificar (PROMEDIO Y NOTA FINAL)
-export async function calificarPractica(idSolicitud, notaEncargado, urlPauta, comentarios) {
+/**
+ * 3) Calificar práctica (promedio + nota final + plazo)
+ */
+export async function calificarPractica(idSolicitud, notaEncargado, urlPauta = null, comentarios = null) {
+    const solicitud = await solicitudRepo.findOne({
+        where: { id: Number(idSolicitud) },
+        relations: ["estudiante"],
+    });
+
+    if (!solicitud) {
+        throw new Error("No encontrado");
+    }
+
+    // Validación de plazo
+    const ahora = new Date();
+    if (solicitud.fechaLimiteEvaluacion && ahora > new Date(solicitud.fechaLimiteEvaluacion)) {
+        throw new Error("Plazo vencido");
+    }
 
     let evaluacion = await evaluacionRepo.findOne({
         where: { solicitud: { id: Number(idSolicitud) } },
-        relations: ["solicitud"]
+        relations: ["solicitud"],
     });
 
-    // Si por alguna razón el supervisor no creó el registro, lo creamos nosotros
+    // Si no existe registro (por si el supervisor no lo creó aún)
     if (!evaluacion) {
         evaluacion = evaluacionRepo.create({
-            solicitud: { id: Number(idSolicitud) }
+            solicitud: { id: Number(idSolicitud) },
         });
     }
 
-    // Requisito: Debe existir nota del supervisor para promediar
+    // Requisito: debe existir nota del supervisor
     if (!evaluacion.notaSupervisor) {
+
         throw new Error("El supervisor aún no ha ingresado su calificación.");
     }
 
-    // Cálculo matemático del promedio
     const nEncargado = parseFloat(notaEncargado);
     const nSupervisor = parseFloat(evaluacion.notaSupervisor);
     const promedio = (nEncargado + nSupervisor) / 2;
 
-    // Actualización de la evaluación
     evaluacion.notaEncargado = nEncargado;
-    evaluacion.notaFinal = promedio.toFixed(1); 
-    evaluacion.comentarios = comentarios;
+    evaluacion.notaFinal = Number(promedio.toFixed(1));
+    evaluacion.comentarios = comentarios ?? evaluacion.comentarios ?? null;
     evaluacion.fechaEvaluacion = new Date();
-    
-    // Guardamos la URL de la pauta que subió el encargado
+
     if (urlPauta) {
         evaluacion.urlPauta = urlPauta;
     }
 
     const evaluacionGuardada = await evaluacionRepo.save(evaluacion);
 
-    // Finalizamos el estado de la solicitud
-    const solicitud = await solicitudRepo.findOneBy({ id: Number(idSolicitud) });
-    if (solicitud) {
-        solicitud.estado = "finalizada";
-        await solicitudRepo.save(solicitud);
-    }
+    // Estado final
+    solicitud.estado = "finalizada";
+    await solicitudRepo.save(solicitud);
 
     return evaluacionGuardada;
 }
 
-// 4. Historial de Evaluaciones
+/**
+ * 4) Historial de evaluaciones
+ */
 export async function getHistorialEvaluaciones() {
     return await evaluacionRepo.find({
-        where: {
-            notaFinal: Not(IsNull())
-        },
-        relations: ["solicitud", "solicitud.estudiante"]
+        where: { notaFinal: Not(IsNull()) },
+        relations: ["solicitud", "solicitud.estudiante"],
     });
 }

@@ -1,29 +1,44 @@
-// backend/src/routes/evaluacionEncargado.routes.js
 import { Router } from "express";
 import { EncargadoController } from "../controllers/evaluacionEncargado.controller.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
 import { checkEncargado } from "../middleware/checkEncargado.middleware.js";
 import { uploadMiddleware } from "../middleware/uploadEvaluacion.middleware.js";
 
 const router = Router();
-const encargadoController = new EncargadoController();
+const controller = new EncargadoController();
 
-// Bloqueo general: Si no es Encargado, no pasa de aquí
+/**
+ * Todas estas rutas requieren:
+ * 1) Token válido
+ * 2) Rol encargado
+ */
+router.use(authMiddleware);
 router.use(checkEncargado);
 
-// 1. Ver la lista de los que faltan por nota
-router.get("/pendientes", encargadoController.getPendientes);
+/**
+ * GET /api/encargado/pendientes
+ */
+router.get("/pendientes", controller.getPendientes.bind(controller));
 
-// 2. Ver la info completa de una práctica (trae los links de los PDFs del alumno)
-router.get("/detalle/:id", encargadoController.getDetalle);
+/**
+ * GET /api/encargado/detalle/:id
+ */
+router.get("/detalle/:id", controller.getDetalle.bind(controller));
 
-// 3. Poner la nota y subir la pauta
+/**
+ * POST /api/encargado/evaluar/:id
+ * - Recibe nota + comentarios (body)
+ * - Recibe PDF pauta (multipart) campo: "pauta"
+ */
 router.post(
-    "/evaluar/:id", 
-    uploadMiddleware, 
-    encargadoController.evaluar
+    "/evaluar/:id",
+    uploadMiddleware,
+    controller.evaluar.bind(controller)
 );
 
-// 4. Ver historial 
-router.get("/historial", encargadoController.verHistorial);
+/**
+ * GET /api/encargado/historial
+ */
+router.get("/historial", controller.verHistorial.bind(controller));
 
 export default router;
