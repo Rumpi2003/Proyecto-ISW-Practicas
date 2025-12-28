@@ -42,7 +42,7 @@ const HomeEncargado = () => {
         {/* MENU PRINCIPAL */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4 max-w-4xl mx-auto w-full">
             
-            {/* 1. ADMINISTRAR USUARIOS */}
+            {/* ADMINISTRAR USUARIOS */}
             <div 
                 onClick={() => navigate('/dashboard/users')}
                 className="group bg-indigo-50 border-2 border-indigo-100 rounded-2xl p-10 cursor-pointer hover:bg-indigo-600 hover:border-indigo-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
@@ -56,6 +56,23 @@ const HomeEncargado = () => {
                     </h3>
                     <p className="text-gray-500 mt-1 group-hover:text-indigo-100 transition-colors">
                         Crear, editar y eliminar cuentas.
+                    </p>
+                </div>
+            </div>
+            {/* GESTIONAR SOLICITUDES */}
+            <div 
+                onClick={() => navigate('/dashboard/solicitudes-encargado')}
+                className="group bg-yellow-50 border-2 border-yellow-100 rounded-2xl p-10 cursor-pointer hover:bg-yellow-500 hover:border-yellow-500 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
+            >
+                <div className="bg-white p-4 rounded-full text-4xl shadow-sm group-hover:scale-110 transition-transform">
+                    ⏳
+                </div>
+                <div>
+                    <h3 className="text-2xl font-bold text-gray-800 group-hover:text-white transition-colors">
+                        Gestionar Solicitudes
+                    </h3>
+                    <p className="text-gray-500 mt-1 group-hover:text-yellow-100 transition-colors">
+                        Evaluar pendientes y revisar historial.
                     </p>
                 </div>
             </div>
@@ -78,7 +95,7 @@ const HomeEncargado = () => {
                 </div>
             </div>
 
-            {/* 3. PAUTAS DE EVALUACIÓN (TRABAJO DE MAIN) */}
+            {/* PAUTAS DE EVALUACIÓN */}
             <div 
                 onClick={() => navigate('/dashboard/pautas')}
                 className="group bg-emerald-50 border-2 border-emerald-100 rounded-2xl p-10 cursor-pointer hover:bg-emerald-600 hover:border-emerald-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
@@ -96,7 +113,7 @@ const HomeEncargado = () => {
                 </div>
             </div>
 
-            {/* 4. EVALUACIONES SUPERVISOR (TRABAJO DE MAIN) */}
+            {/* 4. EVALUACIONES SUPERVISOR  */}
             <div 
                 onClick={() => navigate('/dashboard/evaluaciones/gestionar')}
                 className="group bg-teal-50 border-2 border-teal-100 rounded-2xl p-10 cursor-pointer hover:bg-teal-600 hover:border-teal-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"

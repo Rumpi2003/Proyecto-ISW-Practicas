@@ -47,4 +47,10 @@ router.put(
   uploadMiddleware,
   controller.updatePropia
 );
+
+router.patch("/:idSolicitud/estado",
+  authMiddleware,
+  checkEncargado,
+  controller.updateEstado);
+
 export default router;
