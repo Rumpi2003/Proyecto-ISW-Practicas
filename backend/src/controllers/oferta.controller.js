@@ -3,7 +3,7 @@ import { handleSuccess, handleErrorServer, handleErrorClient } from "../handlers
 
 export class OfertaController {
   
-  // 1. PUBLICAR OFERTA (POST)
+  // publicar oferta post
   async publish(req, res) {
     try {
       const idEncargado = req.user.id; 
@@ -24,7 +24,7 @@ export class OfertaController {
     }
   }
 
-  // 2. OBTENER OFERTAS (GET)
+  // obtener ofertas get
   async getOffers(req, res) {
     try {
       const filters = req.query; 
@@ -35,7 +35,7 @@ export class OfertaController {
     }
   }
 
-  // 3. ACTUALIZAR OFERTA (PUT)
+  // actualizar oferta put
   async update(req, res) {
     try {
       const { id } = req.params;
@@ -55,7 +55,7 @@ export class OfertaController {
     }
   }
 
-  // 4. ELIMINAR OFERTA (DELETE) (NUEVO)
+  // eliminar oferta delete
   async delete(req, res) {
     try {
       const { id } = req.params;

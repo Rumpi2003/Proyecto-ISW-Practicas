@@ -28,8 +28,8 @@ export const Encargado = new EntitySchema({
   relations: {
     facultad: {
       type: "many-to-one",
-      target: "Facultad", // Nombre de la entidad Facultad
-      joinColumn: { name: "facultadId" }, // Esto crea la columna de ID real en la DB
+      target: "Facultad", 
+      joinColumn: { name: "facultadId" }, 
       nullable: false,
       eager: true, 
     },

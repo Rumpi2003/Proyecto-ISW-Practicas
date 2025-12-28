@@ -19,8 +19,8 @@ export const Oferta = new EntitySchema({
       nullable: false,
     },
     fechaCierre: {
-      type: "timestamp", // Esta actúa como tu "fecha límite"
-      nullable: false,   // Lo cambié a false porque debería ser obligatorio tener un límite
+      type: "timestamp", 
+      nullable: false,   
     },
     estado: {
       type: "varchar",
