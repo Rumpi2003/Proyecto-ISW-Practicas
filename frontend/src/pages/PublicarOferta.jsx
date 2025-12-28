@@ -112,7 +112,14 @@ const PublicarOferta = () => {
       placeholder: "Detalla las responsabilidades, requisitos y beneficios...",
       required: true,
       minLength: 30,
-      defaultValue: esEdicion ? ofertaAEditar.descripcion : ""
+      defaultValue: esEdicion ? ofertaAEditar.descripcion : "",
+      validate: (value) => {
+        const tieneLetras = /[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]/.test(value);
+        if (!tieneLetras) {
+          return "La descripción debe contener texto explicativo (no puede ser solo números o símbolos)";
+        }
+        return true;
+      }
     },
     {
       name: "carreras",
