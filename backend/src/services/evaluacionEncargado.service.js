@@ -104,11 +104,6 @@ export async function calificarPractica(idSolicitud, notaEncargado, urlPauta = n
         });
     }
 
-    // Requisito: el supervisor debe haber evaluado antes
-    if (evaluacion.notaSupervisor === null || evaluacion.notaSupervisor === undefined) {
-        throw new Error("El supervisor aún no ha ingresado su calificación.");
-    }
-
     const nEncargado = parseFloat(notaEncargado);
     const nSupervisor = parseFloat(evaluacion.notaSupervisor);
     const promedio = (nEncargado + nSupervisor) / 2;
