@@ -26,21 +26,21 @@ export const createPautaEvaluacionSchema = Joi.object({
       Joi.object({
         competencia: Joi.string()
           .trim()
-          .max(255)
+          .max(5)
           .required()
           .messages({
             'string.base': 'La competencia debe ser un texto',
-            'string.max': 'La competencia no puede exceder 255 caracteres',
+            'string.max': 'La competencia no puede exceder 5 caracteres',
             'any.required': 'Cada aspecto debe tener una competencia'
           }),
 
         descripcion: Joi.string()
           .trim()
-          .max(1000)
+          .max(300)
           .required()
           .messages({
             'string.base': 'La descripción debe ser un texto',
-            'string.max': 'La descripción no puede exceder 1000 caracteres',
+            'string.max': 'La descripción no puede exceder 300 caracteres',
             'any.required': 'Cada aspecto debe tener una descripción'
           }),
 
@@ -48,10 +48,10 @@ export const createPautaEvaluacionSchema = Joi.object({
           .items(
             Joi.string()
               .trim()
-              .max(255)
+              .max(300)
               .messages({
                 'string.base': 'Cada actitud debe ser un texto',
-                'string.max': 'Una actitud no puede exceder 255 caracteres'
+                'string.max': 'Una actitud no puede exceder 300 caracteres'
               })
           )
           .min(1)
@@ -97,21 +97,21 @@ export const updatePautaEvaluacionSchema = Joi.object({
       Joi.object({
         competencia: Joi.string()
           .trim()
-          .max(255)
+          .max(5)
           .required()
           .messages({
             'string.base': 'La competencia debe ser un texto',
-            'string.max': 'La competencia no puede exceder 255 caracteres',
+            'string.max': 'La competencia no puede exceder 5 caracteres',
             'any.required': 'Cada aspecto debe tener una competencia'
           }),
 
         descripcion: Joi.string()
           .trim()
-          .max(1000)
+          .max(300)
           .required()
           .messages({
             'string.base': 'La descripción debe ser un texto',
-            'string.max': 'La descripción no puede exceder 1000 caracteres',
+            'string.max': 'La descripción no puede exceder 300 caracteres',
             'any.required': 'Cada aspecto debe tener una descripción'
           }),
 
@@ -119,10 +119,10 @@ export const updatePautaEvaluacionSchema = Joi.object({
           .items(
             Joi.string()
               .trim()
-              .max(255)
+              .max(300)
               .messages({
                 'string.base': 'Cada actitud debe ser un texto',
-                'string.max': 'Una actitud no puede exceder 255 caracteres'
+                'string.max': 'Una actitud no puede exceder 300 caracteres'
               })
           )
           .min(1)
