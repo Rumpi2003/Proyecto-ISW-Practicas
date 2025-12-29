@@ -23,6 +23,12 @@ import CrearSolicitud from './pages/CrearSolicitud';
 import MisSolicitudes from './pages/MisSolicitudes';
 import MenuGestionSolicitudes from './pages/MenuGestionSolicitudes';
 import ListaSolicitudesEncargado from './pages/ListaSolicitudesEncargado';
+import SubirBitacoras from './pages/SubirBitacoras';
+import MisBitacoras from './pages/MisBitacoras';
+import GestionarBitacoras from './pages/GestionarBitacoras';
+import SubirInforme from './pages/SubirInforme';
+import MisInformes from './pages/MisInformes';
+import GestionarInformes from './pages/GestionarInformes';
 //--- (Usuarios) ---
 import UsersMenu from './pages/MenuUsers';
 import UserList from './pages/ListaUsers'; 
@@ -119,6 +125,56 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
              <ListaSolicitudesEncargado />
+          </ProtectedRoute>
+        )
+      },
+      // --- (BITÁCORAS) ---
+      {
+        path: '/bitacoras/subir',
+        element: (
+          <ProtectedRoute>
+            <SubirBitacoras />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: '/bitacoras/mis-bitacoras',
+        element: (
+          <ProtectedRoute>
+            <MisBitacoras />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: '/bitacoras/gestionar',
+        element: (
+          <ProtectedRoute>
+            <GestionarBitacoras />
+          </ProtectedRoute>
+        )
+      },
+      // --- (INFORMES) ---
+      {
+        path: '/informes/subir',
+        element: (
+          <ProtectedRoute>
+            <SubirInforme />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: '/informes/mis-informes',
+        element: (
+          <ProtectedRoute>
+            <MisInformes />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: '/informes/gestionar',
+        element: (
+          <ProtectedRoute>
+            <GestionarInformes />
           </ProtectedRoute>
         )
       },

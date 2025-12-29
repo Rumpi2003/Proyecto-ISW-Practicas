@@ -89,3 +89,11 @@ export async function updateSolicitudEstudiante(idSolicitud, idEstudiante, data)
 
   return await solicitudRepo.save(solicitud);
 }
+
+// Booleano: ¿Tiene el estudiante una solicitud aprobada?
+export async function hasApprovedSolicitud(idEstudiante) {
+  const solicitud = await solicitudRepo.findOne({
+    where: { idEstudiante, estado: "aprobada" },
+  });
+  return !!solicitud;
+}

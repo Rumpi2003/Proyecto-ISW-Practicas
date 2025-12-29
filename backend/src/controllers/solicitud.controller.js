@@ -1,5 +1,5 @@
 // src/controllers/solicitud.controller.js
-import { createSolicitud, findSolicitudes, updateSolicitudEstado, deleteSolicitud, getSolicitudesEstudiante, updateSolicitudEstudiante } from "../services/solicitud.service.js";
+import { createSolicitud, findSolicitudes, updateSolicitudEstado, deleteSolicitud, getSolicitudesEstudiante, updateSolicitudEstudiante, hasApprovedSolicitud } from "../services/solicitud.service.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
 
 //cuando se crea solicitud
@@ -162,6 +162,17 @@ export class SolicitudController {
       }
       
       handleErrorServer(res, 500, "Error al actualizar", error.message);
+    }
+  }
+
+  // boolean: ¿tengo alguna solicitud aprobada?
+  async hasAprobada(req, res) {
+    try {
+      const idEstudiante = req.user.id;
+      const aprobada = await hasApprovedSolicitud(idEstudiante);
+      handleSuccess(res, 200, "Estado de aprobación", { aprobada });
+    } catch (error) {
+      handleErrorServer(res, 500, "Error al verificar aprobación", error.message);
     }
   }
 }

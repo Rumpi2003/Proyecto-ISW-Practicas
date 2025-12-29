@@ -8,6 +8,8 @@ import userRoutes from "./user.routes.js";
 import ofertaRoutes from "./oferta.routes.js";
 import carreraRoutes from "./carrera.routes.js";
 import empresaRoutes from "./empresa.routes.js";
+import bitacoraRoutes from "./bitacora.routes.js";
+import informeRoutes from "./informe.routes.js";
 
 export function routerApi(app) {
   const router = Router();
@@ -20,6 +22,8 @@ export function routerApi(app) {
   router.use("/evaluaciones-supervisor", evaluacionSupervisorRoutes);
 
   router.use("/solicitudes", solicitudRoutes);
+  router.use("/bitacoras", bitacoraRoutes);
+  router.use("/informes", informeRoutes);
   router.use("/auth", authRoutes);
   router.use("/profile", profileRoutes);
   router.use("/users", userRoutes);

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { getMyProfile } from '../services/user.service'; 
 import Swal from 'sweetalert2';
+import { getTieneSolicitudAprobada } from '../services/solicitud.service';
 
 const HomeEstudiante = () => {
   const { user, setUser } = useAuth(); 
@@ -160,9 +161,26 @@ const HomeEstudiante = () => {
             </div>
 
         </div>
+
+        {/* botón que permite al estudiante subir bitácoras */}
+        <div className="mt-8 flex justify-end gap-3">
+            <button
+                onClick={() => navigate('/informes/subir')}
+                className="bg-blue-600 text-white px-4 py-2.5 rounded-lg font-semibold shadow-md hover:bg-blue-700 transition-colors text-sm flex items-center gap-2"
+            >
+                <span>Subir Informe</span>
+            </button>
+            <button
+                onClick={() => navigate('/bitacoras/subir')}
+                className="bg-purple-600 text-white px-4 py-2.5 rounded-lg font-semibold shadow-md hover:bg-purple-700 transition-colors text-sm flex items-center gap-2"
+            >
+
+                <span>Subir Bitácoras</span>
+            </button>
+        </div>
       </div>
     </div>
   );
 };
 
-export default HomeEstudiante;
+export default HomeEstudiante; 
