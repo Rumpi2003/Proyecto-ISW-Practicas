@@ -7,6 +7,7 @@ import {
     findAllEvaluacionSupervisorByIdSupervisor
 } from "../services/evaluacionSupervisor.service.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
+import { validateUpdateEvaluacionSupervisor } from "../validations/evaluacionSupervisor.validation.js";
 
 export class EvaluacionSupervisorController {
     // Crear una nueva evaluación de supervisor
@@ -61,8 +62,13 @@ export class EvaluacionSupervisorController {
     async update(req, res) {
         try {
             const { idEvaluacion } = req.params;
-            const data = req.body;
-            const evaluacion = await updateEvaluacionSupervisor(idEvaluacion, data);
+            const { error, value } = validateUpdateEvaluacionSupervisor(req.body);
+            if (error) {
+                const mensajes = error.details.map(d => d.message).join(', ');
+                return handleErrorClient(res, 400, `Validación fallida: ${mensajes}`);
+            }
+
+            const evaluacion = await updateEvaluacionSupervisor(idEvaluacion, value);
             handleSuccess(res, 200, "Evaluación de supervisor actualizada", evaluacion);
         } catch (error) {
             handleErrorServer(res, 500, "Error al actualizar la evaluación de supervisor", error.message);
