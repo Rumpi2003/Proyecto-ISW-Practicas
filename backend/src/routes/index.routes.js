@@ -29,5 +29,4 @@ export function routerApi(app) {
   router.use("/users", userRoutes);
   router.use("/ofertas", ofertaRoutes); // Ruta: /api/ofertas
   router.use("/carreras", carreraRoutes);
-  router.use("/empresas", empresaRoutes);
 }

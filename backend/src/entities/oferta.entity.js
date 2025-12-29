@@ -14,6 +14,11 @@ export const Oferta = new EntitySchema({
       length: 255,
       nullable: false,
     },
+    empresa: {
+      type: "varchar",
+      length: 255,
+      nullable: false,
+    },
     descripcion: {
       type: "text",
       nullable: false,
@@ -43,21 +48,11 @@ export const Oferta = new EntitySchema({
       type: "many-to-one",
       joinColumn: { name: "idEncargado" },
     },
-    supervisor: {
-      target: "Supervisor",
-      type: "many-to-one",
-      joinColumn: { name: "idSupervisor" },
-    },
     carreras: {
       target: "Carrera",
       type: "many-to-many",
       joinTable: true,
       cascade: true,
-    },
-    empresa: {
-      target: "Empresa",
-      type: "many-to-one",
-      joinColumn: { name: "idEmpresa" },
     },
   },
 });

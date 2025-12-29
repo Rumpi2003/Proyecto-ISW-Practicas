@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { getPautaById, updatePauta } from '@services/pauta.service';
+import { getCarreras } from '@services/carrera.service';
 
 const MAX_ASPECTOS = 11;
 const MAX_ACTITUDES = 5;
@@ -13,6 +14,7 @@ const EditarPauta = () => {
   const navigate = useNavigate();
   const [nombre, setNombre] = useState('');
   const [carrera, setCarrera] = useState('');
+  const [carrerasOptions, setCarrerasOptions] = useState([]);
   const [nivelPractica, setNivelPractica] = useState('I');
   const [aspectos, setAspectos] = useState([NuevaSeccion()]);
   const [loading, setLoading] = useState(false);
@@ -24,7 +26,8 @@ const EditarPauta = () => {
         const res = await getPautaById(id);
         const pauta = res.data || res;
         setNombre(pauta.nombre || '');
-        setCarrera(pauta.carrera || '');
+        // aceptar tanto idCarrera como objeto carrera
+        setCarrera(pauta.idCarrera ?? pauta.carrera?.id ?? pauta.carrera ?? '');
         setNivelPractica(pauta.nivelPractica || 'I');
         const mapped = (pauta.aspectos_a_evaluar || []).map(a => ({
           competencia: a.competencia || '',
@@ -38,6 +41,22 @@ const EditarPauta = () => {
     };
     load();
   }, [id]);
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchCarreras = async () => {
+      try {
+        const res = await getCarreras();
+        if (!mounted) return;
+        setCarrerasOptions(Array.isArray(res) ? res : []);
+      } catch (err) {
+        console.error('Error cargando carreras', err);
+        setCarrerasOptions([]);
+      }
+    };
+    fetchCarreras();
+    return () => { mounted = false; };
+  }, []);
 
   const agregarAspecto = () => { if (aspectos.length >= MAX_ASPECTOS) return; setAspectos(prev => [...prev, NuevaSeccion()]); };
   const eliminarAspecto = (index) => {
@@ -65,9 +84,9 @@ const EditarPauta = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!nombre.trim() || !carrera.trim()) return Swal.fire({ icon: 'error', title: 'Faltan datos', text: 'Ingrese nombre y carrera.' });
+    if (!nombre.trim() || !String(carrera).trim()) return Swal.fire({ icon: 'error', title: 'Faltan datos', text: 'Ingrese nombre y carrera.' });
     const aspectos_a_evaluar = aspectos.map(a=>({ competencia:a.competencia||'', descripcion:a.descripcion||'', actitudes:a.actitudes.filter(Boolean) }));
-    const payload = { nombre, carrera, nivelPractica, aspectos_a_evaluar };
+    const payload = { nombre, idCarrera: Number(carrera), nivelPractica, aspectos_a_evaluar };
     try {
       setLoading(true);
       await updatePauta(id, payload);
@@ -93,7 +112,12 @@ const EditarPauta = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700">Carrera</label>
-            <input value={carrera} onChange={e=>setCarrera(e.target.value)} className="mt-1 block w-full rounded-md border-gray-200 shadow-sm" />
+            <select value={carrera} onChange={e=>setCarrera(e.target.value)} className="mt-1 block w-full rounded-md border-gray-200 shadow-sm">
+              <option value="">Seleccione una carrera</option>
+              {carrerasOptions.map(c => (
+                <option key={c.id} value={c.id}>{c.nombre}{c.abreviacion ? ` — ${c.abreviacion}` : ''}</option>
+              ))}
+            </select>
           </div>
 
           <div>

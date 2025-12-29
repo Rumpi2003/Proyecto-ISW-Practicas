@@ -6,7 +6,6 @@ import axios from '../services/root.service.js';
 
 const PublicarOferta = () => {
   const [carrerasOptions, setCarrerasOptions] = useState([]);
-  const [empresasOptions, setEmpresasOptions] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   
@@ -25,22 +24,12 @@ const PublicarOferta = () => {
       if (!facultadId) return;
 
       try {
-        const [resCarreras, resEmpresas] = await Promise.all([
-          axios.get(`/carreras?facultadId=${facultadId}`),
-          axios.get('/empresas')
-        ]);
+        const resCarreras = await axios.get(`/carreras?facultadId=${facultadId}`);
 
         if (resCarreras.data.data) {
           setCarrerasOptions(resCarreras.data.data.map(c => ({
-            label: c.nombre, 
+            label: c.nombre,
             value: String(c.id)
-          })));
-        }
-
-        if (resEmpresas.data.data) {
-          setEmpresasOptions(resEmpresas.data.data.map(e => ({
-            label: e.nombre, 
-            value: String(e.id)
           })));
         }
       } catch (error) {
@@ -86,12 +75,13 @@ const PublicarOferta = () => {
       }
     },
     {
-      name: "empresaId",
+      name: "empresa",
       label: "Empresa Oferente",
-      fieldType: "select",
-      options: empresasOptions,
+      fieldType: "input",
+      type: "text",
+      placeholder: "Nombre de la empresa",
       required: true,
-      defaultValue: esEdicion ? String(ofertaAEditar.empresa?.id) : ""
+      defaultValue: esEdicion ? (ofertaAEditar.empresa || '') : ""
     },
     ...(esEdicion ? [{
       name: "estado",
@@ -109,7 +99,7 @@ const PublicarOferta = () => {
       label: "Descripción de la Práctica",
       fieldType: "textarea",
       rows: 8,
-      placeholder: "Detalla las responsabilidades, requisitos y beneficios...",
+      placeholder: "Detalla las responsabilidades, requisitos, beneficios y contacto...",
       required: true,
       minLength: 30,
       defaultValue: esEdicion ? ofertaAEditar.descripcion : "",

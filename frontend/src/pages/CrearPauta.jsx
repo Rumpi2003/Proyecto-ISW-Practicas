@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { createPauta } from '@services/pauta.service';
+import { getCarreras } from '@services/carrera.service';
 
 const MAX_ASPECTOS = 11;
 const MAX_ACTITUDES = 5; // 1 inicial + 4 adicionales
@@ -14,6 +15,7 @@ const CrearPauta = () => {
   const navigate = useNavigate();
   const [nombre, setNombre] = useState('');
   const [carrera, setCarrera] = useState('');
+  const [carrerasOptions, setCarrerasOptions] = useState([]);
   const [nivelPractica, setNivelPractica] = useState('I');
   const [aspectos, setAspectos] = useState([NuevaSeccion()]);
   const [loading, setLoading] = useState(false);
@@ -74,7 +76,7 @@ const CrearPauta = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // validaciones básicas
-    if (!nombre.trim() || !carrera.trim()) {
+    if (!nombre.trim() || !String(carrera).trim()) {
       return Swal.fire({ icon: 'error', title: 'Faltan datos', text: 'Ingrese nombre y carrera.' });
     }
 
@@ -84,7 +86,7 @@ const CrearPauta = () => {
       actitudes: a.actitudes.filter(Boolean)
     }));
 
-    const payload = { nombre, carrera, nivelPractica, aspectos_a_evaluar };
+    const payload = { nombre, idCarrera: Number(carrera), nivelPractica, aspectos_a_evaluar };
 
     try {
       setLoading(true);
@@ -97,6 +99,23 @@ const CrearPauta = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchCarreras = async () => {
+      try {
+        const res = await getCarreras();
+        if (!mounted) return;
+        // esperar que res sea un array de { id, nombre, abreviacion }
+        setCarrerasOptions(Array.isArray(res) ? res : []);
+      } catch (err) {
+        console.error('Error cargando carreras', err);
+        setCarrerasOptions([]);
+      }
+    };
+    fetchCarreras();
+    return () => { mounted = false; };
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
@@ -112,7 +131,12 @@ const CrearPauta = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700">Carrera</label>
-            <input value={carrera} onChange={e => setCarrera(e.target.value)} className="mt-1 block w-full rounded-md border-gray-200 shadow-sm" />
+            <select value={carrera} onChange={e => setCarrera(e.target.value)} className="mt-1 block w-full rounded-md border-gray-200 shadow-sm">
+              <option value="">Seleccione una carrera</option>
+              {carrerasOptions.map(c => (
+                <option key={c.id} value={c.id}>{c.nombre}{c.abreviacion ? ` — ${c.abreviacion}` : ''}</option>
+              ))}
+            </select>
           </div>
 
           <div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { createSupervisor, createEncargado, createEstudiante } from '@services/user.service';
+import { getCarreras } from '@services/carrera.service';
 import Swal from 'sweetalert2';
 
 const CreateUser = () => {
@@ -13,12 +14,29 @@ const CreateUser = () => {
         nombre: '', rut: '', email: '', password: '',
         empresa: '', facultad: '', carrera: '', nivelPractica: ''
     });
+    const [carrerasOptions, setCarrerasOptions] = useState([]);
 
     useEffect(() => {
         if (location.state?.initialRole) {
             setRol(location.state.initialRole);
         }
     }, [location]);
+
+    useEffect(() => {
+        let mounted = true;
+        const fetch = async () => {
+            try {
+                const res = await getCarreras();
+                if (!mounted) return;
+                setCarrerasOptions(Array.isArray(res) ? res : []);
+            } catch (err) {
+                console.error('Error cargando carreras', err);
+                setCarrerasOptions([]);
+            }
+        };
+        fetch();
+        return () => { mounted = false; };
+    }, []);
 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -70,8 +88,13 @@ const CreateUser = () => {
                     {rol === 'encargado' && <input name="facultad" placeholder="Facultad" onChange={handleChange} className="w-full p-3 border rounded-lg bg-purple-50" />}
                     {rol === 'estudiante' && (
                         <div className="bg-green-50 p-3 rounded-lg space-y-3">
-                            <input name="carrera" placeholder="Carrera" onChange={handleChange} className="w-full p-3 border rounded-lg" />
-                            <select name="nivelPractica" onChange={handleChange} className="w-full p-3 border rounded-lg bg-white">
+                            <select name="carrera" value={formData.carrera} onChange={handleChange} required className="w-full p-3 border rounded-lg bg-white">
+                                <option value="">Seleccione carrera...</option>
+                                {carrerasOptions.map(c => (
+                                    <option key={c.id} value={c.id}>{c.nombre}{c.abreviacion ? ` — ${c.abreviacion}` : ''}</option>
+                                ))}
+                            </select>
+                            <select name="nivelPractica" value={formData.nivelPractica} onChange={handleChange} className="w-full p-3 border rounded-lg bg-white">
                                 <option value="">Nivel Práctica...</option>
                                 <option value="I">I</option>
                                 <option value="II">II</option>

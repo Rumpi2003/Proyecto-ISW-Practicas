@@ -28,9 +28,10 @@ const CrearSolicitud = () => {
         Swal.fire('Éxito', 'Solicitud enviada correctamente', 'success');
         navigate('/solicitudes/mis-solicitudes'); 
     } catch (error) {
-        Swal.fire('Error', 'No se pudo crear la solicitud', 'error');
+        const errorMsg = error.response?.data?.message || 'No se pudo crear la solicitud';
+        Swal.fire('Error', errorMsg, 'error');
     }
-  };
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">

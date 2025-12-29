@@ -61,8 +61,8 @@ const VerOfertas = () => {
 
   // --- LÓGICA DE FILTRADO ---
   const empresasUnicas = useMemo(() => {
-    const empresas = ofertas.map(o => o.empresa?.nombre).filter(Boolean);
-    return [...new Set(empresas)].sort();
+        const empresas = ofertas.map(o => (typeof o.empresa === 'string' ? o.empresa : o.empresa?.nombre)).filter(Boolean);
+        return [...new Set(empresas)].sort();
   }, [ofertas]);
 
   const carrerasUnicas = useMemo(() => {
@@ -72,8 +72,8 @@ const VerOfertas = () => {
 
   const ofertasFiltradas = ofertas.filter(oferta => {
     const estadoCalc = getEstadoOferta(oferta);
-    
-    if (filterEmpresa && oferta.empresa?.nombre !== filterEmpresa) return false;
+        const ofertaEmpresaNombre = typeof oferta.empresa === 'string' ? oferta.empresa : oferta.empresa?.nombre;
+        if (filterEmpresa && ofertaEmpresaNombre !== filterEmpresa) return false;
     if (filterCarrera && !oferta.carreras?.some(c => c.abreviacion === filterCarrera)) return false;
     
     if (filterEstado !== "todos") {
@@ -219,7 +219,7 @@ const VerOfertas = () => {
 
                   <div className="flex justify-between items-start mb-4 pr-16">
                       <span className="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide border border-blue-100">
-                          {oferta.empresa?.nombre || "Empresa Inc."}
+                          {typeof oferta.empresa === 'string' ? oferta.empresa : oferta.empresa?.nombre || "Empresa Inc."}
                       </span>
                   </div>
 
@@ -296,7 +296,7 @@ const VerOfertas = () => {
                     <div>
                         <div className="flex gap-2 mb-2">
                             <span className="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide inline-block border border-indigo-100">
-                                {selectedOferta.empresa?.nombre}
+                                {typeof selectedOferta.empresa === 'string' ? selectedOferta.empresa : selectedOferta.empresa?.nombre}
                             </span>
                             <span className={`text-[10px] font-bold px-3 py-1 rounded-full border uppercase ${getEstadoOferta(selectedOferta).color}`}>
                                 {getEstadoOferta(selectedOferta).label}
@@ -327,7 +327,7 @@ const VerOfertas = () => {
                             🏢 Sobre la Empresa
                         </h4>
                         <div className="space-y-2 text-sm text-indigo-800">
-                            <p><span className="font-semibold text-indigo-900">Empresa:</span> {selectedOferta.empresa?.nombre}</p>
+                            <p><span className="font-semibold text-indigo-900">Empresa:</span> {typeof selectedOferta.empresa === 'string' ? selectedOferta.empresa : selectedOferta.empresa?.nombre}</p>
                             {selectedOferta.empresa?.razonSocial && (
                                 <p><span className="font-semibold text-indigo-900">Razón Social:</span> {selectedOferta.empresa.razonSocial}</p>
                             )}

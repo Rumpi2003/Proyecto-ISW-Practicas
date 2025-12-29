@@ -9,18 +9,17 @@ export const PautaEvaluacion = new EntitySchema({
       type: "int",
       generated: "increment",
     },
+    idCarrera: {
+      type: "int",
+      nullable: false,
+    },
     nombre: {
       type: "varchar",
       length: 255,
       nullable: false,
     },
-    carrera: {
-      type: "varchar",
-      length: 100,
-      nullable: false,
-    },
     nivelPractica: {
-      type: "varchar", // Puede ser "I", "II", o un número
+      type: "varchar", // Puede ser "I", "II"
       length: 50,
       nullable: false,
     },
@@ -35,6 +34,14 @@ export const PautaEvaluacion = new EntitySchema({
     updated_at: {
       type: "timestamp",
       updateDate: true,
+    },
+  },
+  relations: {
+    carrera: {
+      target: "Carrera",
+      type: "many-to-one",
+      joinColumn: { name: "idCarrera" },
+      nullable: false,
     },
   },
 });
