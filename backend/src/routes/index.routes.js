@@ -9,6 +9,8 @@ import ofertaRoutes from "./oferta.routes.js";
 import carreraRoutes from "./carrera.routes.js";
 import bitacoraRoutes from "./bitacora.routes.js";
 import informeRoutes from "./informe.routes.js";
+import encargadoRoutes from "./evaluacionEncargado.routes.js";
+
 
 export function routerApi(app) {
   const router = Router();
@@ -28,4 +30,5 @@ export function routerApi(app) {
   router.use("/users", userRoutes);
   router.use("/ofertas", ofertaRoutes); // Ruta: /api/ofertas
   router.use("/carreras", carreraRoutes);
+  router.use("/encargado", encargadoRoutes);
 }

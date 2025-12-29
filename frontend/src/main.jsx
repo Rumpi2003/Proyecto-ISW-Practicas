@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { AuthProvider } from './context/AuthContext'; 
+import { AuthProvider } from './context/AuthContext';
 
 import Login from '@pages/Login';
 import Home from '@pages/Home';
@@ -31,19 +31,22 @@ import MisInformes from './pages/MisInformes';
 import GestionarInformes from './pages/GestionarInformes';
 //--- (Usuarios) ---
 import UsersMenu from './pages/MenuUsers';
-import UserList from './pages/ListaUsers'; 
+import UserList from './pages/ListaUsers';
 import CreateUser from './pages/CrearUser';
+//--- (ENCARGADO, EVALUACION) ---
+import PendientesEvaluacion from './pages/PendientesEvaluacion';
+import EvaluacionEncargado from './pages/EvaluacionEncargado';
 
 import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
-import ProtectedRoute from '@components/ProtectedRoute'; 
+import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Root />, 
+    element: <Root />,
     errorElement: <Error404 />,
     children: [
       {
@@ -51,7 +54,7 @@ const router = createBrowserRouter([
         element: <Login />
       },
       {
-        path: '/auth', 
+        path: '/auth',
         element: <Login />
       },
       {
@@ -63,7 +66,7 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: '/dashboard', 
+        path: '/dashboard',
         element: (
           <ProtectedRoute>
             <Home />
@@ -72,7 +75,7 @@ const router = createBrowserRouter([
       },
       // --- (OFERTAS) ---
       {
-        path: '/publicar-oferta', 
+        path: '/publicar-oferta',
         element: (
           <ProtectedRoute>
             <PublicarOferta />
@@ -80,7 +83,7 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: '/ofertas', 
+        path: '/ofertas',
         element: (
           <ProtectedRoute>
             <VerOfertas />
@@ -92,7 +95,7 @@ const router = createBrowserRouter([
         path: '/solicitudes',
         element: (
           <ProtectedRoute>
-             <SolicitudesMenu />
+            <SolicitudesMenu />
           </ProtectedRoute>
         )
       },
@@ -100,7 +103,7 @@ const router = createBrowserRouter([
         path: '/solicitudes/crear',
         element: (
           <ProtectedRoute>
-             <CrearSolicitud />
+            <CrearSolicitud />
           </ProtectedRoute>
         )
       },
@@ -108,7 +111,7 @@ const router = createBrowserRouter([
         path: '/solicitudes/mis-solicitudes',
         element: (
           <ProtectedRoute>
-             <MisSolicitudes />
+            <MisSolicitudes />
           </ProtectedRoute>
         )
       },
@@ -116,7 +119,7 @@ const router = createBrowserRouter([
         path: '/dashboard/solicitudes-encargado',
         element: (
           <ProtectedRoute>
-             <MenuGestionSolicitudes />
+            <MenuGestionSolicitudes />
           </ProtectedRoute>
         )
       },
@@ -124,7 +127,7 @@ const router = createBrowserRouter([
         path: '/dashboard/solicitudes-encargado/:filtro', //'pendientes' o 'historial'
         element: (
           <ProtectedRoute>
-             <ListaSolicitudesEncargado />
+            <ListaSolicitudesEncargado />
           </ProtectedRoute>
         )
       },
@@ -180,7 +183,7 @@ const router = createBrowserRouter([
       },
       // --- (PAUTAS) ---
       {
-        path: '/dashboard/pautas', 
+        path: '/dashboard/pautas',
         element: (
           <ProtectedRoute>
             <PautasEvaluacion />
@@ -244,20 +247,38 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         )
       },
+
+      //--- (EVALUACIÓN ENCARGADO)
+      {
+        path: '/encargado/pendientes',
+        element: (
+          <ProtectedRoute>
+            <PendientesEvaluacion />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: '/encargado/evaluar/:id',
+        element: (
+          <ProtectedRoute>
+            <EvaluacionEncargado />
+          </ProtectedRoute>
+        )
+      },
       //--- (USUARIOS) ---
       {
         path: '/dashboard/users',
         element: (
           <ProtectedRoute>
-            <UsersMenu /> 
+            <UsersMenu />
           </ProtectedRoute>
         )
       },
       {
-        path: '/dashboard/users/:tipo', 
+        path: '/dashboard/users/:tipo',
         element: (
           <ProtectedRoute>
-            <UserList /> 
+            <UserList />
           </ProtectedRoute>
         )
       },
