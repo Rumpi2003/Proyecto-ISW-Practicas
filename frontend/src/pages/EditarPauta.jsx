@@ -86,7 +86,7 @@ const EditarPauta = () => {
     e.preventDefault();
     if (!nombre.trim() || !String(carrera).trim()) return Swal.fire({ icon: 'error', title: 'Faltan datos', text: 'Ingrese nombre y carrera.' });
     const aspectos_a_evaluar = aspectos.map(a=>({ competencia:a.competencia||'', descripcion:a.descripcion||'', actitudes:a.actitudes.filter(Boolean) }));
-    const payload = { nombre, carrera: Number(carrera), nivelPractica, aspectos_a_evaluar };
+    const payload = { nombre, idCarrera: Number(carrera), nivelPractica, aspectos_a_evaluar };
     try {
       setLoading(true);
       await updatePauta(id, payload);

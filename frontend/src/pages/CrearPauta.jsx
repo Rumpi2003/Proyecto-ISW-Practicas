@@ -86,7 +86,7 @@ const CrearPauta = () => {
       actitudes: a.actitudes.filter(Boolean)
     }));
 
-    const payload = { nombre, carrera: Number(carrera), nivelPractica, aspectos_a_evaluar };
+    const payload = { nombre, idCarrera: Number(carrera), nivelPractica, aspectos_a_evaluar };
 
     try {
       setLoading(true);
