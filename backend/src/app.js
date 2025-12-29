@@ -32,5 +32,6 @@ app.use(cookieParser());
 routerApi(app); //todas las rutas (/api/auth, /api/users, etc.)
 
 app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
+app.use('/uploadsEncargadoEv', express.static(path.join(__dirname, '../../uploadsEncargadoEv')));
 
 export default app;
