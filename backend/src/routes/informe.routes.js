@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { InformeController } from "../controllers/informe.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
+import { checkPracticaAprobada } from "../middleware/checkPracticaAprobada.middleware.js";
 import { checkEncargado } from "../middleware/checkEncargado.middleware.js";
 import { uploadPdfMiddleware } from "../middleware/upload.middleware.js";
 
@@ -11,6 +12,7 @@ const controller = new InformeController();
 router.post(
   "/",
   authMiddleware,
+  checkPracticaAprobada,
   uploadPdfMiddleware,
   controller.crearInforme.bind(controller)
 );
@@ -26,6 +28,7 @@ router.get(
 router.put(
   "/mis-informes/:idInforme",
   authMiddleware,
+  checkPracticaAprobada,
   uploadPdfMiddleware,
   controller.actualizarPropio.bind(controller)
 );

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { BitacoraController } from "../controllers/bitacora.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
+import { checkPracticaAprobada } from "../middleware/checkPracticaAprobada.middleware.js";
 import { checkEncargado } from "../middleware/checkEncargado.middleware.js";
 import { uploadBitacorasMiddleware } from "../middleware/upload.middleware.js";
 
@@ -11,6 +12,7 @@ const controller = new BitacoraController();
 router.post(
   "/",
   authMiddleware,
+  checkPracticaAprobada,
   uploadBitacorasMiddleware,
   controller.crearBitacora.bind(controller)
 );
@@ -26,6 +28,7 @@ router.get(
 router.put(
   "/mis-bitacoras/:idBitacora",
   authMiddleware,
+  checkPracticaAprobada,
   uploadBitacorasMiddleware,
   controller.actualizarPropia.bind(controller)
 );

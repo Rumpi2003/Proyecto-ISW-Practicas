@@ -110,7 +110,7 @@ const MisInformes = () => {
             onClick={() => navigate('/informes/subir')}
             className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg"
           >
-            📤 Subir Nuevo Informe
+            Subir informe
           </button>
         </div>
 
@@ -125,12 +125,6 @@ const MisInformes = () => {
             <p className="text-6xl mb-4">📭</p>
             <h3 className="text-2xl font-bold text-gray-800 mb-2">No hay informes</h3>
             <p className="text-gray-500 mb-6">Aún no has subido ningún informe</p>
-            <button
-              onClick={() => navigate('/informes/subir')}
-              className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
-            >
-              Subir Mi Primer Informe
-            </button>
           </div>
         ) : (
           <div className="grid gap-6">
