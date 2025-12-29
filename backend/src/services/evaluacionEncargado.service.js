@@ -8,7 +8,7 @@ const evaluacionRepo = AppDataSource.getRepository(Evaluacion);
 
 /**
  * 1) Obtener lista de pendientes
- * - Ajusta el estado según tu flujo real
+ * Filtra solo solicitudes que estén listas para evaluación final.
  */
 export async function obtenerPendientes() {
     return await solicitudRepo.find({
@@ -18,20 +18,13 @@ export async function obtenerPendientes() {
 }
 
 /**
- * Helper: detectar tipo de documento
+ * Helpers para distinguir documentos (según nombre o ruta).
+ * Nota: "documentos" viene como text[] (strings) en PostgreSQL.
  */
 function isInformeFinal(doc) {
     if (!doc) return false;
-    const t = (doc.tipo || doc.type || doc.nombre || "").toString().toLowerCase();
-    const url = (doc.url || doc.path || doc).toString().toLowerCase();
-    return t.includes("informe") || t.includes("final") || url.includes("informe");
-}
-
-function isBitacora(doc) {
-    if (!doc) return false;
-    const t = (doc.tipo || doc.type || doc.nombre || "").toString().toLowerCase();
-    const url = (doc.url || doc.path || doc).toString().toLowerCase();
-    return t.includes("bitac") || url.includes("bitac");
+    const url = (typeof doc === "string" ? doc : (doc.url || doc.path || "")).toLowerCase();
+    return url.includes("informe") || url.includes("final");
 }
 
 function getDocUrl(doc) {
@@ -41,7 +34,9 @@ function getDocUrl(doc) {
 }
 
 /**
- * 2) Obtener detalles: estudiante + documentos + nota supervisor + fecha límite
+ * 2) Obtener detalles: estudiante + documentos + fecha límite
+ * (La nota del supervisor se usa en backend para validar y promediar,
+ * pero si no quieres mostrarla en frontend, igual puedes retornarla o no.)
  */
 export async function obtenerDetallesPractica(id) {
     const solicitud = await solicitudRepo.findOne({
@@ -51,34 +46,36 @@ export async function obtenerDetallesPractica(id) {
 
     if (!solicitud) return null;
 
-    // Traemos evaluación si existe (ahí viene nota supervisor)
     const evaluacion = await evaluacionRepo.findOne({
         where: { solicitud: { id: Number(id) } },
     });
 
-    // Documentos: evitamos depender de [0] y [1]
     const docs = Array.isArray(solicitud.documentos) ? solicitud.documentos : [];
 
+    // Informe: detectamos uno; el resto se considera bitácoras (más robusto)
     const informeDoc = docs.find(isInformeFinal) || null;
-    const bitacoraDocs = docs.filter(isBitacora);
-
     const informeFinal = getDocUrl(informeDoc);
-    const bitacoras = bitacoraDocs.map(getDocUrl).filter(Boolean);
+
+    const bitacoras = docs
+        .filter((doc) => doc !== informeDoc)
+        .map(getDocUrl)
+        .filter(Boolean);
 
     return {
         estudiante: solicitud.estudiante,
         informeFinal,
         bitacoras,
+        // Puedes dejar esto o quitarlo si no quieres enviarlo al frontend
         notaSupervisor: evaluacion ? evaluacion.notaSupervisor : null,
         estado: solicitud.estado,
         fechaEnvio: solicitud.fechaEnvio,
-        // CAMPO PARA PLAZO (debe existir en entidad o esto vendrá undefined)
         fechaLimiteEvaluacion: solicitud.fechaLimiteEvaluacion ?? null,
     };
 }
 
 /**
- * 3) Calificar práctica (promedio + nota final + plazo)
+ * 3) Calificar práctica
+ * Promedia nota del encargado con la del supervisor y guarda nota final.
  */
 export async function calificarPractica(idSolicitud, notaEncargado, urlPauta = null, comentarios = null) {
     const solicitud = await solicitudRepo.findOne({
@@ -101,16 +98,14 @@ export async function calificarPractica(idSolicitud, notaEncargado, urlPauta = n
         relations: ["solicitud"],
     });
 
-    // Si no existe registro (por si el supervisor no lo creó aún)
     if (!evaluacion) {
         evaluacion = evaluacionRepo.create({
             solicitud: { id: Number(idSolicitud) },
         });
     }
 
-    // Requisito: debe existir nota del supervisor
-    if (!evaluacion.notaSupervisor) {
-
+    // Requisito: el supervisor debe haber evaluado antes
+    if (evaluacion.notaSupervisor === null || evaluacion.notaSupervisor === undefined) {
         throw new Error("El supervisor aún no ha ingresado su calificación.");
     }
 
