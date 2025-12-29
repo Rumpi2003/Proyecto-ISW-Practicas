@@ -1,6 +1,7 @@
 // src/services/user.service.js
 import { AppDataSource } from "../config/db.config.js";
 import { Estudiante } from "../entities/estudiante.entity.js";
+import { Carrera } from "../entities/carrera.entity.js";
 import { Encargado } from "../entities/encargado.entity.js";
 import { Supervisor } from "../entities/supervisor.entity.js";
 import bcrypt from "bcrypt";
@@ -21,12 +22,22 @@ export async function createEstudiante(data) {
 
   const hashedPassword = await encryptPassword(data.password);
 
+  // Resolver carreraId: aceptar tanto `carrera` (id) como `carreraId` o un objeto
+  const rawCarrera = data.carrera ?? data.carreraId ?? null;
+  const resolvedCarreraId = Number(rawCarrera) || (rawCarrera && rawCarrera.id ? Number(rawCarrera.id) : null);
+  if (!resolvedCarreraId) throw new Error('carrera (id) es requerida para crear estudiante');
+
+  // Validar existencia de la carrera
+  const carreraRepo = AppDataSource.getRepository(Carrera);
+  const carreraExists = await carreraRepo.findOneBy({ id: resolvedCarreraId });
+  if (!carreraExists) throw new Error('La carrera indicada no existe');
+
   const newEstudiante = estudianteRepo.create({
     nombre: data.nombre,
     rut: data.rut,
     email: data.email,
     password: hashedPassword,
-    carrera: data.carrera,
+    carreraId: resolvedCarreraId,
     nivelPractica: data.nivelPractica,
   });
 

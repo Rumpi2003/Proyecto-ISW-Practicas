@@ -6,7 +6,6 @@ import axios from '../services/root.service.js';
 
 const PublicarOferta = () => {
   const [carrerasOptions, setCarrerasOptions] = useState([]);
-  const [empresasOptions, setEmpresasOptions] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   
@@ -25,22 +24,12 @@ const PublicarOferta = () => {
       if (!facultadId) return;
 
       try {
-        const [resCarreras, resEmpresas] = await Promise.all([
-          axios.get(`/carreras?facultadId=${facultadId}`),
-          axios.get('/empresas')
-        ]);
+        const resCarreras = await axios.get(`/carreras?facultadId=${facultadId}`);
 
         if (resCarreras.data.data) {
           setCarrerasOptions(resCarreras.data.data.map(c => ({
-            label: c.nombre, 
-            value: String(c.id) // 👈 FORZAMOS A STRING AQUÍ (ID de la opción)
-          })));
-        }
-
-        if (resEmpresas.data.data) {
-          setEmpresasOptions(resEmpresas.data.data.map(e => ({
-            label: e.nombre, 
-            value: String(e.id) // 👈 FORZAMOS A STRING AQUÍ TAMBIÉN
+            label: c.nombre,
+            value: String(c.id)
           })));
         }
       } catch (error) {
@@ -61,7 +50,14 @@ const PublicarOferta = () => {
       placeholder: "Ej: Práctica Desarrollo Web",
       required: true,
       minLength: 10,
-      defaultValue: esEdicion ? ofertaAEditar.titulo : ""
+      defaultValue: esEdicion ? ofertaAEditar.titulo : "",
+      validate: (value) => {
+        const tieneLetras = /[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]/.test(value);
+        if (!tieneLetras) {
+          return "El título debe contener palabras reales (no puede ser solo números o símbolos)";
+        }
+        return true;
+      }
     },
     {
       name: "fechaCierre",
@@ -79,13 +75,13 @@ const PublicarOferta = () => {
       }
     },
     {
-      name: "empresaId",
+      name: "empresa",
       label: "Empresa Oferente",
-      fieldType: "select",
-      options: empresasOptions,
+      fieldType: "input",
+      type: "text",
+      placeholder: "Nombre de la empresa",
       required: true,
-      // 👈 FORZAMOS A STRING PARA QUE COINCIDA CON LA OPCIÓN DE ARRIBA
-      defaultValue: esEdicion ? String(ofertaAEditar.empresa?.id) : ""
+      defaultValue: esEdicion ? (ofertaAEditar.empresa || '') : ""
     },
     ...(esEdicion ? [{
       name: "estado",
@@ -103,10 +99,17 @@ const PublicarOferta = () => {
       label: "Descripción de la Práctica",
       fieldType: "textarea",
       rows: 8,
-      placeholder: "Detalla las responsabilidades, requisitos y beneficios...",
+      placeholder: "Detalla las responsabilidades, requisitos, beneficios y contacto...",
       required: true,
       minLength: 30,
-      defaultValue: esEdicion ? ofertaAEditar.descripcion : ""
+      defaultValue: esEdicion ? ofertaAEditar.descripcion : "",
+      validate: (value) => {
+        const tieneLetras = /[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]/.test(value);
+        if (!tieneLetras) {
+          return "La descripción debe contener texto explicativo (no puede ser solo números o símbolos)";
+        }
+        return true;
+      }
     },
     {
       name: "carreras",
@@ -114,9 +117,6 @@ const PublicarOferta = () => {
       fieldType: "checkbox-group", 
       options: carrerasOptions,
       required: true,
-      // 👈 EL ARREGLO DEFINITIVO:
-      // 1. Verificamos que exista el array.
-      // 2. Mapeamos cada ID convirtiéndolo a String explícitamente.
       defaultValue: esEdicion 
         ? (ofertaAEditar.carreras?.map(c => String(c.id)) || []) 
         : []
@@ -145,11 +145,12 @@ const PublicarOferta = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 relative">
-      <div className="max-w-2xl w-full mb-4 text-left">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
+      
+      <div className="max-w-2xl w-full mb-6 text-left">
         <button 
           onClick={() => navigate(-1)}
-          className="text-gray-500 hover:text-purple-600 flex items-center gap-2 transition-all duration-300 font-bold group"
+          className="text-white/80 hover:text-white flex items-center gap-2 transition-all duration-300 font-bold group"
         >
           <span className="group-hover:-translate-x-1 transition-transform">←</span> 
           Cancelar y Volver
@@ -157,17 +158,19 @@ const PublicarOferta = () => {
       </div>
 
       {loadingData ? (
-         <div className="bg-white p-12 rounded-3xl shadow-xl flex flex-col items-center animate-in fade-in zoom-in duration-300">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
-            <p className="text-gray-500 font-medium">Cargando datos del formulario...</p>
+         <div className="bg-white/95 backdrop-blur-sm p-12 rounded-3xl shadow-2xl flex flex-col items-center animate-in fade-in zoom-in duration-300 border border-white/50">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mb-4"></div>
+            <p className="text-gray-600 font-bold">Cargando datos del formulario...</p>
          </div>
       ) : (
-        <Form 
-          title={esEdicion ? "✏️ Editar Oferta" : "🚀 Nueva Oferta de Práctica"}
-          fields={fields}
-          buttonText={esEdicion ? "💾 Guardar Cambios" : "📢 Publicar Oferta"}
-          onSubmit={handleSubmit}
-        />
+        <div className="w-full max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <Form 
+              title={esEdicion ? "✏️ Editar Oferta" : "🚀 Nueva Oferta de Práctica"}
+              fields={fields}
+              buttonText={esEdicion ? "💾 Guardar Cambios" : "📢 Publicar Oferta"}
+              onSubmit={handleSubmit}
+            />
+        </div>
       )}
 
       {showSuccess && (

@@ -6,11 +6,17 @@ export const Encargado = new EntitySchema({
   columns: {
     id: {
        primary: true,
-        type: "int",
+         type: "int",
          generated: true 
         },
+    facultadId: {
+       type: "int",
+       nullable: false
+      },
     nombre: {
-       type: "varchar" 
+        type: "varchar",
+        length: 255,
+        nullable: false
       },
     rut: {
        type: "varchar",

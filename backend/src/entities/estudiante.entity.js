@@ -9,6 +9,10 @@ export const Estudiante = new EntitySchema({
       type: "int",
       generated: "increment",
     },
+    carreraId: {
+      type: "int",
+      nullable: false,
+    },
     nombre: {
       type: "varchar",
       length: 255,
@@ -33,7 +37,7 @@ export const Estudiante = new EntitySchema({
     },
     nivelPractica: {
       type: "varchar",
-      length: 50, // Ej: "IV", "V", "Práctica Profesional"
+      length: 50, // Ej: "I", "II", "Práctica Profesional"
       nullable: false,
     },
     created_at: {
@@ -49,7 +53,7 @@ export const Estudiante = new EntitySchema({
     carrera: {
       target: "Carrera",
       type: "many-to-one",
-      joinColumn: true,
+      joinColumn: { name: "carreraId" },
       nullable: false,
     },
   },

@@ -6,8 +6,8 @@ import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers
 export async function createEstudianteCtrl(req, res) {
   try {
     const data = req.body;
-    if (!data.email || !data.password || !data.nombre || !data.rut || !data.carrera || !data.nivelPractica) {
-      return handleErrorClient(res, 400, "Faltan datos: email, password, nombre, rut, carrera, nivelPractica");
+    if (!data.email || !data.password || !data.nombre || !data.rut || !(data.carrera || data.carreraId) || !data.nivelPractica) {
+      return handleErrorClient(res, 400, "Faltan datos: email, password, nombre, rut, carrera (id), nivelPractica");
     }
 
     const newEstudiante = await UserService.createEstudiante(data);

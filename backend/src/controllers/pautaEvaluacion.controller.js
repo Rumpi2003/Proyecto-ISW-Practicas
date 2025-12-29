@@ -1,27 +1,26 @@
 import { createPautaEvaluacion, findPautasEvaluacion, findPautaEvaluacionById, updatePautaEvaluacion, deletePautaEvaluacion } from "../services/pautaEvaluacion.service.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
+import { validateCreatePauta, validateUpdatePauta } from "../validations/pautaEvaluacion.validation.js";
 
 export class PautaEvaluacionController {
 
   // Crear una nueva pauta de evaluación
   async create(req, res) {
     try {
-      const { nombre, carrera, nivelPractica, aspectos_a_evaluar } = req.body;
-      // Validaciones básicas
-        if (!nombre || !carrera || !nivelPractica || !aspectos_a_evaluar) {
+      // Validar datos con Joi
+      const { error, value } = validateCreatePauta(req.body);
+      if (error) {
+        const mensajes = error.details.map(d => d.message).join(', ');
+        return handleErrorClient(res, 400, `Validación fallida: ${mensajes}`);
+      }
 
-            return handleErrorClient(res, 400, "Faltan datos requeridos");
-        }
-        const data = {
-            nombre,
-            carrera,
-            nivelPractica,
-            aspectos_a_evaluar
-        };
-        const pauta = await createPautaEvaluacion(data);
+      const pauta = await createPautaEvaluacion(value);
         handleSuccess(res, 201, "Pauta de evaluación creada exitosamente", pauta);
     } catch (error) {
-        handleErrorServer(res, 500,"Error al crear la pauta de evaluación", error.message);
+        if (error.message.includes("Ya existe")) {
+          return handleErrorClient(res, 409, error.message);
+        }
+        handleErrorServer(res, 500, "Error al crear la pauta de evaluación", error.message);
     }
   }
 
@@ -50,10 +49,19 @@ export class PautaEvaluacionController {
     async update(req, res) {
         try {
             const { idPauta } = req.params;
-            const data = req.body;
-            const pauta = await updatePautaEvaluacion(idPauta, data);
+            // Validar datos con Joi
+            const { error, value } = validateUpdatePauta(req.body);
+            if (error) {
+              const mensajes = error.details.map(d => d.message).join(', ');
+              return handleErrorClient(res, 400, `Validación fallida: ${mensajes}`);
+            }
+
+            const pauta = await updatePautaEvaluacion(idPauta, value);
             handleSuccess(res, 200, "Pauta de evaluación actualizada", pauta);
         } catch (error) {
+            if (error.message.includes("no encontrada")) {
+              return handleErrorClient(res, 404, error.message);
+            }
             handleErrorServer(res, 500, "Error al actualizar la pauta de evaluación", error.message);
         }
     }
