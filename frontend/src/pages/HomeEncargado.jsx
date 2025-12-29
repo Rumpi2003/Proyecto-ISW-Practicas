@@ -95,7 +95,7 @@ const HomeEncargado = () => {
                 </div>
             </div>
 
-            {/* PAUTAS DE EVALUACIÓN */}
+            {/* botón que permite al encargado gestionar pautas */}
             <div 
                 onClick={() => navigate('/dashboard/pautas')}
                 className="group bg-emerald-50 border-2 border-emerald-100 rounded-2xl p-10 cursor-pointer hover:bg-emerald-600 hover:border-emerald-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
@@ -127,6 +127,24 @@ const HomeEncargado = () => {
                     </h3>
                     <p className="text-gray-500 mt-1 group-hover:text-teal-100 transition-colors">
                         Ver y eliminar evaluaciones realizadas por supervisores.
+                    </p>
+                </div>
+            </div>
+
+            {/* GESTIONAR BITÁCORAS */}
+            <div 
+                onClick={() => navigate('/bitacoras/gestionar')}
+                className="group bg-purple-50 border-2 border-purple-100 rounded-2xl p-10 cursor-pointer hover:bg-purple-600 hover:border-purple-600 hover:shadow-2xl transition-all duration-300 flex items-center gap-6"
+            >
+                <div className="bg-white p-4 rounded-full text-4xl shadow-sm group-hover:scale-110 transition-transform">
+                    📖
+                </div>
+                <div>
+                    <h3 className="text-2xl font-bold text-gray-800 group-hover:text-white transition-colors">
+                        Gestionar Bitácoras e Informe
+                    </h3>
+                    <p className="text-gray-500 mt-1 group-hover:text-purple-100 transition-colors">
+                        Administrar registros y bitácoras de prácticas.
                     </p>
                 </div>
             </div>
