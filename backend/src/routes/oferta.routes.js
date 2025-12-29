@@ -14,7 +14,6 @@ router.post("/",
 );
 
 // 2. Obtener todas las ofertas (GET) -> Accesible para Estudiantes y Encargados
-// 👇 Se eliminó checkEncargado para que el estudiante pueda ver la lista
 router.get("/", 
     authMiddleware, 
     (req, res) => ofertaController.getOffers(req, res)
