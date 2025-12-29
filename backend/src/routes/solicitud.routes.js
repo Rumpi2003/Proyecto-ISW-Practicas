@@ -4,6 +4,7 @@ import { SolicitudController } from "../controllers/solicitud.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { checkEncargado } from "../middleware/checkEncargado.middleware.js"; 
 import { uploadMiddleware } from "../middleware/upload.middleware.js";
+import { checkPracticaAprobada } from "../middleware/checkPracticaAprobada.middleware.js";
 
 const router = Router();
 const controller = new SolicitudController();
@@ -41,6 +42,13 @@ router.get(
   controller.getSolicitudesEstudiante
 );
 
+// Boolean para UI: ¿tiene alguna solicitud aprobada?
+router.get(
+  "/mis-solicitudes/aprobada",
+  authMiddleware,
+  controller.hasAprobada
+);
+
 router.put(
   "/mis-solicitudes/:idSolicitud", 
   authMiddleware, 
@@ -52,5 +60,8 @@ router.patch("/:idSolicitud/estado",
   authMiddleware,
   checkEncargado,
   controller.updateEstado);
+
+// Ejemplo de uso del middleware para proteger futuras rutas (e.g., subir bitácoras)
+// router.post("/bitacoras/subir", authMiddleware, checkPracticaAprobada, controllerSubidaBitacoras)
 
 export default router;

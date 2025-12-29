@@ -119,9 +119,8 @@ async function main() {
     if (totalEstudiantes === 0) {
         console.log("⚙️  Creando estudiante inicial...");
 
-        // Buscamos la carrera ICI para asignarla al alumno
+        // Buscamos la carrera de Ingeniería Civil en Informática (abreviación ICINF)
         const carreraICI = await carreraRepo.findOneBy({ abreviacion: "ICINF" });
-
         if (carreraICI) {
             const hashedEstPassword = await bcrypt.hash("estudiante123", 10);
             
@@ -133,7 +132,7 @@ async function main() {
                 carrera: carreraICI, // Pasamos el objeto carrera (ManyToOne)
                 nivelPractica: "II"
             }));
-            console.log("✅ Estudiante inicial creado: estudiante@alumnos.ubb.cl / estudiante123");
+            console.log("✅ Estudiante inicial creado: estudiante@alumnos.ubb.cl / estudiante123.");
         } else {
             console.warn("⚠️ No se encontró la carrera ICI. El estudiante no pudo ser creado.");
         }
