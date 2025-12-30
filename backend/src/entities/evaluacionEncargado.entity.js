@@ -1,3 +1,4 @@
+// backend/src/entities/evaluacionEncargado.entity.js
 import { EntitySchema } from "typeorm";
 
 export const Evaluacion = new EntitySchema({
@@ -25,7 +26,7 @@ export const Evaluacion = new EntitySchema({
             type: "decimal",
             precision: 3,
             scale: 1,
-            nullable: true, // Se calcula automáticamente al tener ambas notas
+            nullable: true, // Promedio calculado automáticamente
         },
         comentarios: {
             type: "text",
