@@ -15,7 +15,6 @@ export const Carrera = new EntitySchema({
       unique: true,
       nullable: false,
     },
-    // 👇 Nueva columna para las siglas (Ej: ICI, ARQ, ICO)
     abreviacion: {
       type: "varchar",
       length: 50,

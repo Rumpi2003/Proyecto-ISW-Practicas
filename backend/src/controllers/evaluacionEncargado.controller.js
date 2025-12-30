@@ -21,7 +21,12 @@ export class EncargadoController {
     async getPendientes(req, res) {
         try {
             const data = await obtenerPendientes();
-            handleSuccess(res, 200, "Lista de pendientes obtenida correctamente", data);
+            handleSuccess(
+                res,
+                200,
+                "Lista de pendientes obtenida correctamente",
+                data
+            );
         } catch (error) {
             handleErrorServer(
                 res,
@@ -47,28 +52,46 @@ export class EncargadoController {
             const { id } = req.params;
 
             if (!id || isNaN(Number(id))) {
-                return handleErrorClient(res, 400, "El ID de la práctica proporcionado no es válido");
+                return handleErrorClient(
+                    res,
+                    400,
+                    "El ID de la práctica proporcionado no es válido"
+                );
             }
 
             const detalle = await obtenerDetallesPractica(Number(id));
             if (!detalle) {
-                return handleErrorClient(res, 404, "La práctica solicitada no fue encontrada");
+                return handleErrorClient(
+                    res,
+                    404,
+                    "La práctica solicitada no fue encontrada"
+                );
             }
 
             // DTO consistente con el service
             const respuesta = {
                 estudiante: detalle.estudiante,
                 informeFinal: detalle.informeFinal, // url o null
-                bitacoras: detalle.bitacoras,       // array
+                bitacoras: detalle.bitacoras, // array
                 notaSupervisor: detalle.notaSupervisor,
                 fechaLimiteEvaluacion: detalle.fechaLimiteEvaluacion, // puede venir null
                 estado: detalle.estado,
                 fechaEnvio: detalle.fechaEnvio,
             };
 
-            handleSuccess(res, 200, "Detalles de la práctica obtenidos correctamente", respuesta);
+            handleSuccess(
+                res,
+                200,
+                "Detalles de la práctica obtenidos correctamente",
+                respuesta
+            );
         } catch (error) {
-            handleErrorServer(res, 500, "Error interno al obtener los detalles", error.message);
+            handleErrorServer(
+                res,
+                500,
+                "Error interno al obtener los detalles",
+                error.message
+            );
         }
     }
 
@@ -86,7 +109,11 @@ export class EncargadoController {
             const notaFinal = Number(nota ?? notaEncargado);
 
             if (!id || isNaN(Number(id))) {
-                return handleErrorClient(res, 400, "El ID de la práctica proporcionado no es válido");
+                return handleErrorClient(
+                    res,
+                    400,
+                    "El ID de la práctica proporcionado no es válido"
+                );
             }
 
             // Rango 1.0 - 7.0
@@ -99,7 +126,9 @@ export class EncargadoController {
             }
 
             // Si se subió pauta PDF, guardamos url relativa para servirla luego
-            const urlPauta = req.file ? `/uploadsEncargado/${req.file.filename}` : null;
+            const urlPauta = req.file
+                ? `/uploadsEncargado/${req.file.filename}`
+                : null;
 
             const resultado = await calificarPractica(
                 Number(id),
@@ -113,10 +142,20 @@ export class EncargadoController {
             const errorMsg = error.message;
 
             // Errores de negocio controlados:
-            if (errorMsg === "No encontrado" || errorMsg === "Solicitud no encontrada") {
-                return handleErrorClient(res, 404, "Práctica no encontrada en el sistema");
+            if (
+                errorMsg === "No encontrado" ||
+                errorMsg === "Solicitud no encontrada"
+            ) {
+                return handleErrorClient(
+                    res,
+                    404,
+                    "Práctica no encontrada en el sistema"
+                );
             }
-            if (errorMsg === "Falta nota supervisor" || errorMsg === "El supervisor aún no ha ingresado su calificación.") {
+            if (
+                errorMsg === "Falta nota supervisor" ||
+                errorMsg === "El supervisor aún no ha ingresado su calificación."
+            ) {
                 return handleErrorClient(
                     res,
                     400,
@@ -124,16 +163,21 @@ export class EncargadoController {
                 );
             }
             if (errorMsg === "Plazo vencido") {
-                return handleErrorClient(res, 400, "El plazo reglamentario para evaluar esta práctica ha expirado.");
+                return handleErrorClient(
+                    res,
+                    400,
+                    "El plazo reglamentario para evaluar esta práctica ha expirado."
+                );
             }
 
-            handleErrorServer(res, 500, "Error interno al procesar la calificación", errorMsg);
+            handleErrorServer(
+                res,
+                500,
+                "Error interno al procesar la calificación",
+                errorMsg
+            );
         }
     }
-
-    /**
-     * GET /api/encargado/historial
-     */
     async verHistorial(req, res) {
         try {
             const historial = await getHistorialEvaluaciones();

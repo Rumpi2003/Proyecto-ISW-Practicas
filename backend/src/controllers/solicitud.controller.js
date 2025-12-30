@@ -2,7 +2,6 @@
 import { createSolicitud, findSolicitudes, updateSolicitudEstado, deleteSolicitud, getSolicitudesEstudiante, updateSolicitudEstudiante, hasApprovedSolicitud } from "../services/solicitud.service.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
 import { validateCreateSolicitud, validateUpdateEstadoSolicitud, validateUpdateSolicitudEstudiante } from "../validations/solicitud.validation.js";
-//cuando se crea solicitud
 export class SolicitudController {
 
   async create(req, res) {
@@ -12,9 +11,9 @@ export class SolicitudController {
         return handleErrorClient(res, 400, error.details[0].message);
       }
 
-      const file = req.file; 
+      const file = req.file;
       const idEstudianteVerificado = req.user.id;
-      const { mensaje } = value; 
+      const { mensaje } = value;
 
       if (!file) {
         return handleErrorClient(res, 400, "Debes adjuntar un archivo PDF obligatorio.");
@@ -29,7 +28,7 @@ export class SolicitudController {
       const data = {
         idEstudiante: idEstudianteVerificado,
         mensaje,
-        documentos: documentosUrls 
+        documentos: documentosUrls
       };
 
       const nuevaSolicitud = await createSolicitud(data);
@@ -54,9 +53,9 @@ export class SolicitudController {
       //ID del estudiante desde el token 
       const idEstudiante = req.user.id;
       const solicitudes = await getSolicitudesEstudiante(idEstudiante);
-      
+
       if (!solicitudes || solicitudes.length === 0) {
-         return handleSuccess(res, 200, "No tienes solicitudes creadas", []);
+        return handleSuccess(res, 200, "No tienes solicitudes creadas", []);
       }
 
       handleSuccess(res, 200, "Mis solicitudes obtenidas", solicitudes);
@@ -115,7 +114,7 @@ export class SolicitudController {
   async updatePropia(req, res) {
     try {
       const { idSolicitud } = req.params;
-      
+
       const { error, value } = validateUpdateSolicitudEstudiante(req.body);
       if (error) {
         return handleErrorClient(res, 400, error.details[0].message);
@@ -130,29 +129,29 @@ export class SolicitudController {
       let documentosUrls = undefined;
       if (file) {
         const url = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
-        documentosUrls = [url]; 
+        documentosUrls = [url];
       }
 
       if (!mensaje && !file) {
-         return handleErrorClient(res, 400, "Sin datos para actualizar");
+        return handleErrorClient(res, 400, "Sin datos para actualizar");
       }
 
       const solicitudActualizada = await updateSolicitudEstudiante(
-          idSolicitud, 
-          idEstudiante, 
-          { 
-              mensaje, 
-              documentos: documentosUrls 
-          }
+        idSolicitud,
+        idEstudiante,
+        {
+          mensaje,
+          documentos: documentosUrls
+        }
       );
-      
+
       handleSuccess(res, 200, "Solicitud corregida y enviada a revisión nuevamente", solicitudActualizada);
 
     } catch (error) {
       if (error.message === "Solicitud no encontrada") return handleErrorClient(res, 404, "La solicitud no existe");
       if (error.message === "No autorizado") return handleErrorClient(res, 403, "No puedes editar esta solicitud");
       if (error.message === "Ya aprobada") return handleErrorClient(res, 400, "No puedes editar una solicitud que ya fue Aprobada.");
-      
+
       handleErrorServer(res, 500, "Error al actualizar", error.message);
     }
   }
