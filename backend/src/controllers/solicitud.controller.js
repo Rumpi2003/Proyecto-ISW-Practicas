@@ -1,25 +1,29 @@
 // src/controllers/solicitud.controller.js
-import { createSolicitud, findSolicitudes, updateSolicitudEstado, deleteSolicitud, getSolicitudesEstudiante, updateSolicitudEstudiante } from "../services/solicitud.service.js";
+import { createSolicitud, findSolicitudes, updateSolicitudEstado, deleteSolicitud, getSolicitudesEstudiante, updateSolicitudEstudiante, hasApprovedSolicitud } from "../services/solicitud.service.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
-
+import { validateCreateSolicitud, validateUpdateEstadoSolicitud, validateUpdateSolicitudEstudiante } from "../validations/solicitud.validation.js";
 //cuando se crea solicitud
 export class SolicitudController {
 
   async create(req, res) {
     try {
+      const { error, value } = validateCreateSolicitud(req.body);
+      if (error) {
+        return handleErrorClient(res, 400, error.details[0].message);
+      }
+
       const file = req.file; 
-      const { mensaje } = req.body;
       const idEstudianteVerificado = req.user.id;
+      const { mensaje } = value; 
+
+      if (!file) {
+        return handleErrorClient(res, 400, "Debes adjuntar un archivo PDF obligatorio.");
+      }
 
       let documentosUrls = [];
-
       if (file) {
         const url = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
         documentosUrls.push(url);
-      }
-
-      if (!mensaje) { 
-        return handleErrorClient(res, 400, "El mensaje es requerido");
       }
 
       const data = {
@@ -49,7 +53,6 @@ export class SolicitudController {
     try {
       //ID del estudiante desde el token 
       const idEstudiante = req.user.id;
-
       const solicitudes = await getSolicitudesEstudiante(idEstudiante);
       
       if (!solicitudes || solicitudes.length === 0) {
@@ -66,14 +69,17 @@ export class SolicitudController {
   async updateEstado(req, res) {
     try {
       const { idSolicitud } = req.params;
-      const { estado, comentarios } = req.body;
 
       if (!idSolicitud || isNaN(idSolicitud)) {
         return handleErrorClient(res, 400, "ID de solicitud inválido");
       }
-      if (!estado) {
-        return handleErrorClient(res, 400, "El nuevo 'estado' es requerido");
+
+      const { error, value } = validateUpdateEstadoSolicitud(req.body);
+      if (error) {
+        return handleErrorClient(res, 400, error.details[0].message);
       }
+
+      const { estado, comentarios } = value;
 
       const solicitudActualizada = await updateSolicitudEstado(idSolicitud, estado, comentarios);
       handleSuccess(res, 200, "Solicitud actualizada", solicitudActualizada);
@@ -109,7 +115,13 @@ export class SolicitudController {
   async updatePropia(req, res) {
     try {
       const { idSolicitud } = req.params;
-      const { mensaje } = req.body;
+      
+      const { error, value } = validateUpdateSolicitudEstudiante(req.body);
+      if (error) {
+        return handleErrorClient(res, 400, error.details[0].message);
+      }
+
+      const { mensaje } = value;
       const idEstudiante = req.user.id;
       const file = req.file;
 
@@ -137,17 +149,22 @@ export class SolicitudController {
       handleSuccess(res, 200, "Solicitud corregida y enviada a revisión nuevamente", solicitudActualizada);
 
     } catch (error) {
-      if (error.message === "Solicitud no encontrada") {
-        return handleErrorClient(res, 404, "La solicitud no existe");
-      }
-      if (error.message === "No autorizado") {
-        return handleErrorClient(res, 403, "No puedes editar esta solicitud");
-      }
-      if (error.message === "Ya aprobada") {
-        return handleErrorClient(res, 400, "No puedes editar una solicitud que ya fue Aprobada.");
-      }
+      if (error.message === "Solicitud no encontrada") return handleErrorClient(res, 404, "La solicitud no existe");
+      if (error.message === "No autorizado") return handleErrorClient(res, 403, "No puedes editar esta solicitud");
+      if (error.message === "Ya aprobada") return handleErrorClient(res, 400, "No puedes editar una solicitud que ya fue Aprobada.");
       
       handleErrorServer(res, 500, "Error al actualizar", error.message);
+    }
+  }
+
+  // boolean: ¿tengo alguna solicitud aprobada?
+  async hasAprobada(req, res) {
+    try {
+      const idEstudiante = req.user.id;
+      const aprobada = await hasApprovedSolicitud(idEstudiante);
+      handleSuccess(res, 200, "Estado de aprobación", { aprobada });
+    } catch (error) {
+      handleErrorServer(res, 500, "Error al verificar aprobación", error.message);
     }
   }
 }

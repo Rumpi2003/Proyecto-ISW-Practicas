@@ -59,6 +59,7 @@ export const deleteSolicitud = async (idSolicitud) => {
 export async function getSolicitudesEstudiante(idEstudiante) {
   return await solicitudRepo.find({
     where: { idEstudiante: idEstudiante },
+    relations: ["estudiante"],
     order: { fechaEnvio: "DESC" } //recientes primero
   });
 }
@@ -87,4 +88,12 @@ export async function updateSolicitudEstudiante(idSolicitud, idEstudiante, data)
   solicitud.fechaEnvio = new Date(); 
 
   return await solicitudRepo.save(solicitud);
+}
+
+// Booleano: ¿Tiene el estudiante una solicitud aprobada?
+export async function hasApprovedSolicitud(idEstudiante) {
+  const solicitud = await solicitudRepo.findOne({
+    where: { idEstudiante, estado: "aprobada" },
+  });
+  return !!solicitud;
 }

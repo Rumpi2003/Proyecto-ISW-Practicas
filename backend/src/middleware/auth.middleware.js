@@ -1,10 +1,6 @@
-import dotenv from "dotenv";
-import path from "path";
-//apunte a la carpeta 'backend/'
-dotenv.config({ path: path.resolve(process.cwd(), '.env') });
-import "dotenv/config";
 import jwt from "jsonwebtoken";
 import { handleErrorClient } from "../handlers/responseHandlers.js";
+import "dotenv/config"; 
 
 export function authMiddleware(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -13,6 +9,7 @@ export function authMiddleware(req, res, next) {
     return handleErrorClient(res, 401, "Acceso denegado. No se proporcionó token.");
   }
 
+  // El formato debe ser "Bearer <token>"
   const token = authHeader.split(" ")[1];
 
   if (!token) {
@@ -21,7 +18,7 @@ export function authMiddleware(req, res, next) {
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = payload;
+    req.user = payload; // Guardamos los datos del usuario en la petición
     next();
   } catch (error) {
     return handleErrorClient(res, 401, "Token inválido o expirado.", error.message);

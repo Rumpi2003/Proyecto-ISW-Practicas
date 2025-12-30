@@ -36,3 +36,17 @@ export const uploadMiddleware = multer({
     fileFilter,
     limits: { fileSize: 10 * 1024 * 1024 } // 10MB máximo
 }).single('archivo');
+
+// Middleware para un único archivo PDF (para informes)
+export const uploadPdfMiddleware = multer({
+    storage,
+    fileFilter,
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB máximo
+}).single('archivo');
+
+// Middleware para múltiples archivos PDF (para bitácoras)
+export const uploadBitacorasMiddleware = multer({
+    storage,
+    fileFilter,
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB máximo por archivo
+}).array('archivos', 10); // máximo 10 archivos

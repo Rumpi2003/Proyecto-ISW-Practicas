@@ -1,42 +1,149 @@
-// src/index.js
-import app from "./app.js"; //configuracion de Express
+import app from "./app.js";
 import { AppDataSource } from "./config/db.config.js";
-import { Encargado } from "./entities/encargado.entity.js"; //entidad correcta
+import { Encargado } from "./entities/encargado.entity.js";
+import { Supervisor } from "./entities/supervisor.entity.js";
+import { Carrera } from "./entities/carrera.entity.js";
+import { Facultad } from "./entities/facultad.entity.js";
+import { Estudiante } from "./entities/estudiante.entity.js"; 
 import bcrypt from "bcrypt";
 
 async function main() {
   try {
-    //iniciar conexion a BD
     await AppDataSource.initialize();
     console.log("✅ Base de datos conectada correctamente");
 
-    //crear Encargado inicial
+    const facultadRepo = AppDataSource.getRepository(Facultad);
+    const carreraRepo = AppDataSource.getRepository(Carrera);
     const encargadoRepo = AppDataSource.getRepository(Encargado);
+    const estudianteRepo = AppDataSource.getRepository(Estudiante);
+    // const supervisorRepo = AppDataSource.getRepository(Supervisor); // Omitido por ahora
+
+    // ==========================================
+    // 1. CREAR FACULTADES Y CARRERAS 🎓
+    // ==========================================
+    const countFacultades = await facultadRepo.count();
     
-    //si existe al menos un encargado
-    const totalEncargados = await encargadoRepo.count();
+    if (countFacultades === 0) {
+      console.log("⚙️  Sembrando Facultades y Carreras UBB...");
 
-    if (totalEncargados === 0) {
-      console.log("⚠️ No hay encargados en la base de datos. Creando uno inicial...");
+      const dataUBB = [
+        {
+          nombre: "Arquitectura, Construcción y Diseño", // id 1
+          carreras: [
+            { nombre: "Arquitectura", abrev: "ARQ" },
+            { nombre: "Diseño Industrial", abrev: "DI" },
+            { nombre: "Ingeniería en Construcción", abrev: "IC" }
+          ]
+        },
+        {
+          nombre: "Ciencias", //id 2
+          carreras: [
+            { nombre: "Programa de Bachillerato en Ciencias (Concepción)", abrev: "BACH" },
+            { nombre: "Ingeniería Estadística", abrev: "IE" }
+          ]
+        },
+        {
+          nombre: "Ciencias Empresariales", //id 3
+          carreras: [
+            { nombre: "Contador Público y Auditor (Concepción)", abrev: "CPA" },
+            { nombre: "Derecho", abrev: "DER" },
+            { nombre: "Ingeniería Civil en Informática (Concepción)", abrev: "ICINF" },
+            { nombre: "Ingeniería Comercial (Concepción)", abrev: "ICO" },
+            { nombre: "Ingeniería de Ejecución en Computación e Informática", abrev: "IECI" }
+          ]
+        },
+        {
+          nombre: "Educación y Humanidades", //id 4
+          carreras: [
+            { nombre: "Trabajo Social (Concepción)", abrev: "TS" }
+          ]
+        },
+        {
+          nombre: "Ingeniería", //id 5
+          carreras: [
+            { nombre: "Ingeniería Civil", abrev: "ICIVIL" },
+            { nombre: "Ingeniería Civil Eléctrica", abrev: "ICE" },
+            { nombre: "Ingeniería Civil en Automatización", abrev: "ICA" },
+            { nombre: "Ingeniería Civil Industrial", abrev: "ICI-IND" },
+            { nombre: "Ingeniería Civil Mecánica", abrev: "ICM" },
+            { nombre: "Ingeniería Civil Química", abrev: "ICQ" },
+            { nombre: "Ingeniería Eléctrica", abrev: "IE" },
+            { nombre: "Ingeniería Electrónica", abrev: "IEL" },
+            { nombre: "Ingeniería Mecánica", abrev: "IM" }
+          ]
+        }
+      ];
 
-      const hashedPassword = await bcrypt.hash("admin123", 10); //contraseña inicial
-
-      const nuevoEncargado = encargadoRepo.create({
-        nombre: "Administrador Inicial",
-        rut: "11.111.111-1",
-        email: "admin@ubb.cl", //usuario maestro
-        password: hashedPassword,
-        facultad: "Administración",
-      });
-
-      await encargadoRepo.save(nuevoEncargado);
-      console.log("🚀 Encargado inicial creado: admin@ubb.cl / admin123");
+      for (const f of dataUBB) {
+        const facultadGuardada = await facultadRepo.save(facultadRepo.create({ nombre: f.nombre }));
+        
+        for (const car of f.carreras) {
+          await carreraRepo.save(carreraRepo.create({ 
+            nombre: car.nombre, 
+            abreviacion: car.abrev, 
+            facultad: facultadGuardada 
+          }));
+        }
+      }
+      console.log("✅ Facultades y Carreras listas.");
     }
 
-    // iniciar servidor
+    // ==========================================
+    // 2. CREAR ENCARGADO INICIAL 👤
+    // ==========================================
+    const totalEncargados = await encargadoRepo.count();
+    
+    if (totalEncargados === 0) {
+      console.log("⚙️  Creando encargado inicial...");
+      
+      const facultadInicial = await facultadRepo.findOneBy({ nombre: "Arquitectura, Construcción y Diseño" });
+      
+      if (facultadInicial) {
+         const hashedPassword = await bcrypt.hash("admin123", 10);
+    
+         await encargadoRepo.save(encargadoRepo.create({
+           nombre: "Administrador Inicial",
+           rut: "11.111.111-1",
+           email: "admin@ubb.cl",
+           password: hashedPassword,
+           facultad: facultadInicial, 
+         }));
+         console.log(`✅ Encargado inicial creado.`);
+      }
+    }
+
+    // ==========================================
+    // 3. CREAR ESTUDIANTE INICIAL 🎓
+    // ==========================================
+    const totalEstudiantes = await estudianteRepo.count();
+    if (totalEstudiantes === 0) {
+        console.log("⚙️  Creando estudiante inicial...");
+
+        // Buscamos la carrera de Ingeniería Civil en Informática (abreviación ICINF)
+        const carreraICI = await carreraRepo.findOneBy({ abreviacion: "ICINF" });
+        if (carreraICI) {
+            const hashedEstPassword = await bcrypt.hash("estudiante123", 10);
+            
+            await estudianteRepo.save(estudianteRepo.create({
+                nombre: "Estudiante UBB",
+                rut: "12.345.678-9",
+                email: "estudiante@alumnos.ubb.cl",
+                password: hashedEstPassword,
+                carrera: carreraICI, // Pasamos el objeto carrera (ManyToOne)
+                nivelPractica: "II"
+            }));
+            console.log("✅ Estudiante inicial creado: estudiante@alumnos.ubb.cl / estudiante123.");
+        } else {
+            console.warn("⚠️ No se encontró la carrera ICI. El estudiante no pudo ser creado.");
+        }
+    }
+
+    // ==========================================
+    // 4. SERVER START
+    // ==========================================
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-      console.log(` servidor escuchando en el puerto ${PORT}`);
+      console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
     });
 
   } catch (error) {

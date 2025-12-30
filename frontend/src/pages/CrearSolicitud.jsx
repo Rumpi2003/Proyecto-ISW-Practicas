@@ -13,6 +13,10 @@ const CrearSolicitud = () => {
     
     if (!mensaje.trim()) return Swal.fire('Error', 'Debes escribir un mensaje', 'warning');
 
+    if (!archivo) {
+        return Swal.fire('Falta Archivo', 'Debes adjuntar un documento PDF obligatorio para crear la solicitud.', 'warning');
+    }
+
     const formData = new FormData();
     formData.append('mensaje', mensaje);
     if (archivo) {
@@ -24,14 +28,25 @@ const CrearSolicitud = () => {
         Swal.fire('Éxito', 'Solicitud enviada correctamente', 'success');
         navigate('/solicitudes/mis-solicitudes'); 
     } catch (error) {
-        Swal.fire('Error', 'No se pudo crear la solicitud', 'error');
+        const errorMsg = error.response?.data?.message || 'No se pudo crear la solicitud';
+        Swal.fire('Error', errorMsg, 'error');
     }
-  };
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-lg">
-        <h1 className="text-2xl font-bold mb-6 text-gray-800">📝 Nueva Solicitud</h1>
+        {/* TITULO Y BOTON CERRAR */}
+        <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-800">📝 Nueva Solicitud</h1>
+            <button 
+                onClick={() => navigate('/solicitudes')} 
+                className="text-gray-400 hover:text-gray-600 font-bold text-xl transition-colors"
+                title="Cancelar y volver"
+            >
+                ✕
+            </button>
+        </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
             <div>
