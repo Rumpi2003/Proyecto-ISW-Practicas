@@ -18,7 +18,7 @@ export const Carrera = new EntitySchema({
     abreviacion: {
       type: "varchar",
       length: 50,
-      nullable: true, // Lo dejamos opcional para evitar conflictos con datos existentes
+      nullable: true, 
     },
   },
   relations: {

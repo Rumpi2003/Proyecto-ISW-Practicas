@@ -59,7 +59,7 @@ const VerOfertas = () => {
     return { label: '🟢 Activa', color: 'bg-green-100 text-green-700 border-green-200', active: true };
   };
 
-  // --- LÓGICA DE FILTRADO ---
+  // logica para filtrar 
   const empresasUnicas = useMemo(() => {
         const empresas = ofertas.map(o => (typeof o.empresa === 'string' ? o.empresa : o.empresa?.nombre)).filter(Boolean);
         return [...new Set(empresas)].sort();

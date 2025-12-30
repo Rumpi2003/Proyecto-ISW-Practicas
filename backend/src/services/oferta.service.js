@@ -19,7 +19,7 @@ const validarFechaCierre = (fecha) => {
   }
 };
 
-// 1. CREAR OFERTA
+// crear oferta
 export const createOferta = async (ofertaData, idEncargado) => {
   const ofertaRepository = AppDataSource.getRepository(Oferta);
   const carreraRepository = AppDataSource.getRepository(Carrera);
@@ -51,7 +51,7 @@ export const createOferta = async (ofertaData, idEncargado) => {
   return await ofertaRepository.save(nuevaOferta);
 };
 
-// 2. OBTENER OFERTAS
+// obtener ofertas
 export const getOfertas = async (filters = {}) => {
   const ofertaRepository = AppDataSource.getRepository(Oferta);
   
@@ -62,7 +62,7 @@ export const getOfertas = async (filters = {}) => {
   });
 };
 
-// 3. ACTUALIZAR OFERTA
+// actualizar oferta
 export const updateOferta = async (id, ofertaData) => {
   const ofertaRepository = AppDataSource.getRepository(Oferta);
   const carreraRepository = AppDataSource.getRepository(Carrera);
@@ -97,7 +97,7 @@ export const updateOferta = async (id, ofertaData) => {
   return await ofertaRepository.save(oferta);
 };
 
-// 4. ELIMINAR OFERTA (NUEVO)
+// eliminar oferta
 export const deleteOferta = async (id) => {
   const ofertaRepository = AppDataSource.getRepository(Oferta);
   const oferta = await ofertaRepository.findOneBy({ id: parseInt(id) });
