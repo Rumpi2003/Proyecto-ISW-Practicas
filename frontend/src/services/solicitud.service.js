@@ -18,10 +18,10 @@ export const updateSolicitud = async (id, formData) => {
   });
   return response.data;
 };
-// ¿El estudiante tiene alguna solicitud aprobada?
+
 export const getTieneSolicitudAprobada = async () => {
   const response = await axios.get('/solicitudes/mis-solicitudes/aprobada');
-  return response.data; // { aprobada: boolean }
+  return response.data; 
 };
 //-- (ENCARGADO) ---
 export async function getAllSolicitudes() {

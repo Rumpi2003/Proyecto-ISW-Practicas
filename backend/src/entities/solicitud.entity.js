@@ -3,7 +3,7 @@ import { EntitySchema } from "typeorm";
 
 export const Solicitud = new EntitySchema({
   name: "Solicitud",
-  tableName: "solicitudes", // Nombre de la tabla en PostgreSQL
+  tableName: "solicitudes",
   columns: {
     id: {
       primary: true,
@@ -30,7 +30,7 @@ export const Solicitud = new EntitySchema({
     estado: {
       type: "varchar",
       length: 50,
-      default: "espera", // al enviar queda en 'espera', luego revisada pasa a 'rechazada' o 'aprobada'
+      default: "espera",
     },
     //luego de la revision del encargado (post enviado)
     comentariosEncargado: {

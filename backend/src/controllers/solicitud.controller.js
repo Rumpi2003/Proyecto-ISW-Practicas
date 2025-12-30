@@ -157,7 +157,7 @@ export class SolicitudController {
     }
   }
 
-  // boolean: ¿tengo alguna solicitud aprobada?
+  // boolean
   async hasAprobada(req, res) {
     try {
       const idEstudiante = req.user.id;

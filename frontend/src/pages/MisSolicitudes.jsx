@@ -51,7 +51,7 @@ const MisSolicitudes = () => {
     return (
     <div className="min-h-screen p-6 md:p-12">
       <div className="max-w-5xl mx-auto">
-        {/* BOTÓN VOLVER */}
+        {/* BOTON VOLVER */}
         <div className="flex items-center gap-4 mb-8">
             <button 
                 onClick={() => navigate('/solicitudes')} 

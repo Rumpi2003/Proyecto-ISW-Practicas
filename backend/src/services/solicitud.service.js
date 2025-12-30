@@ -8,8 +8,8 @@ export const createSolicitud = async (data) => {
   const { idEstudiante, documentos, mensaje } = data; 
 
   const nuevaSolicitud = solicitudRepo.create({
-    idEstudiante: idEstudiante, // Asignamos la relación usando el ID
-    estudiante: { id: idEstudiante }, // Relación con la entidad Estudiante 
+    idEstudiante: idEstudiante, // relacion usando el id
+    estudiante: { id: idEstudiante }, 
     documentos,
     mensaje,
   });
@@ -19,7 +19,6 @@ export const createSolicitud = async (data) => {
 };
 
 export const findSolicitudes = async () => {
-  //datos del alumno (nombre, rut, carrera)
   const solicitudes = await solicitudRepo.find({
     relations: ['estudiante'], 
     order: { fechaEnvio: "DESC" }//ordenar por fecha

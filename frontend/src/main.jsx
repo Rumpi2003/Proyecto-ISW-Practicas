@@ -124,7 +124,7 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: '/dashboard/solicitudes-encargado/:filtro', //'pendientes' o 'historial'
+        path: '/dashboard/solicitudes-encargado/:filtro',
         element: (
           <ProtectedRoute>
             <ListaSolicitudesEncargado />

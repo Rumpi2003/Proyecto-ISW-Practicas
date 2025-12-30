@@ -42,7 +42,6 @@ router.get(
   controller.getSolicitudesEstudiante
 );
 
-// Boolean para UI: ¿tiene alguna solicitud aprobada?
 router.get(
   "/mis-solicitudes/aprobada",
   authMiddleware,
@@ -60,8 +59,5 @@ router.patch("/:idSolicitud/estado",
   authMiddleware,
   checkEncargado,
   controller.updateEstado);
-
-// Ejemplo de uso del middleware para proteger futuras rutas (e.g., subir bitácoras)
-// router.post("/bitacoras/subir", authMiddleware, checkPracticaAprobada, controllerSubidaBitacoras)
 
 export default router;

@@ -37,7 +37,7 @@ export const Estudiante = new EntitySchema({
     },
     nivelPractica: {
       type: "varchar",
-      length: 50, // Ej: "I", "II", "Práctica Profesional"
+      length: 50, // I II Práctica Profesional
       nullable: false,
     },
     created_at: {

@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
     filename: (req, file, cb) => {
         const timestamp = Date.now();
         const safeName = file.originalname.replace(/\s+/g, '_'); // para que no se repita
-        cb(null, `${timestamp}_${safeName}`);
+        cb(null, `${timestamp}_${safeName}`); // Nombre unico
     }
 });
 
@@ -37,7 +37,6 @@ export const uploadMiddleware = multer({
     limits: { fileSize: 10 * 1024 * 1024 } // 10MB máximo
 }).single('archivo');
 
-// Middleware para un único archivo PDF (para informes)
 export const uploadPdfMiddleware = multer({
     storage,
     fileFilter,
